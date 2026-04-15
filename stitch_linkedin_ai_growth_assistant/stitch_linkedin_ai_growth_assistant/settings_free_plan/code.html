@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;family=Newsreader:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "surface": "#fff8f0",
+                        "on-background": "#1e1b16",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#007230",
+                        "surface-container-low": "#f9f3ea",
+                        "tertiary-fixed-dim": "#ffb77d",
+                        "surface-variant": "#e8e2d9",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#7cf994",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-container": "#ffede1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container": "#f4ede4",
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#eee7de",
+                        "tertiary-container": "#a65900",
+                        "inverse-on-surface": "#f7f0e7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dfd9d0",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#33302a",
+                        "on-tertiary-fixed-variant": "#6e3900",
+                        "surface-bright": "#fff8f0",
+                        "on-surface": "#1e1b16",
+                        "background": "#fff8f0",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#2563eb",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-highest": "#e8e2d9",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#ffdcc3",
+                        "secondary": "#006e2d",
+                        "tertiary": "#824500",
+                        "on-secondary-fixed-variant": "#005320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif-display": ["DM Serif Display", "serif"],
+                        "sans-dm": ["DM Sans", "sans-serif"],
+                        "mono-jet": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen">
+<!-- SideNavBar (from JSON) -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-[#1A1814] flex flex-col py-6 justify-between z-50">
+<div class="space-y-8">
+<div class="px-6">
+<div class="flex items-center gap-3">
+<img alt="Editorial Logo" class="w-8 h-8 rounded-lg" data-alt="Editorial Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy_ly2Iob-sKFyyx0ThjKlvh4knI-EuJiHYL4JlBJ5flq0S3MhBS9G6OIHF803FaDOjE6_yoYKQtjP3OgXHMkkUxy7h514vFgDcURh3rPD4leSvcYM8dHwf_BaLXFoJ4BJyzwpGq0c0c5cuH3Ee6Yv_BCciQ2aoqExDjPyOgxsa098FkApveFipKFqR---9FeLc4EmQpy8oYI9IegdTIbhg6-t_tiS1_CGek3qx8MdSWd6fiiVclJbEW2iGDrulauDCXTe5zQazYjN"/>
+<div>
+<h1 class="text-xl font-serif text-white tracking-tight leading-none">Growth Engine</h1>
+<p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">AI Atelier</p>
+</div>
+</div>
+</div>
+<nav class="flex flex-col">
+<!-- Navigation Items -->
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-sans-dm text-sm">Dashboard</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">edit_note</span>
+<span class="font-sans-dm text-sm">Create Post</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">analytics</span>
+<span class="font-sans-dm text-sm">Analyze Post</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">drafts</span>
+<span class="font-sans-dm text-sm">Saved Drafts</span>
+</a>
+<!-- ACTIVE: Settings -->
+<a class="text-blue-600 border-l-2 border-blue-600 pl-4 py-3 flex items-center transition-all bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="font-sans-dm text-sm font-semibold">Settings</span>
+</a>
+</nav>
+</div>
+<div class="px-4 space-y-4">
+<div class="bg-blue-600/10 p-4 rounded-xl border border-blue-600/20">
+<p class="text-xs text-blue-400 font-bold uppercase tracking-wider mb-2">Free Plan</p>
+<p class="text-xs text-gray-400 leading-relaxed mb-3">Unlock advanced AI analysis and unlimited drafts.</p>
+<button class="w-full py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors">Upgrade to Pro</button>
+</div>
+<div class="border-t border-white/10 pt-4">
+<a class="text-gray-400 hover:text-white pl-2 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">account_circle</span>
+<span class="font-sans-dm text-sm">User Profile</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-8 py-4 ml-[240px] max-w-[calc(100%-240px)] sticky top-0 z-40 bg-[#F8F7F4]/80 backdrop-blur-xl border-b border-gray-200/40">
+<div class="flex items-center gap-4">
+<h2 class="font-serif italic text-2xl text-[#1A1814]">Settings</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-gray-400 text-lg">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-primary/20" placeholder="Search settings..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-gray-500 hover:text-blue-500 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-gray-500 hover:text-blue-500 transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="User profile portrait in soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-m_imukfLbHSeOxMcYcgVG9jhWlbt_CBR5w27hGKdW-ezIl3sWQJ4W3NTTALdcaqWh7z2kgxURwMp45IjEB7n756GELFeB6-3UxokuEniNyDMRUPmKhFO_PdQLlpHusmqVtE-w1GwAvIUKzwFQTMTcUGVCwiy1TJKiu_wz0tW03BmJgHgG_5rxNW3uhDyq4JV8CUcMmxl7ztK2BQLZbHdYrMgjcek9LN3JVfszlRkhNeVzZgRvzV0Atut7-kxjrzxw8nmBKb3JqM5"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[240px] p-8 max-w-6xl mx-auto">
+<div class="grid grid-cols-12 gap-8">
+<!-- SECTION A: Profile -->
+<section class="col-span-12 md:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="font-serif-display text-2xl text-on-background">Profile Information</h3>
+<p class="text-on-surface-variant text-sm mt-1">Update your personal details and how others see you.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-outline uppercase tracking-widest block px-1">Full Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-primary/20 font-sans-dm" type="text" value="Eleanor Shellstrop"/>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-outline uppercase tracking-widest block px-1">Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-primary/20 font-sans-dm" type="email" value="eleanor.s@architect.io"/>
+</div>
+<div class="col-span-2 space-y-2">
+<label class="text-[10px] font-bold text-outline uppercase tracking-widest block px-1">Professional Headline</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg py-3 px-4 text-on-surface focus:ring-2 focus:ring-primary/20 font-sans-dm" type="text" value="Strategic Brand Architect &amp; Editorial Lead"/>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-surface-variant flex justify-end">
+<button class="px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-on-primary-fixed-variant transition-colors">Save Changes</button>
+</div>
+</section>
+<!-- SECTION B: Your Persona (Read-only chips) -->
+<section class="col-span-12 md:col-span-4 bg-surface-container-low rounded-xl p-8">
+<div class="mb-6">
+<h3 class="font-serif-display text-2xl text-on-background">Your Persona</h3>
+<p class="text-on-surface-variant text-sm mt-1">AI-derived brand identity attributes.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-mono-jet rounded-full border border-primary/10">Thought Leader</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-mono-jet rounded-full border border-primary/10">Analytical</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-mono-jet rounded-full border border-primary/10">Boutique Agency</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-mono-jet rounded-full border border-primary/10">Tech Savvy</span>
+<span class="px-3 py-1 bg-surface-container-lowest text-primary text-xs font-mono-jet rounded-full border border-primary/10">Minimalist</span>
+</div>
+<div class="mt-8 p-4 bg-surface-container-highest rounded-lg">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Voice Analysis</p>
+<p class="text-sm italic font-headline text-on-surface leading-relaxed">
+                        "Your content consistently displays high authority with a preference for technical metaphors and crisp, editorial delivery."
+                    </p>
+</div>
+</section>
+<!-- SECTION C: Plan & Credits -->
+<section class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="md:col-span-1 bg-surface-container-lowest rounded-xl p-8 border border-surface-variant/50">
+<div class="mb-6">
+<span class="text-[10px] font-bold text-on-secondary-container bg-secondary-container/30 px-2 py-0.5 rounded uppercase tracking-widest">Active Plan</span>
+<h3 class="font-serif-display text-3xl text-on-background mt-3">Free</h3>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<span class="text-xs text-on-surface-variant font-mono-jet uppercase">Credits Remaining</span>
+<span class="text-sm font-bold font-sans-dm">12 / 50</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 24%;"></div>
+</div>
+<p class="text-[10px] text-outline italic">Resets on October 1st, 2023</p>
+</div>
+</div>
+<div class="md:col-span-2 glass-card rounded-xl p-8 border border-primary/10 relative overflow-hidden">
+<div class="absolute -right-12 -top-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-serif-display text-2xl text-on-background">Scale Your Engine</h3>
+<p class="text-on-surface-variant text-sm">Choose the plan that fits your growth trajectory.</p>
+</div>
+<div class="flex bg-surface-container-low p-1 rounded-lg">
+<button class="px-4 py-1 text-xs font-bold bg-white shadow-sm rounded-md">Monthly</button>
+<button class="px-4 py-1 text-xs font-bold text-outline">Yearly</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Starter Option -->
+<div class="p-5 rounded-xl border border-surface-variant hover:border-primary/30 transition-all cursor-pointer bg-surface-container-lowest group">
+<div class="flex justify-between items-center mb-3">
+<h4 class="font-bold text-sm">Starter</h4>
+<span class="text-sm font-mono-jet">$29/mo</span>
+</div>
+<ul class="text-[11px] text-on-surface-variant space-y-2 mb-4">
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> 250 AI Credits</li>
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> Multi-Persona Support</li>
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> Advanced Analytics</li>
+</ul>
+<button class="w-full py-2 border border-primary text-primary text-xs font-bold rounded-lg group-hover:bg-primary group-hover:text-white transition-all">Select Plan</button>
+</div>
+<!-- Pro Option -->
+<div class="p-5 rounded-xl border-2 border-primary/50 bg-primary/5 relative">
+<div class="absolute -top-3 right-4 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Most Popular</div>
+<div class="flex justify-between items-center mb-3">
+<h4 class="font-bold text-sm">Pro Atelier</h4>
+<span class="text-sm font-mono-jet">$79/mo</span>
+</div>
+<ul class="text-[11px] text-on-surface-variant space-y-2 mb-4">
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> Unlimited AI Credits</li>
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> Ghostwriting Assistant</li>
+<li class="flex items-center"><span class="material-symbols-outlined text-xs mr-2 text-secondary">check</span> API &amp; Webhook Access</li>
+</ul>
+<button class="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg shadow-lg shadow-primary/20">Upgrade Now</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION D: Danger Zone -->
+<section class="col-span-12 bg-white rounded-xl p-8 border border-error/10">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h3 class="font-bold text-on-background flex items-center">
+<span class="material-symbols-outlined text-error mr-2">warning</span>
+                            Danger Zone
+                        </h3>
+<p class="text-on-surface-variant text-sm mt-1">Once you delete your account, there is no going back. All post history and AI training data will be permanently erased.</p>
+</div>
+<button class="px-6 py-2.5 bg-error-container text-error rounded-lg font-bold text-sm hover:bg-error hover:text-white transition-all">Delete Account</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Visual Accent Element -->
+<div class="fixed bottom-0 right-0 w-96 h-96 -z-10 opacity-20 pointer-events-none">
+<div class="absolute inset-0 bg-gradient-to-tl from-primary to-transparent rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+</div>
+</body></html>

@@ -1,0 +1,256 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import {
+  User,
+  Mail,
+  CreditCard,
+  ShieldCheck,
+  Loader2,
+  Check,
+  ArrowRight,
+  Sparkles,
+} from "lucide-react";
+
+interface UserProfile {
+  full_name: string;
+  email: string;
+  plan: string;
+  credits_analyze: number;
+  credits_generate: number;
+  streak_count: number;
+}
+
+export default function SettingsPage() {
+  const supabase = createClient();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [fullName, setFullName] = useState("");
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
+
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      const p: UserProfile = {
+        full_name: data?.full_name || "",
+        email: user.email || "",
+        plan: data?.plan || "free",
+        credits_analyze: data?.credits_analyze ?? 0,
+        credits_generate: data?.credits_generate ?? 0,
+        streak_count: data?.streak_count ?? 0,
+      };
+      setProfile(p);
+      setFullName(p.full_name);
+      setLoading(false);
+    };
+    fetchProfile();
+  }, [supabase, router]);
+
+  const handleSave = async () => {
+    if (!fullName.trim()) return;
+    setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase
+      .from("users")
+      .update({ full_name: fullName.trim() })
+      .eq("id", user.id);
+
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handlePasswordReset = async () => {
+    if (!profile?.email) return;
+    await supabase.auth.resetPasswordForEmail(profile.email);
+    alert(`Password reset email sent to ${profile.email}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-4 animate-pulse pt-2">
+        <div className="h-10 bg-surface-container rounded-[8px] w-1/3" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-surface-container rounded-[12px]" />
+        ))}
+      </div>
+    );
+  }
+
+  const isPro = profile?.plan === "pro";
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="pt-2">
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">Configuration</p>
+        <h1 className="text-4xl font-serif text-on-background">Settings</h1>
+      </div>
+
+      {/* Profile Section */}
+      <SettingsCard
+        icon={<User className="w-4 h-4" />}
+        title="Identity"
+        subtitle="Your editorial profile"
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">
+              Display Name
+            </label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">
+              Email Address
+            </label>
+            <div className="flex items-center gap-3 px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)]">
+              <Mail className="w-4 h-4 text-on-surface-variant/30 flex-shrink-0" />
+              <span className="text-[0.9375rem] font-mono text-on-surface-variant/70">{profile?.email}</span>
+            </div>
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving || fullName === profile?.full_name}
+            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98] disabled:pointer-events-none ${
+              saved
+                ? "bg-secondary/10 text-secondary ring-1 ring-secondary/20"
+                : "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md hover:shadow-premium disabled:opacity-40"
+            }`}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : saved ? (
+              <><Check className="w-4 h-4" /> Saved</>
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </div>
+      </SettingsCard>
+
+      {/* Plan & Credits */}
+      <SettingsCard
+        icon={<CreditCard className="w-4 h-4" />}
+        title="Subscription"
+        subtitle="Your current plan & quota"
+      >
+        <div className="space-y-5">
+          <div className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)]">
+            <div>
+              <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-1">Active Plan</div>
+              <div className="text-xl font-serif text-on-background capitalize">{profile?.plan} Entity</div>
+            </div>
+            <span className={`px-3 py-1 rounded-[6px] text-[0.5625rem] font-bold uppercase tracking-widest font-mono ring-1 ${
+              isPro
+                ? "bg-secondary/10 text-secondary ring-secondary/20"
+                : "bg-primary/8 text-primary ring-primary/15"
+            }`}>
+              {isPro ? "Pro ⚡" : "Free Tier"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <QuotaChip label="Analyze" value={profile?.credits_analyze ?? 0} />
+            <QuotaChip label="Generate" value={profile?.credits_generate ?? 0} />
+            <QuotaChip label="Streak" value={profile?.streak_count ?? 0} suffix="days" />
+          </div>
+
+          {!isPro && (
+            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-primary/5 to-primary-container/10 rounded-[10px] ring-1 ring-primary/10">
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <div>
+                  <div className="text-[0.8125rem] font-bold text-on-background">Upgrade to Pro</div>
+                  <div className="text-[0.75rem] text-on-surface-variant font-medium">Unlimited posts + priority AI</div>
+                </div>
+              </div>
+              <button className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[6px] font-bold text-[0.75rem] uppercase tracking-wider font-mono shadow-md hover:shadow-premium transition-all">
+                Upgrade <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+        </div>
+      </SettingsCard>
+
+      {/* Security */}
+      <SettingsCard
+        icon={<ShieldCheck className="w-4 h-4" />}
+        title="Security"
+        subtitle="Authentication & access keys"
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)]">
+            <div>
+              <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-1">Password</div>
+              <div className="text-[0.9375rem] font-mono text-on-surface-variant/60">••••••••••••</div>
+            </div>
+            <button
+              onClick={handlePasswordReset}
+              className="px-4 py-2 bg-surface-container-lowest rounded-[6px] font-bold text-[0.75rem] uppercase tracking-wider text-on-surface-variant font-mono ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"
+            >
+              Reset via Email
+            </button>
+          </div>
+        </div>
+      </SettingsCard>
+
+    </div>
+  );
+}
+
+function SettingsCard({
+  icon,
+  title,
+  subtitle,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
+      <div className="flex items-center gap-3 px-7 py-5 border-b border-[rgba(229,226,218,0.3)]">
+        <div className="w-7 h-7 bg-primary/8 rounded-[6px] flex items-center justify-center text-primary">
+          {icon}
+        </div>
+        <div>
+          <div className="text-[0.875rem] font-bold text-on-background">{title}</div>
+          <div className="text-[0.6875rem] font-medium text-on-surface-variant/60">{subtitle}</div>
+        </div>
+      </div>
+      <div className="p-7">{children}</div>
+    </div>
+  );
+}
+
+function QuotaChip({ label, value, suffix = "left" }: { label: string; value: number; suffix?: string }) {
+  return (
+    <div className="p-4 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)] text-center">
+      <div className="text-2xl font-serif text-on-background mb-1">{value}</div>
+      <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">{label}</div>
+      <div className="text-[0.5rem] font-mono text-on-surface-variant/30 uppercase tracking-widest mt-0.5">{suffix}</div>
+    </div>
+  );
+}

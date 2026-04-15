@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "surface": "#fff8f0",
+                        "on-background": "#1e1b16",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#007230",
+                        "surface-container-low": "#f9f3ea",
+                        "tertiary-fixed-dim": "#ffb77d",
+                        "surface-variant": "#e8e2d9",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#7cf994",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-container": "#ffede1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container": "#f4ede4",
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#eee7de",
+                        "tertiary-container": "#a65900",
+                        "inverse-on-surface": "#f7f0e7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dfd9d0",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#33302a",
+                        "on-tertiary-fixed-variant": "#6e3900",
+                        "surface-bright": "#fff8f0",
+                        "on-surface": "#1e1b16",
+                        "background": "#fff8f0",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#2563eb",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-highest": "#e8e2d9",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#ffdcc3",
+                        "secondary": "#006e2d",
+                        "tertiary": "#824500",
+                        "on-secondary-fixed-variant": "#005320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif-display": ["DM Serif Display", "serif"],
+                        "mono-data": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8F7F4;
+        }
+        .editorial-title { font-family: 'DM Serif Display', serif; }
+        .mono-preview { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-primary/20">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-[#1A1814] flex flex-col py-6 justify-between z-50">
+<div class="px-6">
+<div class="mb-10">
+<h1 class="text-xl font-serif text-white tracking-tight">Growth Engine</h1>
+<p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1">AI Atelier</p>
+</div>
+<nav class="space-y-1">
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="text-blue-600 border-l-2 border-blue-600 pl-4 py-3 flex items-center transition-all bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">edit_note</span>
+<span class="text-sm font-medium">Create Post</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">analytics</span>
+<span class="text-sm font-medium">Analyze Post</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">drafts</span>
+<span class="text-sm font-medium">Saved Drafts</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="px-6 space-y-4">
+<div class="bg-gradient-to-br from-primary-container/20 to-transparent p-4 rounded-xl border border-white/5">
+<p class="text-xs text-white/70 mb-2">Upgrade to Pro</p>
+<div class="h-1 w-full bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-error w-full"></div>
+</div>
+<p class="text-[10px] text-error mt-2 font-mono-data">0 generate credits left</p>
+</div>
+<div class="pt-4 border-t border-white/10">
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">account_circle</span>
+<span class="text-sm font-medium">User Profile</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] min-h-screen">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-40 bg-[#F8F7F4]/80 backdrop-blur-xl border-b border-gray-200/40 px-8 py-4 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<span class="font-serif italic text-2xl text-[#1A1814]">Editorial Growth Engine</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 w-64" placeholder="Search insights..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-gray-500 hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-gray-500 hover:text-primary transition-colors">help_outline</button>
+<img class="w-8 h-8 rounded-full object-cover ring-2 ring-white/50" data-alt="professional portrait of a creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVWhjVEZOsxKYxlH8omRpyGjoSp2MK6eU-O9UszX-d-6kahjMRvPUyGK8DqsHF4b92Pi-_iQ2nqMMbrd-s-iRvDek5_sn9GcaBzEDO6X0yM636PZvGF0tL13E_ucy9ODi_GExP1tLoUnsqsqUskhINwV3EbALXAHxgr05dwgAQ5jcRTFIxP3PpUQlkOpWj1DlkM32YCWREcN8sJLufjAquWm3kEONPWCcW7cfS_F49YfdMRLpNvpuwukSKwxl2xcsMrIuxwSglXNUK"/>
+</div>
+</div>
+</header>
+<!-- Creation Interface -->
+<div class="p-10 max-w-7xl mx-auto">
+<div class="flex items-end justify-between mb-12">
+<div>
+<h2 class="editorial-title text-5xl text-[#1A1814] mb-4">Craft Your Story</h2>
+<p class="text-on-surface-variant max-w-xl text-lg">Harness the AI Atelier to transform raw ideas into authoritative LinkedIn narratives.</p>
+</div>
+<div class="bg-error-container/30 px-4 py-2 rounded-lg border border-error/20 flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<span class="text-sm font-mono-data text-error font-medium">0/10 GENERATION CREDITS</span>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Editor Section -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-[0_12px_40px_rgba(26,24,20,0.04)]">
+<div class="space-y-6">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Topic or Concept</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 text-lg focus:ring-2 focus:ring-primary/20 placeholder:text-gray-300" placeholder="e.g., The future of remote leadership" type="text"/>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Narrative Tone</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-medium bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all">Analytical</button>
+<button class="px-4 py-2 rounded-full text-xs font-medium bg-primary text-white shadow-lg shadow-primary/20">Provocative</button>
+<button class="px-4 py-2 rounded-full text-xs font-medium bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all">Empathetic</button>
+<button class="px-4 py-2 rounded-full text-xs font-medium bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all">Instructional</button>
+</div>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Key Points</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl p-4 text-base focus:ring-2 focus:ring-primary/20 placeholder:text-gray-300 resize-none" placeholder="Paste your rough thoughts here..." rows="6"></textarea>
+</div>
+</div>
+<div class="mt-8 space-y-4">
+<button class="w-full py-4 rounded-xl bg-gray-200 text-gray-400 font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+                                Generate LinkedIn Draft
+                            </button>
+<!-- Alert Banner -->
+<div class="bg-error-container/50 border border-error/10 p-4 rounded-xl flex items-center justify-between group cursor-pointer hover:bg-error-container/60 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error text-xl">credit_card_off</span>
+<p class="text-sm text-error font-medium">You've used all your generate credits. <span class="underline ml-1">See plans →</span></p>
+</div>
+<span class="material-symbols-outlined text-error group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Preview Section (Asymmetric) -->
+<div class="col-span-12 lg:col-span-5 flex flex-col">
+<div class="bg-[#1A1814] rounded-2xl p-8 flex-grow shadow-2xl relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+<div class="flex items-center justify-between mb-8 relative z-10">
+<h3 class="text-white/40 font-mono-data text-[10px] uppercase tracking-widest">Lab Preview: Draft_01.txt</h3>
+<div class="flex gap-2">
+<div class="w-2 h-2 rounded-full bg-white/10"></div>
+<div class="w-2 h-2 rounded-full bg-white/10"></div>
+<div class="w-2 h-2 rounded-full bg-white/10"></div>
+</div>
+</div>
+<div class="mono-preview text-white/50 text-sm leading-relaxed space-y-6 relative z-10">
+<p class="animate-pulse">_ Generating content requires active credits...</p>
+<p class="border-l border-white/10 pl-4 italic">Upgrade to a premium plan to unlock the AI Atelier’s advanced narrative engine and generate high-authority LinkedIn posts in seconds.</p>
+<div class="pt-8 grid grid-cols-2 gap-4">
+<div class="h-2 bg-white/5 rounded-full w-full"></div>
+<div class="h-2 bg-white/5 rounded-full w-3/4"></div>
+<div class="h-2 bg-white/5 rounded-full w-5/6"></div>
+<div class="h-2 bg-white/5 rounded-full w-1/2"></div>
+</div>
+</div>
+<div class="absolute bottom-8 left-8 right-8 relative z-10">
+<div class="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-white" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="text-[10px] text-white/40 uppercase tracking-widest font-bold">Optimization Score</span>
+</div>
+<div class="h-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] font-mono-data text-white/30">Engagement Ready</span>
+<span class="text-[10px] font-mono-data text-primary">WAITING...</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 grid grid-cols-2 gap-4">
+<div class="bg-surface p-4 rounded-xl border border-gray-200/50">
+<span class="material-symbols-outlined text-gray-400 mb-2">schedule</span>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Best Time</p>
+<p class="text-lg font-serif italic text-on-surface">Tue, 08:30 AM</p>
+</div>
+<div class="bg-surface p-4 rounded-xl border border-gray-200/50">
+<span class="material-symbols-outlined text-gray-400 mb-2">hub</span>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Network Fit</p>
+<p class="text-lg font-serif italic text-on-surface">High Quality</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Upgrade Modal Overlay (Contextual UI) -->
+<div class="fixed inset-0 z-50 pointer-events-none flex items-center justify-center p-6">
+<div class="max-w-md w-full glass-panel p-8 rounded-[2rem] shadow-[0_32px_80px_rgba(26,24,20,0.1)] border border-white/50 pointer-events-auto">
+<div class="w-16 h-16 bg-primary-container/20 rounded-2xl flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-3xl">workspace_premium</span>
+</div>
+<h3 class="editorial-title text-3xl mb-3">Refill your Atelier</h3>
+<p class="text-on-surface-variant mb-8 leading-relaxed">The AI Editorial Engine is currently out of fuel. Upgrade to a Growth Plan to continue crafting premium narratives.</p>
+<div class="space-y-3">
+<button class="w-full py-4 rounded-xl bg-gradient-to-br from-primary to-[#1D4ED8] text-white font-bold text-sm tracking-widest uppercase shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        Upgrade to Pro
+                    </button>
+<button class="w-full py-4 rounded-xl bg-surface-container-high text-on-surface font-bold text-sm tracking-widest uppercase hover:bg-gray-200 transition-all">
+                        View Pricing
+                    </button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

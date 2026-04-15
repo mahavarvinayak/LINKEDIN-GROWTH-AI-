@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editorial Growth Engine - Changelog</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "surface": "#fff8f0",
+                    "on-background": "#1e1b16",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#007230",
+                    "surface-container-low": "#f9f3ea",
+                    "tertiary-fixed-dim": "#ffb77d",
+                    "surface-variant": "#e8e2d9",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#7cf994",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-tertiary-container": "#ffede1",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container": "#f4ede4",
+                    "on-primary-fixed": "#00174b",
+                    "primary": "#004ac6",
+                    "surface-container-high": "#eee7de",
+                    "tertiary-container": "#a65900",
+                    "inverse-on-surface": "#f7f0e7",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#7ffc97",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#dfd9d0",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-surface": "#33302a",
+                    "on-tertiary-fixed-variant": "#6e3900",
+                    "surface-bright": "#fff8f0",
+                    "on-surface": "#1e1b16",
+                    "background": "#fff8f0",
+                    "on-tertiary-fixed": "#2f1500",
+                    "primary-container": "#2563eb",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container-highest": "#e8e2d9",
+                    "outline": "#737686",
+                    "tertiary-fixed": "#ffdcc3",
+                    "secondary": "#006e2d",
+                    "tertiary": "#824500",
+                    "on-secondary-fixed-variant": "#005320"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["DM Serif Display", "Newsreader", "serif"],
+                    "body": ["Plus Jakarta Sans", "DM Sans", "sans-serif"],
+                    "label": ["Plus Jakarta Sans", "DM Sans", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      .timeline-accent {
+        background: linear-gradient(180deg, #2563eb 0%, rgba(37, 99, 235, 0) 100%);
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar from JSON -->
+<header class="docked full-width top-0 sticky z-40 bg-[#F8F7F4]/80 backdrop-blur-xl dark:bg-slate-900/80 shadow-sm bg-opacity-80 backdrop-blur-md border-b border-gray-200/40 dark:border-gray-800/40">
+<div class="flex justify-between items-center w-full px-8 py-4">
+<div class="flex items-center gap-8">
+<span class="font-serif italic text-2xl text-[#1A1814] dark:text-white">Editorial Growth Engine</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-gray-500 hover:text-blue-500 transition-colors DM Sans font-medium text-sm" href="#">Dashboard</a>
+<a class="text-gray-500 hover:text-blue-500 transition-colors DM Sans font-medium text-sm" href="#">Drafts</a>
+<a class="text-blue-600 font-semibold DM Sans font-medium text-sm" href="#">Changelog</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-blue-500/20 w-64 transition-all" placeholder="Search updates..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-gray-500 hover:text-blue-500 transition-colors focus:ring-2 focus:ring-blue-500/20">notifications</button>
+<button class="material-symbols-outlined text-gray-500 hover:text-blue-500 transition-colors focus:ring-2 focus:ring-blue-500/20">help_outline</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="close-up portrait of a professional woman with a clean editorial aesthetic and soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeQYCXYX8bGT0sjYCGT84PYGKAvHPEk-E1_L1b2p9Tqp1JY-rGKS4Bptgv2omGZC_RK5mXEZGDVSvWds8EuYZS_Vi7N9xUed7sIQctumVkzIrhug76VmkQJFzN6Fr0grAFOA5yeFptphADKikVxOfB4hFdJ4V3RLq8pQaWbwC_Pnn3N0DE0s5mkMO_4BLr1ejimKq7r6QanYV6x1APlUnG2ucogcewei0IXqj5P_iFgEhinwD-1orX0_gcSDn1DsRx5IqTR4J_IXlO"/>
+</div>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-8 py-16 md:py-24">
+<!-- Hero Section -->
+<div class="mb-20 text-center md:text-left">
+<h1 class="font-headline text-5xl md:text-7xl text-on-background tracking-tight mb-6">What's new</h1>
+<p class="text-on-surface-variant text-lg md:text-xl max-w-2xl font-light leading-relaxed">
+                Stay updated with the latest improvements, features, and refinements at the Editorial Growth Engine.
+            </p>
+</div>
+<!-- Filter Controls -->
+<div class="flex flex-wrap items-center gap-3 mb-16">
+<button class="px-5 py-2 rounded-full bg-primary-container text-on-primary-container font-medium text-sm transition-all hover:brightness-110">All Updates</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-medium text-sm hover:bg-surface-variant transition-colors">Features</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-medium text-sm hover:bg-surface-variant transition-colors">Improvements</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-high text-on-surface-variant font-medium text-sm hover:bg-surface-variant transition-colors">Fixes</button>
+</div>
+<!-- Timeline Section -->
+<div class="relative">
+<!-- Vertical Line -->
+<div class="absolute left-0 md:left-32 top-0 bottom-0 w-[2px] timeline-accent opacity-30"></div>
+<!-- Entry 1: v1.2 -->
+<div class="relative grid grid-cols-1 md:grid-cols-[128px_1fr] gap-8 mb-24 items-start">
+<!-- Date/Meta for Desktop -->
+<div class="hidden md:block pr-8 text-right pt-2">
+<span class="font-mono text-xs text-on-surface-variant uppercase tracking-widest block mb-1">Oct 24, 2023</span>
+<span class="font-bold text-primary text-sm uppercase">v1.2</span>
+</div>
+<!-- Entry Card -->
+<div class="pl-8 md:pl-12 relative">
+<!-- Mobile Date/Badge -->
+<div class="md:hidden flex items-center gap-3 mb-4">
+<span class="font-mono text-xs text-on-surface-variant uppercase">Oct 24, 2023</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary font-mono text-[10px] font-bold">V1.2</span>
+</div>
+<!-- Timeline Dot -->
+<div class="absolute left-[-5px] md:left-[-41px] top-3 w-2.5 h-2.5 rounded-full bg-primary-container border-2 border-background ring-4 ring-primary-container/10 z-10"></div>
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_12px_40px_rgba(26,24,20,0.06)] border border-outline-variant/40">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container/20 text-on-secondary-container mb-6">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="text-[11px] font-bold uppercase tracking-wider font-label">Feature</span>
+</div>
+<h2 class="font-headline text-3xl md:text-4xl text-on-background mb-4">Saved Drafts</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg mb-8">
+                            We've introduced a robust draft management system. You can now save multiple versions of your LinkedIn posts, revisit them later, and even set internal status markers like "Researching" or "Ready for Review."
+                        </p>
+<div class="rounded-lg overflow-hidden mb-8 group">
+<img class="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist workspace with an open notebook, a designer pen, and a laptop showing a clean writing interface with soft warm sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7nbyDlq-NCu_8cX8E-JlKgJy5BmiSTy6_jizvDXCJvCESZ-uKVTVnzWD2nlKI-rPiu6UWSkcpJIt_Jb5O_pEb58njx7HNSMuFJYUkztXsRRICE-StzvdCD5vhsK2HkPOJv-EQ0W08IkGa4SiwawPh4o2guadrATfHSvAbvepG_PxAd9CzMlU44CHHHZI9SIXcZlyvXLvBcl2El6zK20yX7NPs8aMTTmOWqtB9fk8CgMgBrENxXws6TIOtB-qf6cMJnl9quIhZ8wuf"/>
+</div>
+<div class="bg-surface-container-low rounded-lg p-6 font-mono text-sm text-on-surface-variant border-l-4 border-primary">
+<h4 class="font-label text-xs uppercase font-bold mb-3 text-on-background tracking-wide">Key Capabilities:</h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-3">
+<span class="text-primary mt-1">→</span>
+<span>Auto-save functionality every 30 seconds to prevent data loss.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-primary mt-1">→</span>
+<span>Version history toggle to compare changes across different drafting sessions.</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-primary mt-1">→</span>
+<span>Multi-tag support for organizing drafts by campaign or client.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- Entry 2: v1.1 -->
+<div class="relative grid grid-cols-1 md:grid-cols-[128px_1fr] gap-8 mb-24 items-start">
+<div class="hidden md:block pr-8 text-right pt-2">
+<span class="font-mono text-xs text-on-surface-variant uppercase tracking-widest block mb-1">Sep 12, 2023</span>
+<span class="font-bold text-primary text-sm uppercase">v1.1</span>
+</div>
+<div class="pl-8 md:pl-12 relative">
+<div class="md:hidden flex items-center gap-3 mb-4">
+<span class="font-mono text-xs text-on-surface-variant uppercase">Sep 12, 2023</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary font-mono text-[10px] font-bold">V1.1</span>
+</div>
+<div class="absolute left-[-5px] md:left-[-41px] top-3 w-2.5 h-2.5 rounded-full bg-on-surface-variant/40 border-2 border-background z-10"></div>
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_12px_40px_rgba(26,24,20,0.06)] border border-outline-variant/40">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-container/10 text-primary mb-6">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+<span class="text-[11px] font-bold uppercase tracking-wider font-label">Improvement</span>
+</div>
+<h2 class="font-headline text-3xl md:text-4xl text-on-background mb-4">Smarter AI Rewrites</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg">
+                            Our AI engine has been fine-tuned for the LinkedIn ecosystem. It now understands "The Hook" and "The CTA" better than ever, producing content that feels less like a bot and more like a seasoned strategist.
+                        </p>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+<div class="bg-surface-container rounded-lg p-5">
+<span class="block font-mono text-[10px] uppercase text-on-surface-variant mb-2">Old Algorithm</span>
+<p class="text-sm italic text-on-surface-variant line-through">"Here are five ways to grow your network on the platform using strategic outreach..."</p>
+</div>
+<div class="bg-primary/5 rounded-lg p-5 border border-primary/10">
+<span class="block font-mono text-[10px] uppercase text-primary mb-2">New Algorithm (v1.1)</span>
+<p class="text-sm font-medium text-on-background">"Most outreach is noise. Here are the 5 exact frameworks I use to cut through the static..."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Entry 3: v1.0 -->
+<div class="relative grid grid-cols-1 md:grid-cols-[128px_1fr] gap-8 items-start">
+<div class="hidden md:block pr-8 text-right pt-2">
+<span class="font-mono text-xs text-on-surface-variant uppercase tracking-widest block mb-1">Aug 01, 2023</span>
+<span class="font-bold text-primary text-sm uppercase">v1.0</span>
+</div>
+<div class="pl-8 md:pl-12 relative">
+<div class="md:hidden flex items-center gap-3 mb-4">
+<span class="font-mono text-xs text-on-surface-variant uppercase">Aug 01, 2023</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary font-mono text-[10px] font-bold">V1.0</span>
+</div>
+<div class="absolute left-[-5px] md:left-[-41px] top-3 w-2.5 h-2.5 rounded-full bg-on-surface-variant/40 border-2 border-background z-10"></div>
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0_12px_40px_rgba(26,24,20,0.06)] border border-outline-variant/40">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container/10 text-tertiary mb-6">
+<span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+<span class="text-[11px] font-bold uppercase tracking-wider font-label">Launch</span>
+</div>
+<h2 class="font-headline text-3xl md:text-4xl text-on-background mb-4">Hello, World.</h2>
+<p class="text-on-surface-variant leading-relaxed text-lg">
+                            Today we launch the Editorial Growth Engine. A dedicated workspace for LinkedIn power users who want to treat their personal brand like a premier editorial desk.
+                        </p>
+<div class="mt-8 flex flex-wrap gap-4">
+<div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">analytics</span>
+<span class="text-sm font-medium">Growth Analytics</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">edit_note</span>
+<span class="text-sm font-medium">AI Post Editor</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-sm text-primary">calendar_month</span>
+<span class="text-sm font-medium">Scheduling</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination/Footer -->
+<div class="mt-24 border-t border-outline-variant/40 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-on-surface-variant text-sm font-label uppercase tracking-widest">End of Recent Updates</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-medium">
+<span class="material-symbols-outlined">arrow_back</span>
+                    Earlier Updates
+                </button>
+<div class="w-px h-4 bg-outline-variant/40"></div>
+<button class="text-on-surface-variant hover:text-primary transition-colors font-medium">Archive</button>
+</div>
+</div>
+</main>
+<!-- Floating Feedback Action (The AI Atelier Detail) -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="flex items-center gap-3 bg-primary text-white pl-4 pr-6 py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all group">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">feedback</span>
+<span class="font-label text-sm font-bold uppercase tracking-tight">Request Feature</span>
+</button>
+</div>
+<!-- Background Subtle Grain Texture Overlay -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[100]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAOyYUNccihg3IpHI3DFBB7_GJ7DZuMfJSmEex-jZShGLdP_7xzx_77gfZ7RDrivUhJ5-tNzHRk_6QhfsX-ghlmeC0jBNLwDf_GjQwp49cI33QVbROgg0i2kdKsfXodzTtrfJt_m395Zemm-ro5eGYZeVopnolKJ5j-AzCmN5EhChBLtu4od4ymKFuiiWRhRtR8ucoN5MdOLoITJneyFAVEgrn4c2R89Lwg5xI6L8r3sxe6oV5s46ZC78vpq9CP5b4dNIVoUu_0cHaR');"></div>
+</body></html>

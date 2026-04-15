@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=DM+Serif+Display:ital@0;1&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "surface": "#fff8f0",
+                    "on-background": "#1e1b16",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#007230",
+                    "surface-container-low": "#f9f3ea",
+                    "tertiary-fixed-dim": "#ffb77d",
+                    "surface-variant": "#e8e2d9",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#7cf994",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-tertiary-container": "#ffede1",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container": "#f4ede4",
+                    "on-primary-fixed": "#00174b",
+                    "primary": "#004ac6",
+                    "surface-container-high": "#eee7de",
+                    "tertiary-container": "#a65900",
+                    "inverse-on-surface": "#f7f0e7",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#7ffc97",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#dfd9d0",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-surface": "#33302a",
+                    "on-tertiary-fixed-variant": "#6e3900",
+                    "surface-bright": "#fff8f0",
+                    "on-surface": "#1e1b16",
+                    "background": "#fff8f0",
+                    "on-tertiary-fixed": "#2f1500",
+                    "primary-container": "#2563eb",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container-highest": "#e8e2d9",
+                    "outline": "#737686",
+                    "tertiary-fixed": "#ffdcc3",
+                    "secondary": "#006e2d",
+                    "tertiary": "#824500",
+                    "on-secondary-fixed-variant": "#005320"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["DM Serif Display", "serif"],
+                    "body": ["DM Sans", "sans-serif"],
+                    "label": ["DM Sans", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'DM Sans', sans-serif; background-color: #F8F7F4; }
+        .serif-header { font-family: 'DM Serif Display', serif; }
+        .mono-data { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); }
+        .sidebar-item-active { color: #2563EB; border-left: 2px solid #2563EB; }
+        .primary-gradient { background: linear-gradient(145deg, #2563EB, #1D4ED8); }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-[#1A1814] flex flex-col py-6 justify-between z-50">
+<div class="flex flex-col">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-serif text-white tracking-tight">Growth Engine</h1>
+<p class="text-xs text-gray-500 font-body">AI Atelier</p>
+</div>
+<nav class="flex flex-col space-y-1">
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="text-sm font-label">Dashboard</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">edit_note</span>
+<span class="text-sm font-label">Create Post</span>
+</a>
+<a class="text-blue-600 border-l-2 border-blue-600 pl-4 py-3 flex items-center transition-all" href="#">
+<span class="material-symbols-outlined mr-3" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-sm font-label">Analyze Post</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">drafts</span>
+<span class="text-sm font-label">Saved Drafts</span>
+</a>
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="text-sm font-label">Settings</span>
+</a>
+</nav>
+</div>
+<div class="px-4">
+<div class="bg-blue-600/10 rounded-xl p-4 mb-6">
+<p class="text-xs text-blue-400 mb-2 font-label">PRO PLAN</p>
+<p class="text-white text-sm mb-3">Unlock advanced virality predictive models.</p>
+<button class="w-full bg-blue-600 text-white text-xs py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">Upgrade to Pro</button>
+</div>
+<div class="border-t border-white/10 pt-4">
+<a class="text-gray-400 hover:text-white py-3 flex items-center transition-all" href="#">
+<span class="material-symbols-outlined mr-3">account_circle</span>
+<span class="text-sm font-label">User Profile</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-0 h-16 ml-[240px] bg-[#F8F7F4]/80 backdrop-blur-xl border-b border-gray-200/40 z-40 flex items-center justify-between px-8">
+<div class="flex items-center">
+<span class="font-serif italic text-2xl text-[#1A1814]">Editorial Growth Engine</span>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative flex items-center bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-gray-400 text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-on-surface" placeholder="Search insights..." type="text"/>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-gray-500 hover:text-blue-500 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-gray-500 hover:text-blue-500 transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/30">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Professional headshot of a creative director in a minimalist studio setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7ZfWzNraRk9TvshHBTUymOGHmMxjxDU0glSQ8cv7vhOdP2C32-ePvjpXAiH2H9MI4bUtP68kfCq7DYnJlVJRcTeP99451xHDCEXJm9GYbOz_hVdzLaDqHLbi7CoqRewVYHDL_egDll71yDBiLAYArf4jKFZ8poNGDJFrCiI0MuSWLmQ4jzKxLfZIa0qG6HqjZr-VWpL_Zq4YI3bEUvn-du1iiqocLWd0WIBjsoPxGQ_uaAmqTwENc9A1otejsQ_qXIIHLanGL-IJ8"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[240px] pt-24 pb-12 px-12 max-w-7xl">
+<!-- Header Section -->
+<div class="flex items-end justify-between mb-10">
+<div>
+<h2 class="serif-header text-5xl text-on-surface mb-2">Analyze a post</h2>
+<p class="text-on-surface-variant max-w-md">Deconstruct your LinkedIn strategy with our proprietary neural engine to predict engagement peaks.</p>
+</div>
+<div class="flex items-center px-4 py-2 bg-[#ffede1] rounded-full text-tertiary space-x-2">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">database</span>
+<span class="text-xs font-bold uppercase tracking-wider">3 analyze credits left</span>
+</div>
+</div>
+<!-- Editor Section -->
+<div class="bg-surface-container-lowest rounded-2xl p-8 mb-12 shadow-sm border border-outline-variant/10">
+<div class="mb-6">
+<label class="block text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Paste post content below</label>
+<textarea class="w-full h-48 p-6 bg-surface-container-low rounded-xl border-none focus:ring-2 focus:ring-primary/20 mono-data text-sm text-on-surface leading-relaxed resize-none placeholder-gray-400" placeholder="Type or paste your LinkedIn post draft here for immediate structural analysis..."></textarea>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<button class="flex items-center space-x-2 text-on-surface-variant text-sm hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">attachment</span>
+<span>Attach Image</span>
+</button>
+<button class="flex items-center space-x-2 text-on-surface-variant text-sm hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">history</span>
+<span>Load Draft</span>
+</button>
+</div>
+<button class="primary-gradient text-white px-8 py-3 rounded-lg flex items-center font-bold text-sm hover:shadow-lg transition-all active:scale-95">
+                    Analyze post <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Results Section (Bento Grid) -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Predicted Virality -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container-highest/30 rounded-2xl p-6 backdrop-blur-sm">
+<div class="flex items-center justify-between mb-8">
+<p class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-[0.15em]">Predicted Reach</p>
+<span class="material-symbols-outlined text-primary">trending_up</span>
+</div>
+<div class="flex flex-col items-center justify-center py-4">
+<span class="serif-header text-7xl text-primary">84%</span>
+<p class="mono-data text-[0.7rem] text-secondary mt-2">+12% vs. your average</p>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/30">
+<div class="flex items-center justify-between text-xs mb-2">
+<span class="text-on-surface-variant">Hook Strength</span>
+<span class="font-bold">Excellent</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[92%]"></div>
+</div>
+</div>
+</div>
+<!-- Tone Analysis -->
+<div class="col-span-12 lg:col-span-8 grid grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10">
+<p class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-6">Tone Profile</p>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium">Authoritative</span>
+<span class="mono-data">78%</span>
+</div>
+<div class="h-1 bg-surface-container-low rounded-full"><div class="h-full bg-on-surface w-[78%] rounded-full"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium">Empathetic</span>
+<span class="mono-data">45%</span>
+</div>
+<div class="h-1 bg-surface-container-low rounded-full"><div class="h-full bg-on-surface w-[45%] rounded-full"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="font-medium">Technical</span>
+<span class="mono-data">12%</span>
+</div>
+<div class="h-1 bg-surface-container-low rounded-full"><div class="h-full bg-on-surface w-[12%] rounded-full"></div></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10">
+<p class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-[0.15em] mb-4">Structural Improvements</p>
+<ul class="space-y-3">
+<li class="flex items-start">
+<span class="material-symbols-outlined text-secondary text-lg mr-2">check_circle</span>
+<span class="text-xs text-on-surface-variant">White space usage is optimal for mobile readability.</span>
+</li>
+<li class="flex items-start">
+<span class="material-symbols-outlined text-error text-lg mr-2">error</span>
+<span class="text-xs text-on-surface-variant">The 4th paragraph is too dense. Break it into two sentences.</span>
+</li>
+<li class="flex items-start">
+<span class="material-symbols-outlined text-tertiary text-lg mr-2">lightbulb</span>
+<span class="text-xs text-on-surface-variant">Consider adding a specific CTA instead of a broad question.</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Heatmap Visualization (Placeholder) -->
+<div class="col-span-12 bg-surface-container-low rounded-2xl p-8 overflow-hidden relative min-h-[240px]">
+<div class="flex justify-between items-center mb-6">
+<div>
+<p class="text-[0.65rem] font-bold text-on-surface-variant uppercase tracking-[0.15em]">Engagement Velocity Heatmap</p>
+<p class="text-xs text-gray-500 mt-1">Predicted retention rate by word count</p>
+</div>
+<div class="flex space-x-2">
+<div class="h-3 w-3 rounded-full bg-error"></div>
+<div class="h-3 w-3 rounded-full bg-tertiary"></div>
+<div class="h-3 w-3 rounded-full bg-secondary"></div>
+</div>
+</div>
+<div class="flex items-end space-x-1 h-32">
+<!-- Fake Chart -->
+<div class="bg-secondary/40 w-full h-[60%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[75%] rounded-t-sm"></div>
+<div class="bg-secondary/60 w-full h-[90%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[85%] rounded-t-sm"></div>
+<div class="bg-tertiary/40 w-full h-[45%] rounded-t-sm"></div>
+<div class="bg-error/40 w-full h-[30%] rounded-t-sm"></div>
+<div class="bg-error/40 w-full h-[25%] rounded-t-sm"></div>
+<div class="bg-tertiary/40 w-full h-[50%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[70%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[80%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[85%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[95%] rounded-t-sm"></div>
+<div class="bg-secondary/40 w-full h-[90%] rounded-t-sm"></div>
+<div class="bg-tertiary/40 w-full h-[40%] rounded-t-sm"></div>
+<div class="bg-tertiary/40 w-full h-[35%] rounded-t-sm"></div>
+<div class="bg-error/40 w-full h-[20%] rounded-t-sm"></div>
+</div>
+<div class="mt-4 flex justify-between text-[0.6rem] mono-data uppercase text-on-surface-variant">
+<span>Hook</span>
+<span>Body Text (The Narrative)</span>
+<span>Closing / CTA</span>
+</div>
+</div>
+<!-- Save Analysis CTA -->
+<div class="col-span-12 mt-4">
+<div class="glass-panel rounded-2xl p-8 border border-white/50 flex flex-col md:flex-row items-center justify-between shadow-sm">
+<div class="flex items-center mb-6 md:mb-0">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container mr-6">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+</div>
+<div>
+<h4 class="font-bold text-lg">Save this analysis</h4>
+<p class="text-sm text-on-surface-variant">Store this report to compare against actual live post performance later.</p>
+</div>
+</div>
+<div class="flex space-x-4">
+<button class="px-6 py-2.5 rounded-lg text-sm font-bold bg-surface-container-high text-on-surface hover:bg-surface-variant transition-colors">Discard</button>
+<button class="px-8 py-2.5 rounded-lg text-sm font-bold primary-gradient text-white shadow-md hover:shadow-lg transition-all">Save to Archive</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editorial Growth Engine - Saved Drafts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;family=Newsreader:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "surface": "#fff8f0",
+                        "on-background": "#1e1b16",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#007230",
+                        "surface-container-low": "#f9f3ea",
+                        "tertiary-fixed-dim": "#ffb77d",
+                        "surface-variant": "#e8e2d9",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#7cf994",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-container": "#ffede1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container": "#f4ede4",
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#eee7de",
+                        "tertiary-container": "#a65900",
+                        "inverse-on-surface": "#f7f0e7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dfd9d0",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#33302a",
+                        "on-tertiary-fixed-variant": "#6e3900",
+                        "surface-bright": "#fff8f0",
+                        "on-surface": "#1e1b16",
+                        "background": "#fff8f0",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#2563eb",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-highest": "#e8e2d9",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#ffdcc3",
+                        "secondary": "#006e2d",
+                        "tertiary": "#824500",
+                        "on-secondary-fixed-variant": "#005320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif": ["DM Serif Display", "serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-serif-display { font-family: 'DM Serif Display', serif; }
+        .font-mono-lab { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-[#1A1814] flex flex-col py-6 justify-between z-50">
+<div class="px-6">
+<div class="mb-10">
+<h1 class="text-xl font-serif text-white tracking-tight">Growth Engine</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mt-1">AI Atelier</p>
+</div>
+<nav class="space-y-1">
+<!-- Dashboard -->
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<!-- Create Post -->
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="edit_note">edit_note</span>
+<span class="text-sm font-medium">Create Post</span>
+</a>
+<!-- Analyze Post -->
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Analyze Post</span>
+</a>
+<!-- Saved Drafts (ACTIVE) -->
+<a class="text-blue-600 border-l-2 border-blue-600 pl-4 py-3 flex items-center transition-all bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="drafts">drafts</span>
+<span class="text-sm font-medium">Saved Drafts</span>
+</a>
+<!-- Settings -->
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="px-6 space-y-6">
+<button class="w-full py-3 px-4 bg-primary text-white text-xs font-bold rounded-lg transition-transform active:scale-95 shadow-lg shadow-primary/20">
+                Upgrade to Pro
+            </button>
+<div class="pt-6 border-t border-white/10">
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all hover:bg-white/5 rounded-lg group" href="#">
+<span class="material-symbols-outlined mr-3 text-xl" data-icon="account_circle">account_circle</span>
+<span class="text-sm font-medium">User Profile</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<main class="ml-[240px] flex flex-col min-h-screen relative">
+<!-- TopAppBar Anchor -->
+<header class="flex justify-between items-center w-full px-8 py-4 sticky top-0 z-40 bg-[#F8F7F4]/80 backdrop-blur-xl border-b border-gray-200/40">
+<div>
+<h2 class="font-serif italic text-2xl text-[#1A1814]">Editorial Growth Engine</h2>
+</div>
+<div class="flex items-center space-gap-6 gap-6">
+<div class="relative group">
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Search archives..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+</div>
+<div class="flex items-center gap-4 text-gray-500">
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional male creative in a minimal studio setting with soft natural window lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWZ49fdmmJARwo2ud1DHDpZGDnRcMsDV6kI9TXLfp5jkyuiRvVjv56o0yb3oNtt11iFe0AIp4fIyC4iYMgqAfIBKsre6HsHn5OUb70i3M1W1p4xM-DJAYLxL4RHAbLnR3ir6uZK6-d6wiUjmjH-4r7ew7RmQQvxGa9hapZ6to2fexiQdv1ovsg_yenR-8nx3stc5LjY5XstV2ISYnQUEYCsEAYbTWvTFYC2GBld5OvEI_lclyoUH9R31kJYoeb3BboHaqHXuKhmpVQ"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas: Empty State -->
+<section class="flex-1 flex flex-col items-center justify-center px-8 pb-24">
+<!-- Atmospheric Background Grain/Gradient -->
+<div class="absolute inset-0 -z-10 opacity-40 overflow-hidden pointer-events-none">
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-secondary/5 blur-[100px]"></div>
+</div>
+<!-- Empty State Container -->
+<div class="max-w-2xl w-full text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+<!-- Illustration Context: Minimal Architectural Sketch -->
+<div class="relative inline-block">
+<div class="w-48 h-48 mx-auto flex items-center justify-center bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(26,24,20,0.06)] mb-4">
+<!-- Minimal SVG Drawing -->
+<svg class="text-primary-container" fill="none" height="80" viewbox="0 0 24 24" width="80" xmlns="http://www.w3.org/2000/svg">
+<path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<path d="M14 2V8H20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<path d="M16 13H8" stroke="currentColor" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<path d="M16 17H8" stroke="currentColor" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+<path d="M10 9H8" stroke="currentColor" stroke-dasharray="2 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"></path>
+</svg>
+<!-- Floating Pencil Accent -->
+<div class="absolute -bottom-2 -right-2 w-14 h-14 bg-primary text-white rounded-2xl flex items-center justify-center shadow-xl shadow-primary/30 transform rotate-12">
+<span class="material-symbols-outlined text-2xl">edit</span>
+</div>
+</div>
+</div>
+<!-- Messaging -->
+<div class="space-y-3">
+<h2 class="font-serif-display text-4xl text-on-background tracking-tight">No saved drafts yet</h2>
+<p class="text-on-surface-variant max-w-md mx-auto leading-relaxed">
+                        Your workspace is currently a blank slate. Start crafting your next high-authority LinkedIn narrative or let our AI assist you with a fresh perspective.
+                    </p>
+</div>
+<!-- Primary Action -->
+<div class="pt-6">
+<button class="inline-flex items-center px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-white font-medium rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 group">
+                        Create your first post
+                        <span class="material-symbols-outlined ml-2 transition-transform group-hover:translate-x-1" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Secondary Inspiration / Stats (Bento-lite) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12 text-left">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-2 group hover:bg-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-tertiary-container mb-2" data-icon="auto_awesome">auto_awesome</span>
+<p class="text-xs font-bold text-gray-400 uppercase tracking-widest">AI Strategy</p>
+<p class="text-sm font-medium text-on-background">Generate 10+ hook variations instantly.</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-2 group hover:bg-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-secondary mb-2" data-icon="schedule">schedule</span>
+<p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Efficiency</p>
+<p class="text-sm font-medium text-on-background">Reduce drafting time by 60% with ateliers.</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm space-y-2 group hover:bg-surface transition-colors cursor-default">
+<span class="material-symbols-outlined text-primary mb-2" data-icon="trending_up">trending_up</span>
+<p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Growth</p>
+<p class="text-sm font-medium text-on-background">Posts with drafts perform 2x better.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer / Technical Data Strip -->
+<footer class="ml-8 mr-8 py-6 border-t border-gray-200/40 flex justify-between items-center">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<span class="text-[10px] font-mono-lab uppercase text-gray-500 tracking-wider">Engine: Active v4.2</span>
+</div>
+<div class="text-[10px] font-mono-lab text-gray-400 uppercase tracking-wider">Storage: 0/500 Drafts Used</div>
+</div>
+<div class="text-[10px] font-mono-lab text-gray-400 uppercase tracking-wider">
+                Workspace: Strategic Atelier 01
+            </div>
+</footer>
+</main>
+</body></html>

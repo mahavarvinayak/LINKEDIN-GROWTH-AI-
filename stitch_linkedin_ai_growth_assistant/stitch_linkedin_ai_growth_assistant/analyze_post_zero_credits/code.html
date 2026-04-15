@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=JetBrains+Mono:wght@400;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "surface": "#fff8f0",
+                    "on-background": "#1e1b16",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#007230",
+                    "surface-container-low": "#f9f3ea",
+                    "tertiary-fixed-dim": "#ffb77d",
+                    "surface-variant": "#e8e2d9",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary-container": "#7cf994",
+                    "surface-tint": "#0053db",
+                    "secondary-fixed-dim": "#62df7d",
+                    "on-tertiary-container": "#ffede1",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container": "#f4ede4",
+                    "on-primary-fixed": "#00174b",
+                    "primary": "#004ac6",
+                    "surface-container-high": "#eee7de",
+                    "tertiary-container": "#a65900",
+                    "inverse-on-surface": "#f7f0e7",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#7ffc97",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#dfd9d0",
+                    "on-secondary-fixed": "#002109",
+                    "inverse-surface": "#33302a",
+                    "on-tertiary-fixed-variant": "#6e3900",
+                    "surface-bright": "#fff8f0",
+                    "on-surface": "#1e1b16",
+                    "background": "#fff8f0",
+                    "on-tertiary-fixed": "#2f1500",
+                    "primary-container": "#2563eb",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container-highest": "#e8e2d9",
+                    "outline": "#737686",
+                    "tertiary-fixed": "#ffdcc3",
+                    "secondary": "#006e2d",
+                    "tertiary": "#824500",
+                    "on-secondary-fixed-variant": "#005320"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["DM Serif Display", "Newsreader", "serif"],
+                    "body": ["DM Sans", "Plus Jakarta Sans", "sans-serif"],
+                    "label": ["DM Sans", "Plus Jakarta Sans", "sans-serif"],
+                    "mono": ["JetBrains Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .font-serif { font-family: 'DM Serif Display', serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); }
+    </style>
+</head>
+<body class="bg-[#F8F7F4] text-on-background min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[240px] bg-[#1A1814] flex flex-col py-6 justify-between z-50">
+<div class="space-y-8">
+<div class="px-6">
+<div class="text-xl font-serif text-white tracking-tight">Growth Engine</div>
+<div class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mt-1">AI Atelier</div>
+</div>
+<nav class="flex flex-col">
+<a class="text-gray-400 hover:text-white hover:bg-white/5 pl-4 py-3 flex items-center transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="text-gray-400 hover:text-white hover:bg-white/5 pl-4 py-3 flex items-center transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="edit_note">edit_note</span>
+<span class="text-sm font-medium">Create Post</span>
+</a>
+<a class="text-blue-600 border-l-2 border-blue-600 pl-4 py-3 flex items-center transition-all group active:scale-90 bg-white/5" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="analytics">analytics</span>
+<span class="text-sm font-medium">Analyze Post</span>
+</a>
+<a class="text-gray-400 hover:text-white hover:bg-white/5 pl-4 py-3 flex items-center transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="drafts">drafts</span>
+<span class="text-sm font-medium">Saved Drafts</span>
+</a>
+<a class="text-gray-400 hover:text-white hover:bg-white/5 pl-4 py-3 flex items-center transition-all group active:scale-95" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="settings">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="px-4 space-y-4">
+<div class="p-4 rounded-xl bg-white/5 border border-white/10">
+<div class="text-xs text-gray-400 mb-2">Plan: Starter</div>
+<button class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-transform active:scale-95">
+                    Upgrade to Pro
+                </button>
+</div>
+<div class="pt-4 border-t border-white/10">
+<a class="text-gray-400 hover:text-white pl-4 py-3 flex items-center transition-all group" href="#">
+<span class="material-symbols-outlined mr-3 text-lg" data-icon="account_circle">account_circle</span>
+<span class="text-sm font-medium">User Profile</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-8 py-4 ml-[240px] max-w-[calc(100%-240px)] sticky top-0 z-40 bg-[#F8F7F4]/80 backdrop-blur-xl border-b border-gray-200/40">
+<div class="flex items-center space-x-4">
+<h1 class="font-serif italic text-2xl text-[#1A1814]">Analyze Post</h1>
+<div class="px-3 py-1 bg-error-container text-error rounded-full text-[10px] font-bold tracking-tight">
+                0 CREDITS REMAINING
+            </div>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low rounded-full text-sm border-none focus:ring-2 focus:ring-blue-500/20 text-on-surface" placeholder="Search archive..." type="text"/>
+</div>
+<div class="flex items-center space-x-4 text-gray-500">
+<button class="hover:text-blue-500 transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-blue-500 transition-colors"><span class="material-symbols-outlined" data-icon="help_outline">help_outline</span></button>
+<img class="w-8 h-8 rounded-full object-cover ring-2 ring-white" data-alt="professional portrait of a creative director in a neutral setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBi4pYYVVOP-mu9ZQ7UVK0rIH-ffcnX6nkhA7n-Q6Uo33ymRB7E-wxiHL7PlPPkKB9LBXi-cxkyUwUPmA0SkhvBJOZl75rMGtQ--dck3zE62wbCsol_ozfqaPWtxiM3ErXmvRcZMZ6BuQ6O3kFRpjRT5RHH_Lq77e1Hm3eFU7gx6ehCQN50pTaTBdRpL0IiCoQl_J0ECchkb60PzjRkxGQ3vA2p_QQGfD2sL9sfwUI67gyUHcXdyUQd3U5D2D1LhHgx_4Pvj5rZ1Ca"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[240px] p-8 max-w-6xl mx-auto">
+<!-- Alert Banner -->
+<div class="mb-8 p-4 glass rounded-xl border border-error-container/40 flex items-center justify-between shadow-sm">
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 bg-error-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+</div>
+<div>
+<h3 class="font-bold text-on-surface text-sm">No analyze credits left</h3>
+<p class="text-xs text-on-surface-variant">Your monthly quota has been exhausted. Upgrade to Pro for unlimited insights.</p>
+</div>
+</div>
+<button class="px-6 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-all">
+                Upgrade Now
+            </button>
+</div>
+<!-- Layout Grid -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Input -->
+<div class="col-span-12 lg:col-span-7 space-y-6">
+<div class="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_12px_40px_rgba(26,24,20,0.04)]">
+<div class="flex items-center justify-between mb-6">
+<label class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">Post Content for Analysis</label>
+<span class="text-xs font-mono text-on-surface-variant">248 words</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 min-h-[400px]">
+<p class="font-mono text-sm leading-relaxed text-on-surface-variant opacity-60 italic">
+                            The future of personal branding isn't about volume, it's about density of insight. We've entered an era where AI can mimic tone, but it can't mimic lived experience...
+                            <br/><br/>
+                            [Content locked for analysis. Please replenish credits to proceed with deep-scan.]
+                        </p>
+</div>
+<div class="mt-8 flex items-center justify-between">
+<div class="flex space-x-4">
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="attachment">attachment</span>
+<span class="text-xs font-medium">Add Image</span>
+</button>
+<button class="flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="tag">tag</span>
+<span class="text-xs font-medium">Optimize Tags</span>
+</button>
+</div>
+<button class="px-8 py-3 bg-gray-200 text-gray-400 cursor-not-allowed rounded-lg font-bold text-sm flex items-center space-x-2" disabled="">
+<span>Analyze Post</span>
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Contextual Data -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Performance Predictions (Locked State) -->
+<div class="bg-surface-container-highest/40 rounded-2xl p-8 relative overflow-hidden">
+<div class="absolute inset-0 backdrop-blur-[2px] flex flex-col items-center justify-center z-10 bg-surface/10">
+<span class="material-symbols-outlined text-on-surface-variant mb-2" data-icon="lock">lock</span>
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Analysis Locked</span>
+</div>
+<h3 class="text-lg font-serif mb-6">Insight Engine</h3>
+<div class="space-y-6 opacity-30">
+<div>
+<div class="flex justify-between text-xs font-medium mb-2">
+<span>Projected Engagement</span>
+<span class="font-mono">--%</span>
+</div>
+<div class="w-full h-1 bg-surface-variant rounded-full">
+<div class="w-1/3 h-full bg-primary rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-medium mb-2">
+<span>Hook Strength</span>
+<span class="font-mono">--%</span>
+</div>
+<div class="w-full h-1 bg-surface-variant rounded-full">
+<div class="w-1/2 h-full bg-secondary rounded-full"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-medium mb-2">
+<span>Clarity Score</span>
+<span class="font-mono">--%</span>
+</div>
+<div class="w-full h-1 bg-surface-variant rounded-full">
+<div class="w-1/4 h-full bg-tertiary rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Strategy Recommendation -->
+<div class="bg-surface-container-low rounded-2xl p-8 border border-white">
+<div class="flex items-start space-x-4">
+<div class="bg-white p-3 rounded-xl shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-on-surface mb-2">AI Optimization Strategy</h4>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                Our Engine suggests a "Narrative Pivot" for this post. Usually, these insights result in a 40% higher click-through rate.
+                            </p>
+<button class="mt-4 text-xs font-bold text-primary flex items-center group">
+                                Learn about Pro features
+                                <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Recent Analytics Card -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm">
+<h4 class="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase mb-4">Historical Benchmark</h4>
+<div class="flex items-end justify-between">
+<div>
+<div class="text-2xl font-serif text-on-surface">4.2k</div>
+<div class="text-[10px] text-on-surface-variant font-medium">Avg. Impressions</div>
+</div>
+<div class="w-24 h-12 flex items-end space-x-1">
+<div class="w-2 h-[40%] bg-primary/20 rounded-t-sm"></div>
+<div class="w-2 h-[60%] bg-primary/20 rounded-t-sm"></div>
+<div class="w-2 h-[50%] bg-primary/20 rounded-t-sm"></div>
+<div class="w-2 h-[80%] bg-primary/20 rounded-t-sm"></div>
+<div class="w-2 h-[30%] bg-primary/20 rounded-t-sm"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Action Area -->
+<footer class="mt-12 pt-8 border-t border-surface-variant/40 flex items-center justify-between">
+<div class="text-xs text-on-surface-variant">
+                Editorial Growth Engine v2.4.0 — <span class="font-mono">Session ID: AI_782910</span>
+</div>
+<div class="flex space-x-6 text-xs font-medium text-on-surface-variant">
+<a class="hover:text-primary" href="#">System Status</a>
+<a class="hover:text-primary" href="#">API Documentation</a>
+<a class="hover:text-primary" href="#">Support</a>
+</div>
+</footer>
+</main>
+</body></html>

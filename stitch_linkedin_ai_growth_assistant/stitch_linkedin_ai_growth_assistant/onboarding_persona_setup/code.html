@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editorial Growth Engine - Persona Setup</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6-72,400;6-72,500;6-72,600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "surface": "#fff8f0",
+                        "on-background": "#1e1b16",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#007230",
+                        "surface-container-low": "#f9f3ea",
+                        "tertiary-fixed-dim": "#ffb77d",
+                        "surface-variant": "#e8e2d9",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#7cf994",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-container": "#ffede1",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container": "#f4ede4",
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#eee7de",
+                        "tertiary-container": "#a65900",
+                        "inverse-on-surface": "#f7f0e7",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#7ffc97",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-dim": "#dfd9d0",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-surface": "#33302a",
+                        "on-tertiary-fixed-variant": "#6e3900",
+                        "surface-bright": "#fff8f0",
+                        "on-surface": "#1e1b16",
+                        "background": "#fff8f0",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#2563eb",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-highest": "#e8e2d9",
+                        "outline": "#737686",
+                        "tertiary-fixed": "#ffdcc3",
+                        "secondary": "#006e2d",
+                        "tertiary": "#824500",
+                        "on-secondary-fixed-variant": "#005320"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Plus Jakarta Sans", "sans-serif"],
+                        "label": ["Plus Jakarta Sans", "sans-serif"],
+                        "serif-display": ["DM Serif Display", "serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F8F7F4; /* design system base bg */
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(26, 24, 20, 0.06);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface antialiased">
+<!-- Progress Bar Anchor -->
+<nav class="fixed top-0 left-0 w-full h-1 z-50 bg-surface-container">
+<div class="h-full bg-primary-container w-full transition-all duration-500"></div>
+</nav>
+<!-- Main Canvas -->
+<main class="min-h-screen flex flex-col items-center justify-center px-4 py-20">
+<!-- Brand Header (Floating/Contextual) -->
+<header class="mb-12 text-center">
+<h2 class="font-serif-display text-4xl text-on-surface tracking-tight mb-2">Editorial Growth Engine</h2>
+<p class="text-on-surface-variant font-medium uppercase tracking-widest text-[10px]">Step 3: Intelligence Alignment</p>
+</header>
+<!-- Persona Setup Container -->
+<div class="w-full max-w-[560px] bg-surface-container-lowest editorial-shadow rounded-xl p-8 md:p-12">
+<section class="mb-10 text-center">
+<h1 class="font-serif-display text-3xl mb-3">Tell us about yourself.</h1>
+<p class="text-on-surface-variant text-sm font-body">Our AI Atelier needs to calibrate its editorial lens to match your specific authority and vision.</p>
+</section>
+<form class="space-y-10">
+<!-- Section 1: I am a... -->
+<div class="space-y-4">
+<label class="block font-label text-[10px] font-bold uppercase tracking-widest text-outline">I am a...</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-primary-container text-on-primary-container transition-all" type="button">Founder</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Creator</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Executive</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Strategist</button>
+</div>
+</div>
+<!-- Section 2: I post about... -->
+<div class="space-y-4">
+<label class="block font-label text-[10px] font-bold uppercase tracking-widest text-outline">I post about...</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Leadership</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-primary-container text-on-primary-container transition-all" type="button">AI</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-primary-container text-on-primary-container transition-all" type="button">Startups</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Venture Capital</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Product</button>
+</div>
+</div>
+<!-- Section 3: My goal is... -->
+<div class="space-y-4">
+<label class="block font-label text-[10px] font-bold uppercase tracking-widest text-outline">My goal is...</label>
+<div class="grid grid-cols-1 gap-2">
+<button class="flex items-center justify-between px-6 py-4 rounded-xl text-sm font-medium bg-primary-container text-on-primary-container transition-all group" type="button">
+<span>Build my brand</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">
+<span>Generate leads</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 rounded-xl text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">
+<span>Network with peers</span>
+</button>
+</div>
+</div>
+<!-- Section 4: My writing tone... -->
+<div class="space-y-4">
+<label class="block font-label text-[10px] font-bold uppercase tracking-widest text-outline">My writing tone...</label>
+<div class="bg-surface-container-low p-2 rounded-xl flex gap-1">
+<button class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-tighter transition-all bg-primary-container text-on-primary-container" type="button">Bold &amp; direct</button>
+<button class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-tighter transition-all text-on-surface-variant hover:bg-surface-container-high" type="button">Analytical</button>
+<button class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-tighter transition-all text-on-surface-variant hover:bg-surface-container-high" type="button">Storyteller</button>
+</div>
+</div>
+<!-- Section 5: My audience... -->
+<div class="space-y-4">
+<label class="block font-label text-[10px] font-bold uppercase tracking-widest text-outline">My audience...</label>
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-primary-container text-on-primary-container transition-all" type="button">Founders</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Recruiters</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Engineers</button>
+<button class="px-5 py-2.5 rounded-full text-sm font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-all" type="button">Investors</button>
+</div>
+</div>
+<!-- CTA -->
+<div class="pt-8">
+<button class="w-full py-5 rounded-xl bg-gradient-to-br from-primary to-on-primary-fixed-variant text-on-primary font-medium text-lg flex items-center justify-center gap-2 hover:shadow-lg transition-all active:scale-[0.98]" type="button">
+                        Open my dashboard
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Footer Context -->
+<footer class="mt-12 text-center text-outline text-xs flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Data stored locally</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+<span>AI Personality Lock</span>
+</div>
+</footer>
+</main>
+<!-- Background Decoration -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none overflow-hidden opacity-30">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-primary/10"></div>
+<div class="absolute top-[60%] -right-[5%] w-[30%] h-[30%] rounded-full blur-[100px] bg-tertiary-fixed/20"></div>
+</div>
+</body></html>
