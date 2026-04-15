@@ -35,3 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# stitch reference files
+stitch_linkedin_ai_growth_assistant/
