@@ -39,6 +39,7 @@ export default function AnalyzePostPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [userData, setUserData] = useState<{ credits_analyze: number; plan: string } | null>(null);
   const supabase = createClient();
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -54,7 +55,13 @@ export default function AnalyzePostPage() {
       if (profile) setUserData(profile);
     };
     fetchUser();
-  }, [supabase]);
+
+    // Check for content in URL
+    const content = searchParams?.get("content");
+    if (content) {
+      setPostContent(decodeURIComponent(content));
+    }
+  }, [supabase, searchParams]);
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;

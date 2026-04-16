@@ -269,7 +269,12 @@ export default function CreatePostPage() {
               </button>
 
               <button
-                onClick={() => router.push("/dashboard/analyze")}
+                onClick={() => {
+                  if (result?.post) {
+                    const encodedPost = encodeURIComponent(result.post);
+                    router.push(`/dashboard/analyze?content=${encodedPost}`);
+                  }
+                }}
                 className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
               >
                 <BarChart2 className="w-4 h-4" /> Analyze This

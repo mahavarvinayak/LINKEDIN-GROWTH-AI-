@@ -36,25 +36,26 @@ export async function callAI(
   systemPrompt: string,
   userPrompt: string,
   userPlan: UserPlan,
-  temperature: number = 0.5
+  temperature: number = 0.5,
+  maxTokens: number = 1000
 ): Promise<string> {
 
   // Route based on user plan
   if (userPlan === "free") {
     // Free users → Groq 8B first, Gemini fallback (within free RPM) or Groq 70B
     try {
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_free, temperature);
+      return await callGroq(systemPrompt, userPrompt, MODELS.groq_free, temperature, maxTokens);
     } catch (error) {
       console.log("Groq 8B failed, falling back to Groq 70B:", error);
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature);
+      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
     }
   } else {
     // Paid users (starter/pro) → Gemini first, Groq 70B fallback
     try {
-      return await callGemini(systemPrompt, userPrompt, temperature);
+      return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
     } catch (error) {
       console.log("Gemini failed, falling back to Groq 70B:", error);
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature);
+      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
     }
   }
 }
@@ -63,14 +64,15 @@ export async function callAI(
 async function callGemini(
   systemPrompt: string,
   userPrompt: string,
-  temperature: number
+  temperature: number,
+  maxTokens: number
 ): Promise<string> {
   const model = getGemini().getGenerativeModel({
     model: MODELS.gemini,
     systemInstruction: systemPrompt,
     generationConfig: {
       temperature: temperature,
-      maxOutputTokens: 1200,
+      maxOutputTokens: maxTokens,
     },
   });
 
@@ -86,12 +88,13 @@ async function callGroq(
   systemPrompt: string,
   userPrompt: string,
   modelName: string,
-  temperature: number
+  temperature: number,
+  maxTokens: number
 ): Promise<string> {
   const completion = await getGroq().chat.completions.create({
     model: modelName,
     temperature: temperature,
-    max_tokens: 1200,
+    max_tokens: maxTokens,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },

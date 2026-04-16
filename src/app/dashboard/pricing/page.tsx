@@ -80,7 +80,7 @@ export default function PricingPage() {
               
               <div className="mb-8">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-serif text-on-background">${plan.price}</span>
+                  <span className="text-4xl font-serif text-on-background">₹{plan.price}</span>
                   <span className="text-on-surface-variant/50 font-mono text-sm uppercase tracking-tighter">/month</span>
                 </div>
                 <p className="mt-4 text-[0.875rem] font-medium text-on-surface-variant leading-relaxed">{plan.description}</p>

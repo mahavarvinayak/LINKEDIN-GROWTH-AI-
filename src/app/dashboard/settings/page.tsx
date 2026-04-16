@@ -184,7 +184,10 @@ export default function SettingsPage() {
                   <div className="text-[0.75rem] text-on-surface-variant font-medium">Unlimited posts + priority AI</div>
                 </div>
               </div>
-              <button className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[6px] font-bold text-[0.75rem] uppercase tracking-wider font-mono shadow-md hover:shadow-premium transition-all">
+              <button 
+                onClick={() => router.push("/dashboard/pricing")}
+                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[6px] font-bold text-[0.75rem] uppercase tracking-wider font-mono shadow-md hover:shadow-premium transition-all"
+              >
                 Upgrade <ArrowRight className="w-3 h-3" />
               </button>
             </div>

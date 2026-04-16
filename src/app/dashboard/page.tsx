@@ -198,7 +198,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Insight Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
         <SuggestionCard
           title="Optimal Broadcasting Window"
           body="Network activity indicates maximum visibility at 18:00 UTC. Schedule your next post for peak reach."
@@ -212,6 +212,92 @@ export default function DashboardPage() {
           cta="View Examples"
         />
       </div>
+
+      {/* Weekly Editorial Schedule */}
+      <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
+        <div className="px-8 py-6 border-b border-[rgba(229,226,218,0.3)] flex items-center justify-between bg-surface-2/30">
+          <div>
+            <h3 className="text-xl font-serif text-on-background">Weekly Posting Schedule</h3>
+            <p className="text-[0.6875rem] font-bold text-on-surface-variant/50 uppercase tracking-widest font-mono mt-1">AI-Optimized Time Blocks</p>
+          </div>
+          <div className="px-3 py-1 bg-primary/8 text-primary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-primary/15">
+            Strategy v1.0
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface-2/40 border-b border-[rgba(229,226,218,0.2)]">
+                <th className="px-8 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Day</th>
+                <th className="px-8 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Best Slots</th>
+                <th className="px-8 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Content Strategy</th>
+                <th className="px-8 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono text-center">Intensity</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SCHEDULE_DATA.map((row, idx) => (
+                <tr key={row.day} className={`group hover:bg-primary/[0.02] transition-colors ${idx < SCHEDULE_DATA.length - 1 ? "border-b border-[rgba(229,226,218,0.15)]" : ""}`}>
+                  <td className="px-8 py-6">
+                    <div className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest font-mono mb-1">{row.shortDay}</div>
+                    <div className="text-[1.125rem] font-serif text-on-background">{row.day}</div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="flex flex-wrap gap-2">
+                      {row.slots.map((slot, i) => (
+                        <div key={i} className={`px-2.5 py-1 rounded-[4px] text-[0.6875rem] font-bold font-mono border ${
+                          i === 0 ? "bg-primary/5 text-primary border-primary/10" : "bg-surface-2 text-on-surface-variant/60 border-[rgba(229,226,218,0.3)]"
+                        }`}>
+                          {slot}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 max-w-md">
+                    <div className="inline-block px-2 py-0.5 rounded-[4px] text-[0.5rem] font-bold uppercase tracking-widest mb-2" style={{ background: row.tagColor + '15', color: row.tagColor, border: `1px solid ${row.tagColor}30` }}>
+                      {row.tag}
+                    </div>
+                    <div className="text-[0.875rem] font-bold text-on-background mb-1">{row.contentType}</div>
+                    <p className="text-[0.75rem] text-on-surface-variant leading-relaxed opacity-80">{row.contentDesc}</p>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="flex justify-center flex-col items-center gap-1.5">
+                      <IntensityBar level={row.intensity} />
+                      <span className="text-[0.5625rem] font-bold font-mono text-on-surface-variant/30 uppercase tracking-tighter">{row.intensity}/5</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SCHEDULE_DATA = [
+  { day: "Monday", shortDay: "MON", slots: ["8:00 AM", "11:00 AM", "1:00 PM"], contentType: "Thought Leadership", contentDesc: "Sets the tone for the week. Career lessons or personal insights.", tag: "Inspire", tagColor: "#6366f1", intensity: 3 },
+  { day: "Tuesday", shortDay: "TUE", slots: ["7:00 AM", "11:00 AM", "4:00 PM"], contentType: "Case Study / Results", contentDesc: "Data-backed wins or process breakdowns. Best day for prime content.", tag: "Prime Day", tagColor: "#2563eb", intensity: 5 },
+  { day: "Wednesday", shortDay: "WED", slots: ["8:00 AM", "12:00 PM", "3:00 PM"], contentType: "Educational / How-To", contentDesc: "Carousels and tactical tips. Middle-of-the-week learning mode.", tag: "Educate", tagColor: "#0891b2", intensity: 4 },
+  { day: "Thursday", shortDay: "THU", slots: ["9:00 AM", "1:00 PM", "4:00 PM"], contentType: "Opinion / Hot Take", contentDesc: "Challenge a common belief. Controversy driven engagement.", tag: "Debate", tagColor: "#7c3aed", intensity: 4 },
+  { day: "Friday", shortDay: "FRI", slots: ["8:00 AM", "11:00 AM"], contentType: "Behind the Scenes", contentDesc: "Human content wins. Personal story or weekend look-ahead.", tag: "Connect", tagColor: "#059669", intensity: 2 },
+  { day: "Saturday", shortDay: "SAT", slots: ["9:00 AM", "12:00 PM"], contentType: "Long-form / Essay", contentDesc: "Deep personal essay. Less competition means more feed space.", tag: "Deep Dive", tagColor: "#d97706", intensity: 3 },
+  { day: "Sunday", shortDay: "SUN", slots: ["7:00 AM"], contentType: "Poll / Teaser", contentDesc: "One strong question or a preview of your week ahead.", tag: "Warm Up", tagColor: "#64748b", intensity: 1 },
+];
+
+function IntensityBar({ level }: { level: number }) {
+  return (
+    <div className="flex gap-1 items-center">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className={`w-1 h-3.5 rounded-[1px] transition-all ${
+            i <= level ? "bg-primary" : "bg-surface-container"
+          }`}
+          style={{ opacity: i <= level ? 0.3 + i * 0.14 : 1 }}
+        />
+      ))}
     </div>
   );
 }

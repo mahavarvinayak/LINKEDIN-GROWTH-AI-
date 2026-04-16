@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI, parseAIJson } from "@/lib/ai/router";
-import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt } from "@/lib/ai/prompts";
+import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
       if (userData) {
         userPlan = (userData.plan as any) || "free";
         
-        // TODO: Credit check logic will be hardened in Chunk 8
         if (userData.credits_analyze <= 0 && userPlan === "free") {
            return NextResponse.json({ error: "no_credits", message: "You have used your free credits." }, { status: 403 });
         }
@@ -62,7 +61,8 @@ export async function POST(req: NextRequest) {
       LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
       userPlan,
-      0.4 // Lower temperature for analysis accuracy
+      AI_CONFIG.temperature.analyze,
+      AI_CONFIG.max_tokens.analyze
     );
 
     // 5. Parse JSON

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callAI, parseAIJson } from "@/lib/ai/router";
-import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt } from "@/lib/ai/prompts";
+import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
@@ -30,7 +30,6 @@ export async function POST(req: NextRequest) {
 
     if (!userData) throw new Error("User data not found");
 
-    // TODO: Hardened Credit check in Chunk 9
     if (userData.credits_generate <= 0 && userData.plan === "free") {
       return NextResponse.json(
         { error: "no_credits", message: "You have used your free generate credits." },
@@ -66,7 +65,8 @@ export async function POST(req: NextRequest) {
       LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
       userData.plan as any || "free",
-      0.7 // Higher temperature for creative generation
+      AI_CONFIG.temperature.generate,
+      AI_CONFIG.max_tokens.generate
     );
 
     // 4. Parse JSON

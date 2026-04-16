@@ -2,6 +2,7 @@
 
 import { X, Check, Zap, Sparkles, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface PaywallProps {
   isOpen: boolean;
@@ -37,6 +38,13 @@ const PLANS = [
 ];
 
 export default function Paywall({ isOpen, onClose }: PaywallProps) {
+  const router = useRouter();
+
+  const handleUpgrade = () => {
+    onClose();
+    router.push("/dashboard/pricing");
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -108,7 +116,7 @@ export default function Paywall({ isOpen, onClose }: PaywallProps) {
               {/* Right: Plans */}
               <div className="md:w-[55%] p-8 md:p-10 bg-surface-container flex flex-col gap-5 justify-center">
                 {PLANS.map((plan) => (
-                  <PlanCard key={plan.id} {...plan} />
+                  <PlanCard key={plan.id} {...plan} onUpgrade={handleUpgrade} />
                 ))}
 
                 <div className="text-center mt-2">
@@ -146,12 +154,14 @@ function PlanCard({
   period,
   benefits,
   featured,
+  onUpgrade,
 }: {
   title: string;
   price: string;
   period: string;
   benefits: string[];
   featured: boolean;
+  onUpgrade: () => void;
 }) {
   return (
     <div
@@ -196,7 +206,7 @@ function PlanCard({
       </ul>
 
       <button
-        onClick={() => alert("Coming soon!")}
+        onClick={onUpgrade}
         className={`w-full py-3 rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98] ${
           featured
             ? "bg-white/15 hover:bg-white/25 text-on-primary border border-white/15 backdrop-blur-sm"
