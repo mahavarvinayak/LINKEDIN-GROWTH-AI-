@@ -8,10 +8,13 @@ import {
   BarChart2, 
   Bookmark, 
   Settings,
-  LogOut
+  LogOut,
+  CreditCard,
+  User
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // --- Navigation Configuration ---
 const NAV_ITEMS = [
@@ -19,7 +22,7 @@ const NAV_ITEMS = [
   { label: "Create Post", href: "/dashboard/create", icon: PenTool },
   { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
-  { label: "Pricing", href: "/dashboard/pricing", icon: BarChart2 }, // Reusing an icon or check CreditCard
+  { label: "Pricing", href: "/dashboard/pricing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -27,6 +30,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
+  const [userProfile, setUserProfile] = useState<{ name: string; plan: string } | null>(null);
+
+  useEffect(() => {
+    const getProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("users")
+          .select("full_name, plan")
+          .eq("id", user.id)
+          .single();
+        
+        setUserProfile({
+          name: data?.full_name || "Creative User",
+          plan: data?.plan || "free"
+        });
+      }
+    };
+    getProfile();
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -40,7 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="px-8 py-8">
           <Link href="/dashboard" className="inline-flex items-center gap-2.5">
-            <div className="w-5 h-5 bg-gradient-to-br from-[#2563eb] to-[#1D4ED8] rounded-[4px]" />
+            <div className="w-5 h-5 bg-[#2563eb] rounded-[4px]" />
             <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/90">Growth.AI</span>
           </Link>
         </div>
@@ -91,14 +114,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
         </nav>
 
+        {/* User Profile Footer */}
         <div className="mx-6 h-px bg-white/[0.06]" />
-        <div className="p-4 mb-2">
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center text-white/40 border border-white/[0.05]">
+              <User className="w-4 h-4" />
+            </div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-[0.75rem] font-bold text-white/80 truncate leading-tight">
+                {userProfile?.name || "Loading..."}
+              </span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-widest text-[#2563eb] font-mono">
+                {userProfile?.plan || "Free"} Entity
+              </span>
+            </div>
+          </div>
+
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 px-4 py-3 text-white/30 hover:text-red-400 hover:bg-white/[0.03] rounded-[8px] transition-all"
+            className="flex w-full items-center gap-3 px-4 py-2 text-white/30 hover:text-red-400 hover:bg-white/[0.03] rounded-[8px] transition-all group"
           >
-            <LogOut className="w-[1.1rem] h-[1.1rem]" />
-            <span className="text-[0.8125rem] font-bold uppercase tracking-[0.06em]">Sign Out</span>
+            <LogOut className="w-[0.9rem] h-[0.9rem] transition-colors" />
+            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.06em]">Sign Out</span>
           </button>
         </div>
       </aside>

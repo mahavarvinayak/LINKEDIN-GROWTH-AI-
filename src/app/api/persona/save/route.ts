@@ -5,7 +5,6 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = createClient();
     const { 
-      userId, 
       role, 
       topics, 
       goal, 
@@ -13,7 +12,14 @@ export async function POST(req: NextRequest) {
       audience 
     } = await req.json();
 
-    if (!userId || !role || topics.length === 0 || !goal || !tone || !audience) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
+
+    if (!role || topics.length === 0 || !goal || !tone || !audience) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

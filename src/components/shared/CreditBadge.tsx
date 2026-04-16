@@ -14,22 +14,22 @@ export default function CreditBadge({ analyze, generate, plan }: CreditBadgeProp
   return (
     <div className="flex items-center gap-3">
       {/* Analyze Credits */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-sm">
-        <BarChart2 className="w-4 h-4 text-blue-500" />
+      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm">
+        <BarChart2 className="w-4 h-4 text-primary" />
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase leading-none mb-0.5">Analyze</span>
-          <span className="text-sm font-bold text-slate-700 leading-none">
+          <span className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest leading-none mb-1 font-mono">Analyze</span>
+          <span className="text-[0.875rem] font-bold text-on-background leading-none">
             {isFree ? analyze : "∞"}
           </span>
         </div>
       </div>
 
       {/* Generate Credits */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-sm">
-        <Zap className="w-4 h-4 text-orange-500 fill-orange-500" />
+      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm">
+        <Zap className="w-4 h-4 text-secondary fill-secondary/20" />
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase leading-none mb-0.5">Generate</span>
-          <span className="text-sm font-bold text-slate-700 leading-none">
+          <span className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest leading-none mb-1 font-mono">Generate</span>
+          <span className="text-[0.875rem] font-bold text-on-background leading-none">
             {isFree ? generate : "∞"}
           </span>
         </div>

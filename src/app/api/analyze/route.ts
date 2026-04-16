@@ -77,16 +77,21 @@ export async function POST(req: NextRequest) {
       await updateUserStreak(supabase, user.id);
 
       // 8. Save to history
-      const scores = (result as any).estimated_scores || {};
+      const scores = (result as any).scores || {};
+      const hookS = scores.hook?.score || 0;
+      const readS = scores.readability?.score || 0;
+      const engS = scores.engagement?.score || 0;
+      const structS = scores.structure?.score || 0;
+
       await supabase.from("posts").insert({
         user_id: user.id,
         type: 'analyzed',
         original_content: post,
-        hook_score: scores.hook || 0,
-        readability_score: scores.readability || 0,
-        engagement_score: scores.engagement || 0,
-        structure_score: scores.structure || 0,
-        overall_score: ((scores.hook || 0) + (scores.readability || 0) + (scores.engagement || 0) + (scores.structure || 0)) / 4
+        hook_score: hookS,
+        readability_score: readS,
+        engagement_score: engS,
+        structure_score: structS,
+        overall_score: (result as any).overall_score || (hookS + readS + engS + structS) / 4
       });
     }
 

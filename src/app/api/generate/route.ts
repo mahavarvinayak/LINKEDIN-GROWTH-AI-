@@ -30,9 +30,11 @@ export async function POST(req: NextRequest) {
 
     if (!userData) throw new Error("User data not found");
 
-    if (userData.credits_generate <= 0 && userData.plan === "free") {
+    const isPaid = userData.plan === "starter" || userData.plan === "pro";
+
+    if (!isPaid && userData.credits_generate <= 0) {
       return NextResponse.json(
-        { error: "no_credits", message: "You have used your free generate credits." },
+        { error: "no_credits", message: "You have used your free generate credits. Upgrade to continue." },
         { status: 403 }
       );
     }

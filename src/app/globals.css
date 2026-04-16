@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Core Brand Tokens */
+  --primary: #2563eb;
+  --secondary: #6366f1;
+  --tertiary: #f59e0b;
+  
+  /* Surface Tokens */
+  --background: #FBFAF9;
+  --on-background: #1A1814;
+  --surface: #FFFFFF;
+  --surface-container: #F1EFE9;
+  --surface-container-low: #F7F5F0;
+  --surface-container-lowest: #FFFFFF;
+  
+  /* Outline Tokens */
+  --outline: rgba(26, 24, 20, 0.12);
+  --outline-variant: rgba(26, 24, 20, 0.06);
+
+  /* Radius Tokens */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background antialiased selection:bg-primary/10 selection:text-primary;
+  }
+}
+
 @layer base {
   body {
     @apply bg-background text-on-background font-sans antialiased;

@@ -90,7 +90,7 @@ export default function OnboardingPage() {
       const response = await fetch("/api/persona/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, userId: user.id }),
+        body: JSON.stringify({ ...formData }),
       });
 
       if (!response.ok) throw new Error("Failed to save persona");
