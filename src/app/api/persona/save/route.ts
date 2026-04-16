@@ -17,16 +17,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Helper to map human-readable labels to DB schema values
+    const mapToDbValue = (val: string, type: 'role' | 'goal' | 'tone' | 'audience') => {
+      const v = val.toLowerCase();
+      if (type === 'role') {
+        if (v.includes('student')) return 'student';
+        if (v.includes('founder')) return 'founder';
+        if (v.includes('freelancer')) return 'freelancer';
+        if (v.includes('job seeker')) return 'job_seeker';
+      }
+      if (type === 'goal') {
+        if (v.includes('followers')) return 'followers';
+        if (v.includes('leads')) return 'leads';
+        if (v.includes('job')) return 'job';
+        if (v.includes('brand')) return 'brand';
+      }
+      if (type === 'tone') {
+        if (v.includes('bold')) return 'bold';
+        if (v.includes('story')) return 'story';
+        if (v.includes('educational')) return 'educational';
+        if (v.includes('casual')) return 'casual';
+      }
+      if (type === 'audience') {
+        if (v.includes('student')) return 'students';
+        if (v.includes('founder')) return 'founders';
+        if (v.includes('recruiter') || v.includes('developer') || v.includes('professional')) return 'recruiters';
+      }
+      return v;
+    };
+
     // 1. Save persona
     const { error: personaError } = await supabase
       .from("personas")
       .insert({
         user_id: userId,
-        role: role.toLowerCase(), // Normalizing for DB
+        role: mapToDbValue(role, 'role'),
         topics: topics,
-        goal: goal.toLowerCase(),
-        tone: tone.toLowerCase(),
-        audience: audience.toLowerCase()
+        goal: mapToDbValue(goal, 'goal'),
+        tone: mapToDbValue(tone, 'tone'),
+        audience: mapToDbValue(audience, 'audience')
       });
 
     if (personaError) throw personaError;
