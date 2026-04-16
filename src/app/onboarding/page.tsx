@@ -17,11 +17,11 @@ import {
 
 // --- Configuration ---
 const OPTIONS = {
-  roles: ["Student", "Founder", "Freelancer", "Job Seeker"],
-  topics: ["AI", "Startups", "Career", "Design", "Tech", "Marketing", "Finance"],
-  goals: ["Get followers", "Generate leads", "Find a job", "Build my brand"],
-  tones: ["Bold & direct", "Storytelling", "Educational", "Casual & friendly"],
-  audiences: ["Students", "Founders", "Recruiters", "Developers", "General professionals"]
+  roles: ["Student", "Founder", "Freelancer", "Job Seeker", "Influencer", "Product Manager", "Marketing Expert", "Sales Professional", "Other"],
+  topics: ["AI", "Startups", "Career", "Design", "Tech", "Marketing", "Finance", "Leadership", "Productivity"],
+  goals: ["Get followers", "Generate leads", "Find a job", "Build my brand", "Networking", "Thought Leadership", "Industry Insights", "Other"],
+  tones: ["Bold & direct", "Storytelling", "Educational", "Casual & friendly", "Witty & Humorous", "Data-Driven", "Inspirational", "Other"],
+  audiences: ["Students", "Founders", "Recruiters", "Engineers", "Executive Leaders", "Creatives", "Other"]
 };
 
 export default function OnboardingPage() {
