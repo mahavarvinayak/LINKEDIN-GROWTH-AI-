@@ -11,6 +11,7 @@ import {
   Sparkles,
   ChevronLeft,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 // --- Types ---
 interface Score {
@@ -36,6 +37,24 @@ export default function AnalyzePostPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [userData, setUserData] = useState<{ credits_analyze: number; plan: string } | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("users")
+        .select("credits_analyze, plan")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) setUserData(profile);
+    };
+    fetchUser();
+  }, [supabase]);
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;
@@ -92,11 +111,11 @@ export default function AnalyzePostPage() {
                 </span>
                 <button
                   onClick={handleAnalyze}
-                  disabled={postContent.trim().length < 20}
+                  disabled={postContent.trim().length < 20 || (userData && userData.credits_analyze <= 0)}
                   className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Run Analysis <ArrowRight className="w-4 h-4" />
+                  {userData && userData.credits_analyze <= 0 ? "No Credits" : "Run Analysis"} <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>

@@ -31,7 +31,18 @@ export default function LoginPage() {
       if (authError) throw authError;
 
       if (data.user) {
-        router.push("/dashboard");
+        // Fetch profile status
+        const { data: profile } = await supabase
+          .from("users")
+          .select("persona_complete")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profile && !profile.persona_complete) {
+          router.push("/onboarding");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (err: any) {
       console.error("Login error:", err);

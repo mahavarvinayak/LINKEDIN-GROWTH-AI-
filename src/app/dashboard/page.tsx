@@ -38,11 +38,18 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // 1. Fetch Profile
       const { data: profile } = await supabase
         .from("users")
         .select("*")
         .eq("id", user.id)
         .single();
+
+      // 2. Fetch Post Count
+      const { count: postCount } = await supabase
+        .from("posts")
+        .select("*", { count: 'exact', head: true })
+        .eq("user_id", user.id);
 
       setUserData({
         full_name: profile?.full_name || "User",
@@ -50,7 +57,7 @@ export default function DashboardPage() {
         credits_analyze: profile?.credits_analyze || 0,
         credits_generate: profile?.credits_generate || 0,
         streak_count: profile?.streak_count || 0,
-        post_count: 12, // Mocked
+        post_count: postCount || 0,
       });
       setLoading(false);
     };

@@ -72,16 +72,25 @@ export async function POST(req: NextRequest) {
     // 4. Parse JSON
     const result = parseAIJson(rawResponse);
 
-    // 5. Deduct credit stub
+    // 5. Deduct credit
     await supabase.rpc("decrement_generate_credits", { user_id: user.id });
 
-    // 6. Save to history (Optional: Auto-save generated posts for users)
+    // 6. Update Streak (Consistency Vector)
+    const { updateUserStreak } = await import("@/lib/supabase/streak");
+    await updateUserStreak(supabase, user.id);
+
+    // 7. Save to history with rich metadata
+    const scores = (result as any).estimated_scores || {};
     await supabase.from("posts").insert({
       user_id: user.id,
       type: 'generated',
       topic: topic,
       improved_content: (result as any).post,
-      overall_score: (result as any).estimated_scores.hook // Simple mapping for now
+      hook_score: scores.hook || 0,
+      readability_score: scores.readability || 0,
+      engagement_score: scores.engagement || 0,
+      structure_score: scores.structure || 0,
+      overall_score: ((scores.hook || 0) + (scores.readability || 0) + (scores.engagement || 0) + (scores.structure || 0)) / 4
     });
 
     return NextResponse.json(result);

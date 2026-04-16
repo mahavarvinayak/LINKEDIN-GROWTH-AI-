@@ -105,20 +105,38 @@ async function callGroq(
 
 // ─── JSON Parser Helper ───────────────────────────────────────
 export function parseAIJson<T>(rawText: string): T {
-  // Remove markdown backticks
-  const cleaned = rawText
-    .replace(/```json/g, "")
-    .replace(/```/g, "")
-    .trim();
+  // 1. Initial cleanup
+  let cleaned = rawText.trim();
+
+  // 2. Remove markdown backticks if present (including variations like ```json or ```)
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
 
   try {
     return JSON.parse(cleaned) as T;
-  } catch {
-    // Try to extract JSON from text
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as T;
+  } catch (initialError) {
+    // 3. Heuristic: Try to find the first '{' and last '}'
+    const startIndex = cleaned.indexOf("{");
+    const endIndex = cleaned.lastIndexOf("}");
+
+    if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+      const jsonContent = cleaned.substring(startIndex, endIndex + 1);
+      try {
+        return JSON.parse(jsonContent) as T;
+      } catch (nestedError) {
+        console.error("Failed to parse extracted JSON block:", jsonContent);
+      }
     }
-    throw new Error("Could not parse AI response as JSON");
+
+    // 4. Last resort: Clean common AI mistakes like trailing commas
+    const repaired = cleaned
+      .replace(/,\s*([\]}])/g, "$1") // Remove trailing commas
+      .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":'); // Ensure keys are quoted (if missing)
+
+    try {
+      return JSON.parse(repaired) as T;
+    } catch {
+      console.error("All AI JSON parsing attempts failed for text:", rawText);
+      throw new Error("Could not parse AI response as valid data structure.");
+    }
   }
 }

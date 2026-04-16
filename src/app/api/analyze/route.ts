@@ -68,9 +68,26 @@ export async function POST(req: NextRequest) {
     // 5. Parse JSON
     const result = parseAIJson(rawResponse);
 
-    // 6. Deduct credit if user exists (Optional optimization: only for real users)
+    // 6. Deduct credit if user exists
     if (user) {
-       await supabase.rpc("decrement_analyze_credits", { user_id: user.id });
+      await supabase.rpc("decrement_analyze_credits", { user_id: user.id });
+
+      // 7. Update Streak (Consistency Vector)
+      const { updateUserStreak } = await import("@/lib/supabase/streak");
+      await updateUserStreak(supabase, user.id);
+
+      // 8. Save to history
+      const scores = (result as any).estimated_scores || {};
+      await supabase.from("posts").insert({
+        user_id: user.id,
+        type: 'analyzed',
+        original_content: post,
+        hook_score: scores.hook || 0,
+        readability_score: scores.readability || 0,
+        engagement_score: scores.engagement || 0,
+        structure_score: scores.structure || 0,
+        overall_score: ((scores.hook || 0) + (scores.readability || 0) + (scores.engagement || 0) + (scores.structure || 0)) / 4
+      });
     }
 
     return NextResponse.json(result);

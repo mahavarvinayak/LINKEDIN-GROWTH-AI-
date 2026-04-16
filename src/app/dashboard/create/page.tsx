@@ -42,6 +42,25 @@ export default function CreatePostPage() {
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GeneratedPost | null>(null);
+  const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
+  const supabase = createClient();
+
+  // 1. Fetch User Data on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("users")
+        .select("credits_generate, plan")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) setUserData(profile);
+    };
+    fetchUser();
+  }, [supabase]);
 
   const handleGenerate = async () => {
     if (!topic.trim()) return;
@@ -74,8 +93,35 @@ export default function CreatePostPage() {
     }
   };
 
-  const handleSaveDraft = () => {
-    alert("Draft saved successfully!");
+  const handleSaveDraft = async () => {
+    if (!result?.post) return;
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Unauthorized");
+
+      const { error } = await supabase.from("posts").insert({
+        user_id: user.id,
+        type: "draft",
+        topic: topic,
+        improved_content: result.post,
+        hook_score: result.estimated_scores.hook,
+        engagement_score: result.estimated_scores.engagement,
+        structure_score: result.estimated_scores.structure,
+        readability_score: result.estimated_scores.readability,
+        overall_score: (result.estimated_scores.hook + result.estimated_scores.engagement + result.estimated_scores.structure + result.estimated_scores.readability) / 4
+      });
+
+      if (error) throw error;
+      alert("Draft saved successfully!");
+      router.push("/dashboard/drafts");
+    } catch (err: any) {
+      console.error("Save draft error:", err);
+      alert(err.message || "Failed to save draft");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -112,11 +158,17 @@ export default function CreatePostPage() {
                 </span>
                 <button
                   onClick={handleGenerate}
-                  disabled={!topic.trim() || loading}
+                  disabled={!topic.trim() || loading || (userData && userData.credits_generate <= 0)}
                   className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                 >
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {loading ? "Generating..." : "Generate Post"}
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      {userData && userData.credits_generate <= 0 ? "No Credits" : "Generate Post"}
+                    </>
+                  )}
                 </button>
               </div>
             </div>

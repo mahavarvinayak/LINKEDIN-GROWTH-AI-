@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { label: "Create Post", href: "/dashboard/create", icon: PenTool },
   { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
+  { label: "Pricing", href: "/dashboard/pricing", icon: BarChart2 }, // Reusing an icon or check CreditCard
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
