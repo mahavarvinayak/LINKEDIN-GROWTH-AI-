@@ -42,21 +42,27 @@ export default function OnboardingPage() {
   // Check if onboarding is already complete
   useEffect(() => {
     const checkStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
-      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/login");
+          return;
+        }
 
-      const { data: userData } = await supabase
-        .from("users")
-        .select("persona_complete")
-        .eq("id", user.id)
-        .single();
+        const { data: userData } = await supabase
+          .from("users")
+          .select("persona_complete")
+          .eq("id", user.id)
+          .single();
 
-      if (userData?.persona_complete) {
-        router.push("/dashboard");
-      } else {
+        if (userData?.persona_complete) {
+          router.push("/dashboard");
+        } else {
+          setInitialLoading(false);
+        }
+      } catch (err) {
+        console.error("Error checking onboarding status:", err);
+        // On error, show the form so user can try again
         setInitialLoading(false);
       }
     };
@@ -75,6 +81,7 @@ export default function OnboardingPage() {
   const isFormValid = 
     formData.role && 
     formData.topics.length > 0 && 
+    formData.topics.every(t => t && t.trim().length > 0) &&
     formData.goal && 
     formData.tone && 
     formData.audience;

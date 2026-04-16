@@ -3,6 +3,12 @@ import { callAI, parseAIJson } from "@/lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 
+// Helper to validate and clamp scores to 0-10 range
+function validateScore(score: any): number {
+  const num = parseInt(score) || 0;
+  return Math.max(0, Math.min(10, num));
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { topic } = await req.json();
@@ -15,20 +21,22 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // 1. Fetch User Data & Persona
-    const { data: userData } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from("users")
       .select("plan, credits_generate")
       .eq("id", user.id)
       .single();
 
-    if (!userData) throw new Error("User data not found");
+    if (userError || !userData) {
+      return NextResponse.json({ error: "User data not found" }, { status: 404 });
+    }
 
     const isPaid = userData.plan === "starter" || userData.plan === "pro";
 
@@ -39,20 +47,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data: persona } = await supabase
+    const { data: persona, error: personaError } = await supabase
       .from("personas")
       .select("*")
       .eq("user_id", user.id)
       .single();
 
-    if (!persona) {
+    if (personaError || !persona) {
       return NextResponse.json(
         { error: "Persona not set up", message: "Please complete your profile first." },
         { status: 400 }
       );
     }
 
-    // 2. Build Prompt
+    // 2. Build Prompt and Call AI
     const userPrompt = buildGeneratePrompt(
       topic,
       persona.role,
@@ -62,7 +70,6 @@ export async function POST(req: NextRequest) {
       persona.audience
     );
 
-    // 3. Call AI Router
     const rawResponse = await callAI(
       LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
@@ -71,29 +78,47 @@ export async function POST(req: NextRequest) {
       AI_CONFIG.max_tokens.generate
     );
 
-    // 4. Parse JSON
+    // 3. Parse JSON response
     const result = parseAIJson(rawResponse);
 
-    // 5. Deduct credit
-    await supabase.rpc("decrement_generate_credits", { user_id: user.id });
-
-    // 6. Update Streak (Consistency Vector)
-    const { updateUserStreak } = await import("@/lib/supabase/streak");
-    await updateUserStreak(supabase, user.id);
-
-    // 7. Save to history with rich metadata
+    // 4. Validate and extract scores
     const scores = (result as any).estimated_scores || {};
-    await supabase.from("posts").insert({
+    const hookS = validateScore(scores.hook);
+    const readS = validateScore(scores.readability);
+    const engS = validateScore(scores.engagement);
+    const structS = validateScore(scores.structure);
+    const overallScore = (hookS + readS + engS + structS) / 4;
+
+    // 5. Save to history FIRST
+    const { error: saveError } = await supabase.from("posts").insert({
       user_id: user.id,
       type: 'generated',
       topic: topic,
       improved_content: (result as any).post,
-      hook_score: scores.hook || 0,
-      readability_score: scores.readability || 0,
-      engagement_score: scores.engagement || 0,
-      structure_score: scores.structure || 0,
-      overall_score: ((scores.hook || 0) + (scores.readability || 0) + (scores.engagement || 0) + (scores.structure || 0)) / 4
+      hook_score: hookS,
+      readability_score: readS,
+      engagement_score: engS,
+      structure_score: structS,
+      overall_score: overallScore
     });
+
+    if (saveError) {
+      console.error("Post save error:", saveError);
+      return NextResponse.json({ error: "Failed to save generated post" }, { status: 500 });
+    }
+
+    // 6. Deduct credit AFTER successful save (only for free users)
+    if (!isPaid) {
+      const { error: creditError } = await supabase.rpc("decrement_generate_credits", { user_id: user.id });
+      if (creditError) {
+        console.error("Credit deduction error:", creditError);
+        // Don't fail the response, post already saved
+      }
+    }
+
+    // 7. Update Streak
+    const { updateUserStreak } = await import("@/lib/supabase/streak");
+    await updateUserStreak(supabase, user.id);
 
     return NextResponse.json(result);
 

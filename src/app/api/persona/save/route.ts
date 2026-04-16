@@ -72,7 +72,15 @@ export async function POST(req: NextRequest) {
       return v;
     };
 
-    // 1. Save persona
+    // 1. Mark onboarding as complete in users table FIRST
+    const { error: userError } = await supabase
+      .from("users")
+      .update({ persona_complete: true })
+      .eq("id", userId);
+
+    if (userError) throw userError;
+
+    // 2. THEN save persona (if this fails, user.persona_complete is still true, which is safer than the reverse)
     const { error: personaError } = await supabase
       .from("personas")
       .insert({
@@ -85,14 +93,6 @@ export async function POST(req: NextRequest) {
       });
 
     if (personaError) throw personaError;
-
-    // 2. Mark onboarding as complete in users table
-    const { error: userError } = await supabase
-      .from("users")
-      .update({ persona_complete: true })
-      .eq("id", userId);
-
-    if (userError) throw userError;
 
     return NextResponse.json({ success: true });
 

@@ -15,7 +15,7 @@ CREATE TABLE public.users (
 
 CREATE TABLE public.personas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
   role TEXT CHECK (role IN ('student', 'founder', 'freelancer', 'job_seeker')),
   topics TEXT[],
   goal TEXT CHECK (goal IN ('followers', 'leads', 'job', 'brand')),
@@ -67,13 +67,20 @@ CREATE POLICY "Users can view their own data" ON public.users FOR SELECT USING (
 CREATE POLICY "Users can update their own data" ON public.users FOR UPDATE USING (auth.uid() = id);
 
 CREATE POLICY "Users can manage their own persona" ON public.personas FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can manage their own posts" ON public.posts FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own posts" ON public.posts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own posts" ON public.posts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own posts" ON public.posts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own posts" ON public.posts FOR DELETE USING (auth.uid() = user_id);
+
 CREATE POLICY "Users can view their own reports" ON public.weekly_reports FOR SELECT USING (auth.uid() = user_id);
 
 -- 4. Create Indexes
 CREATE INDEX users_email_idx ON public.users(email);
+CREATE INDEX users_plan_idx ON public.users(plan);
 CREATE INDEX personas_user_id_idx ON public.personas(user_id);
 CREATE INDEX posts_user_id_idx ON public.posts(user_id);
+CREATE INDEX posts_created_at_idx ON public.posts(created_at);
 CREATE INDEX weekly_reports_user_id_idx ON public.weekly_reports(user_id);
 
 -- 5. Auto-create User Trigger (Sync Auth to Public Users)

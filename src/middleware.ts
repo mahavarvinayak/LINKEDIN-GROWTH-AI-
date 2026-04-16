@@ -48,13 +48,14 @@ export async function middleware(request: NextRequest) {
 
     // 2. Persona Completion Check
     // Fetch profile to see if onboarding is done
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("users")
       .select("persona_complete")
       .eq("id", user.id)
       .single();
 
-    if (profile && !profile.persona_complete) {
+    // If there's an error OR persona is not complete, redirect to onboarding
+    if (profileError || !profile || !profile.persona_complete) {
       url.pathname = "/onboarding";
       return NextResponse.redirect(url);
     }
