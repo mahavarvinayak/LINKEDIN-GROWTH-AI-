@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart3,
@@ -111,7 +111,7 @@ export default function AnalyzePostPage() {
                 </span>
                 <button
                   onClick={handleAnalyze}
-                  disabled={postContent.trim().length < 20 || (userData && userData.credits_analyze <= 0)}
+                  disabled={postContent.trim().length < 20 || !!(userData && userData.credits_analyze <= 0)}
                   className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4" />

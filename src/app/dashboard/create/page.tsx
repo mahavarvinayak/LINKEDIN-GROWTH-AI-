@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Sparkles, 
@@ -14,6 +14,7 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 
 // --- Types ---
 interface GeneratedPost {
@@ -158,7 +159,7 @@ export default function CreatePostPage() {
                 </span>
                 <button
                   onClick={handleGenerate}
-                  disabled={!topic.trim() || loading || (userData && userData.credits_generate <= 0)}
+                  disabled={!topic.trim() || loading || !!(userData && userData.credits_generate <= 0)}
                   className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                 >
                   {loading ? (
