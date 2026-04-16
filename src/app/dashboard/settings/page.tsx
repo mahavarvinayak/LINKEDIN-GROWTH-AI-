@@ -217,6 +217,44 @@ export default function SettingsPage() {
         </div>
       </SettingsCard>
 
+      {/* Help & Legal */}
+      <SettingsCard
+        icon={<BookOpen className="w-4 h-4" />}
+        title="Resources & Legal"
+        subtitle="Platform governance and support"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link href="/support" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">Help Center</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">FAQs & Analysis Guides</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </Link>
+          <Link href="/privacy" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">Privacy Protocol</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">Data Governance Standards</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </Link>
+          <Link href="/terms" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">Terms of Service</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">Usage & Editorial Policy</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </Link>
+          <a href="mailto:support@thepilab.ai" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">Contact Concierge</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">Direct Strategic Support</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </a>
+        </div>
+      </SettingsCard>
+
     </div>
   );
 }

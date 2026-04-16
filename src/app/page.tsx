@@ -304,6 +304,54 @@ export default function LandingPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Footer */}
+      <footer className="bg-surface-container py-20 border-t border-[rgba(229,226,218,0.3)]">
+        <div className="max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="col-span-1 md:col-span-2">
+            <div className="inline-flex items-center gap-2 mb-6">
+              <div className="w-5 h-5 bg-primary rounded-[4px]" />
+              <span className="font-serif italic text-2xl text-on-background">Growth.AI</span>
+            </div>
+            <p className="text-[0.9375rem] text-on-surface-variant max-w-sm leading-relaxed mb-8">
+              Precision editorial tools for high-performing LinkedIn creators. Designed and built by **The Pi Lab**.
+            </p>
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors ring-1 ring-[rgba(229,226,218,0.4)]">
+                <span className="sr-only">LinkedIn</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-6">Product</h4>
+            <ul className="space-y-4 text-[0.875rem] font-medium text-on-surface-variant">
+              <li><Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
+              <li><Link href="/dashboard/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
+              <li><Link href="/changelog" className="hover:text-primary transition-colors">Changelog</Link></li>
+              <li><Link href="/onboarding" className="hover:text-primary transition-colors">Persona Setup</Link></li>
+            </ul>
+          </div>
+          <div>
+             <h4 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-6">Help & Legal</h4>
+            <ul className="space-y-4 text-[0.875rem] font-medium text-on-surface-variant">
+              <li><Link href="/support" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+              <li><a href="mailto:support@thepilab.ai" className="hover:text-primary transition-colors">Contact Support</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto px-8 mt-20 pt-10 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-[0.6875rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">
+            © 2024 THE PI LAB ATELIER — PRECISION ENGINEERING
+          </p>
+          <div className="flex gap-6 text-[0.6875rem] font-mono font-bold uppercase tracking-tighter text-on-surface-variant/30">
+             <span>v4.2.0-stable</span>
+             <span>Status: All Nodes Green</span>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
