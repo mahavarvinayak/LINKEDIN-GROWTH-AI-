@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       success: true,
       ...results,
       posts: results.articles.map((article) => ({
-        post: composeTrendingPost(article.title, article.description, article.source),
+        post: composeTrendingPost(article.title, article.description, article.source, query),
         description: cleanDescription(article.description) || article.title,
         source: article.source,
         title: article.title,
@@ -53,18 +53,63 @@ function cleanDescription(text?: string): string {
     .slice(0, 220);
 }
 
-function composeTrendingPost(title: string, description: string | undefined, source: string): string {
+function hashText(value: string): number {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0;
+  }
+  return hash;
+}
+
+function pickVariant(items: string[], seed: number): string {
+  return items[Math.abs(seed) % items.length];
+}
+
+function composeTrendingPost(title: string, description: string | undefined, source: string, query: string): string {
   const summary = cleanDescription(description);
   const sourceName = source.split("(")[0].trim();
+  const topic = query.trim().toLowerCase() || "this space";
+  const seed = hashText(`${title}|${sourceName}|${topic}`);
+
+  const opener = pickVariant(
+    [
+      `Interesting signal from ${sourceName}:`,
+      `A practical trend worth noting from ${sourceName}:`,
+      `One update I would not ignore from ${sourceName}:`,
+      `This caught my attention in ${sourceName}:`,
+    ],
+    seed
+  );
+
+  const take = pickVariant(
+    [
+      `My take: teams building in ${topic} should track this early and adjust their roadmap.`,
+      `My take: this can change how people position products in ${topic}.`,
+      `My take: this is less hype and more a timing signal for builders in ${topic}.`,
+      `My take: the edge here is execution speed, not just awareness.`,
+    ],
+    seed + 7
+  );
+
+  const closingQuestion = pickVariant(
+    [
+      `What do you think this means for the next 6-12 months?`,
+      `Would you treat this as a short-term spike or a long-term shift?`,
+      `If you are building right now, what would you change first?`,
+      `Do you see this creating a real opportunity or just noise?`,
+    ],
+    seed + 17
+  );
 
   return [
+    opener,
     title,
     "",
-    summary || `This is trending right now in ${sourceName}.`,
+    summary || `This topic is gaining momentum in ${sourceName}.`,
     "",
-    "My take: this is a signal worth watching if you are building in tech.",
+    take,
     "",
-    "Do you think this trend will grow in the next 12 months?",
+    closingQuestion,
   ].join("\n");
 }
 
