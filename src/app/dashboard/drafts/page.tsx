@@ -18,7 +18,7 @@ import { formatDistanceToNow } from "date-fns";
 // --- Types ---
 interface Draft {
   id: string;
-  content: string;
+  improved_content: string;
   created_at: string;
   topic?: string;
 }
@@ -110,7 +110,7 @@ export default function DraftsPage() {
               key={draft.id}
               draft={draft}
               isCopied={copiedId === draft.id}
-              onCopy={() => handleCopy(draft.id, draft.content)}
+              onCopy={() => handleCopy(draft.id, draft.improved_content)}
               onDelete={() => handleDelete(draft.id)}
             />
           ))}
@@ -141,8 +141,8 @@ function DraftCard({
   onDelete: () => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const preview = draft.content.slice(0, 220);
-  const isLong = draft.content.length > 220;
+  const preview = (draft.improved_content || "").slice(0, 220);
+  const isLong = (draft.improved_content || "").length > 220;
 
   return (
     <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all overflow-hidden group">
@@ -164,7 +164,7 @@ function DraftCard({
           className="text-[0.9375rem] font-mono text-on-background leading-[1.8] whitespace-pre-wrap cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
-          {expanded || !isLong ? draft.content : `${preview}…`}
+          {expanded || !isLong ? draft.improved_content : `${preview}…`}
         </p>
         {isLong && (
           <button
