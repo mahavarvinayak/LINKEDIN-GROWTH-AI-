@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI, parseAIJson } from "@/lib/ai/router";
+import { callAI, parseAIJson } from "../../../lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { predictEngagementRate, convertLegacyScore } from "@/lib/ai/scoringEngine";

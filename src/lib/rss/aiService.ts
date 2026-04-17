@@ -1,4 +1,4 @@
-import { callAI } from "@/lib/ai/router";
+import { callAI } from "../ai/router";
 import type { GeneratedLinkedInPost, RssArticle } from "./types";
 
 const LINKEDIN_RSS_PROMPT = `Convert this tech news update into a high-performing LinkedIn post.
