@@ -186,6 +186,23 @@ export default function CreatePostPage() {
     }
   };
 
+  useEffect(() => {
+    const query = searchQuery.trim();
+
+    if (query.length < 2) {
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setIsSearching(true);
+      void handleSearchTrending(query);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // --- GENERATE FROM SELECTED NEWS ---
   const handleCreatePostFromNews = async () => {
     if (!selectedRssPost) return;
@@ -490,13 +507,6 @@ export default function CreatePostPage() {
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
-                      if (e.target.value.trim().length >= 2) {
-                        handleSearchTrending(e.target.value);
-                        setIsSearching(true);
-                      } else {
-                        setIsSearching(false);
-                        setSearchResults([]);
-                      }
                     }}
                     placeholder="Search trending topics (e.g., AI, React, DevOps...)"
                     className="w-full bg-surface-container-lowest border border-[rgba(229,226,218,0.5)] rounded-[8px] pl-10 pr-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
@@ -527,7 +537,6 @@ export default function CreatePostPage() {
                           key={suggestion}
                           onClick={() => {
                             setSearchQuery(suggestion);
-                            handleSearchTrending(suggestion);
                             setIsSearching(true);
                           }}
                           className="px-3 py-1.5 bg-surface-2 text-on-surface-variant text-[0.75rem] font-medium rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"

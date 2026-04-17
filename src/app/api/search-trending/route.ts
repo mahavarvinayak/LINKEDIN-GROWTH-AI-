@@ -46,11 +46,27 @@ function cleanDescription(text?: string): string {
     return "";
   }
 
-  return text
+  const cleaned = text
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 220);
+    .trim();
+
+  if (cleaned.length <= 700) {
+    return cleaned;
+  }
+
+  const snippet = cleaned.slice(0, 700);
+  const lastBoundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  if (lastBoundary > 300) {
+    return snippet.slice(0, lastBoundary + 1).trim();
+  }
+
+  const lastSpace = snippet.lastIndexOf(" ");
+  if (lastSpace > 300) {
+    return `${snippet.slice(0, lastSpace).trim()}...`;
+  }
+
+  return `${snippet.trim()}...`;
 }
 
 function hashText(value: string): number {

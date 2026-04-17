@@ -26,11 +26,49 @@ const SEARCH_STOP_WORDS = new Set([
   "before",
 ]);
 
+const SEARCH_CACHE_TTL_MS = 2 * 60 * 1000;
+
+type CachedSearchEntry = {
+  result: SearchResult;
+  cachedAt: number;
+};
+
+const searchCache = new Map<string, CachedSearchEntry>();
+
 export interface SearchResult {
   articles: RssArticle[];
   query: string;
   totalFound: number;
   sources: string[];
+}
+
+function getCachedResult(cacheKey: string): SearchResult | null {
+  const entry = searchCache.get(cacheKey);
+  if (!entry) {
+    return null;
+  }
+
+  if (Date.now() - entry.cachedAt > SEARCH_CACHE_TTL_MS) {
+    searchCache.delete(cacheKey);
+    return null;
+  }
+
+  return {
+    ...entry.result,
+    articles: [...entry.result.articles],
+    sources: [...entry.result.sources],
+  };
+}
+
+function setCachedResult(cacheKey: string, result: SearchResult): void {
+  searchCache.set(cacheKey, {
+    result: {
+      ...result,
+      articles: [...result.articles],
+      sources: [...result.sources],
+    },
+    cachedAt: Date.now(),
+  });
 }
 
 function normalizeText(value: string): string {
@@ -120,6 +158,12 @@ export async function searchTrendingArticles(
 
   const tokens = queryTokens(normalizedSearchQuery);
   const devtoTag = getPrimaryKeyword(normalizedSearchQuery);
+  const cacheKey = `${normalizedSearchQuery}|${limit}`;
+
+  const cachedResult = getCachedResult(cacheKey);
+  if (cachedResult) {
+    return cachedResult;
+  }
 
   try {
     // Fetch from all sources in parallel
@@ -132,15 +176,15 @@ export async function searchTrendingArticles(
         console.error("HN search error:", error);
         return [];
       }),
-      fetchDevtoArticles(30, devtoTag).catch((error) => {
+      fetchDevtoArticles(15, devtoTag).catch((error) => {
         console.error("DevTo search error:", error);
         return [];
       }),
-      fetchGithubTrendingViaAPI(30, normalizedQuery).catch((error) => {
+      fetchGithubTrendingViaAPI(15, normalizedQuery).catch((error) => {
         console.error("GitHub search error:", error);
         return [];
       }),
-      fetchCurrentsNewsByKeyword(normalizedQuery, 30).catch((error) => {
+      fetchCurrentsNewsByKeyword(normalizedQuery, 15).catch((error) => {
         console.error("Currents search error:", error);
         return [];
       }),
@@ -211,12 +255,15 @@ export async function searchTrendingArticles(
     // Get unique sources from results
     const sourcesSet = new Set(selected.map((a) => a.source.split("(")[0].trim()));
 
-    return {
+    const searchResult: SearchResult = {
       articles: selected.slice(0, limit),
       query: normalizedQuery,
       totalFound: deduped.length,
       sources: Array.from(sourcesSet),
     };
+
+    setCachedResult(cacheKey, searchResult);
+    return searchResult;
   } catch (error) {
     console.error("Search trending error:", error);
     return {

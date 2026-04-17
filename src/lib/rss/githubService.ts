@@ -11,6 +11,27 @@ export interface GithubTrendingRepo {
   starsThisWeek: number;
 }
 
+function normalizeDescription(text: string): string {
+  const cleaned = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
+  if (cleaned.length <= 700) {
+    return cleaned;
+  }
+
+  const snippet = cleaned.slice(0, 700);
+  const boundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  if (boundary > 300) {
+    return snippet.slice(0, boundary + 1).trim();
+  }
+
+  const lastSpace = snippet.lastIndexOf(" ");
+  if (lastSpace > 300) {
+    return `${snippet.slice(0, lastSpace).trim()}...`;
+  }
+
+  return `${snippet.trim()}...`;
+}
+
 /**
  * Fetch trending repositories from GitHub
  * Uses web scraping (no API key needed!)
@@ -85,7 +106,7 @@ function parseGithubTrendingHTML(html: string): GithubTrendingRepo[] {
 
       // Extract description
       const descMatch = article.match(descPattern);
-      const description = descMatch ? descMatch[1].trim().substring(0, 100) : "No description";
+      const description = descMatch ? normalizeDescription(descMatch[1]) : "No description";
 
       // Extract language
       const langMatch = article.match(langPattern);
@@ -160,7 +181,7 @@ export async function fetchGithubTrendingViaAPI(
         title: repo.full_name,
         link: repo.html_url,
         date: repo.updated_at,
-        description: repo.description.trim().substring(0, 150),
+        description: normalizeDescription(repo.description),
         source: `GitHub (${repo.stargazers_count} ⭐)`,
       }));
   } catch (error) {

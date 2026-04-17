@@ -24,11 +24,27 @@ function cleanDescription(description?: string): string {
     return "No description available.";
   }
 
-  return description
+  const cleaned = description
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 240);
+    .trim();
+
+  if (cleaned.length <= 700) {
+    return cleaned;
+  }
+
+  const snippet = cleaned.slice(0, 700);
+  const boundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  if (boundary > 300) {
+    return snippet.slice(0, boundary + 1).trim();
+  }
+
+  const lastSpace = snippet.lastIndexOf(" ");
+  if (lastSpace > 300) {
+    return `${snippet.slice(0, lastSpace).trim()}...`;
+  }
+
+  return `${snippet.trim()}...`;
 }
 
 function buildPrompt(article: RssArticle): string {

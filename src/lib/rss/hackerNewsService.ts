@@ -14,6 +14,30 @@ export interface HNStory {
   text?: string;
 }
 
+function normalizeDescription(text?: string): string {
+  const cleaned = (text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (!cleaned) {
+    return "";
+  }
+
+  if (cleaned.length <= 700) {
+    return cleaned;
+  }
+
+  const snippet = cleaned.slice(0, 700);
+  const boundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  if (boundary > 300) {
+    return snippet.slice(0, boundary + 1).trim();
+  }
+
+  const lastSpace = snippet.lastIndexOf(" ");
+  if (lastSpace > 300) {
+    return `${snippet.slice(0, lastSpace).trim()}...`;
+  }
+
+  return `${snippet.trim()}...`;
+}
+
 /**
  * Fetch top stories from Hacker News Firebase API
  * No API key required, completely free!
@@ -52,9 +76,7 @@ export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArt
         if (!story.url) continue; // Only include stories with URLs (real external content)
         if (story.score < 20) continue; // Only include posts with some engagement
 
-        const description = story.text 
-          ? story.text.trim().substring(0, 150) 
-          : "Trending on Hacker News";
+        const description = normalizeDescription(story.text) || "Trending on Hacker News";
 
         articles.push({
           title: story.title,
@@ -108,9 +130,7 @@ export async function fetchHackerNewsBestStories(limit: number = 10): Promise<Rs
         if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) continue;
         if (!story.url) continue; // Only external content
 
-        const description = story.text 
-          ? story.text.trim().substring(0, 150) 
-          : "Top story on Hacker News";
+        const description = normalizeDescription(story.text) || "Top story on Hacker News";
 
         articles.push({
           title: story.title,
