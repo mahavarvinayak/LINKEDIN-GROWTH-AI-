@@ -13,7 +13,9 @@ import {
   Hash,
   ChevronLeft,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Search,
+  X
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -66,6 +68,16 @@ export default function CreatePostPage() {
   const [rssTrendingPosts, setRssTrendingPosts] = useState<RssTrendingPost[]>([]);
   const [selectedRssPost, setSelectedRssPost] = useState<RssTrendingPost | null>(null);
   const [rssRefreshTime, setRssRefreshTime] = useState<string | null>(null);
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState<RssTrendingPost[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchSuggestions] = useState([
+    "AI", "Machine Learning", "Web Development", "React", "TypeScript",
+    "JavaScript", "DevOps", "Cloud", "Crypto", "Startup", "Tech News"
+  ]);
   
   // User data
   const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
@@ -142,6 +154,31 @@ export default function CreatePostPage() {
       alert("Failed to fetch trending posts");
     } finally {
       setRssLoading(false);
+    }
+  };
+
+  // --- SEARCH TRENDING HANDLER ---
+  const handleSearchTrending = async (query: string) => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await fetch(`/api/search-trending?q=${encodeURIComponent(query)}&limit=5`);
+      const data = await response.json();
+
+      if (data.success && data.posts && data.posts.length > 0) {
+        setSearchResults(data.posts);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (err: any) {
+      console.error("Search error:", err);
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -390,6 +427,69 @@ export default function CreatePostPage() {
               <p className="text-[0.95rem] font-medium text-on-surface-variant">Discover posts based on what's trending in tech right now.</p>
             </div>
 
+            {/* SEARCH SECTION */}
+            {!selectedRssPost && (
+              <div className="space-y-3">
+                <div className="relative">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value.trim().length >= 2) {
+                        handleSearchTrending(e.target.value);
+                        setIsSearching(true);
+                      } else {
+                        setIsSearching(false);
+                        setSearchResults([]);
+                      }
+                    }}
+                    placeholder="Search trending topics (e.g., AI, React, DevOps...)"
+                    className="w-full bg-surface-container-lowest border border-[rgba(229,226,218,0.5)] rounded-[8px] pl-10 pr-4 py-3 text-[0.95rem] text-on-background placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSearchResults([]);
+                        setIsSearching(false);
+                      }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Search suggestions */}
+                {!isSearching && searchQuery.length === 0 && (
+                  <div>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-2">
+                      Popular topics
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {searchSuggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          onClick={() => {
+                            setSearchQuery(suggestion);
+                            handleSearchTrending(suggestion);
+                            setIsSearching(true);
+                          }}
+                          className="px-3 py-1.5 bg-surface-2 text-on-surface-variant text-[0.75rem] font-medium rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {!selectedRssPost ? (
               <div className="space-y-3">
                 <button
@@ -487,11 +587,16 @@ export default function CreatePostPage() {
               </>
             )}
 
-            {/* Trending Posts List */}
-            {rssTrendingPosts.length > 0 && !selectedRssPost && (
+            {/* Trending Posts List or Search Results */}
+            {(searchResults.length > 0 || rssTrendingPosts.length > 0) && !selectedRssPost && (
               <div className="space-y-3">
-                <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Available Posts ({rssTrendingPosts.length})</p>
-                {rssTrendingPosts.map((post, idx) => (
+                <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">
+                  {isSearching 
+                    ? `Search Results for "${searchQuery}" (${searchResults.length})` 
+                    : `Available Posts (${rssTrendingPosts.length})`
+                  }
+                </p>
+                {(isSearching ? searchResults : rssTrendingPosts).map((post, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedRssPost(post)}
@@ -501,6 +606,36 @@ export default function CreatePostPage() {
                     <p className="text-[0.9375rem] text-on-background font-medium line-clamp-2">{post.title}</p>
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* No search results message */}
+            {isSearching && searchResults.length === 0 && !searchLoading && searchQuery.length >= 2 && (
+              <div className="text-center py-8">
+                <p className="text-on-surface-variant/60 text-[0.9375rem] mb-2">
+                  No posts found for "{searchQuery}"
+                </p>
+                <p className="text-on-surface-variant/40 text-[0.8125rem] mb-4">
+                  Try searching for different topics like AI, React, DevOps, etc.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchResults([]);
+                    setIsSearching(false);
+                  }}
+                  className="px-4 py-2 bg-surface-2 text-on-surface-variant text-[0.8125rem] font-medium rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"
+                >
+                  Clear Search
+                </button>
+              </div>
+            )}
+
+            {/* Loading indicator for search */}
+            {searchLoading && (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-on-surface-variant/60 text-[0.9375rem]">Searching...</p>
               </div>
             )}
           </motion.div>
