@@ -11,7 +11,9 @@ import {
   BarChart2,
   Clock,
   Hash,
-  ChevronLeft
+  ChevronLeft,
+  Zap,
+  TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
@@ -30,6 +32,13 @@ interface GeneratedPost {
   suggested_hashtags: string[];
 }
 
+interface RssTrendingPost {
+  post: string;
+  source: string;
+  title: string;
+  suggested_hashtags?: string[];
+}
+
 const PROMPT_SPARKS = [
   "Why I quit my job at 28",
   "Lessons from my failed startup",
@@ -37,15 +46,30 @@ const PROMPT_SPARKS = [
   "The mistake that changed my career",
 ];
 
+type Tab = "ai" | "rss";
+
 export default function CreatePostPage() {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
-  const [topic, setTopic] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<GeneratedPost | null>(null);
-  const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
   const supabase = createClient();
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<Tab>("ai");
+  
+  // AI Generation state
+  const [aiStep, setAiStep] = useState<1 | 2>(1);
+  const [topic, setTopic] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<GeneratedPost | null>(null);
+  
+  // RSS Trending state
+  const [rssLoading, setRssLoading] = useState(false);
+  const [rssTrendingPosts, setRssTrendingPosts] = useState<RssTrendingPost[]>([]);
+  const [selectedRssPost, setSelectedRssPost] = useState<RssTrendingPost | null>(null);
+  
+  // User data
+  const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
 
+  
   // 1. Fetch User Data on mount
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,9 +87,10 @@ export default function CreatePostPage() {
     fetchUser();
   }, [supabase]);
 
-  const handleGenerate = async () => {
+  // --- AI GENERATION HANDLERS ---
+  const handleGenerateAI = async () => {
     if (!topic.trim()) return;
-    setLoading(true);
+    setAiLoading(true);
 
     try {
       const response = await fetch("/api/generate", {
@@ -84,41 +109,71 @@ export default function CreatePostPage() {
         throw new Error(data.error || "Generation failed");
       }
 
-      setResult(data);
-      setStep(2);
+      setAiResult(data);
+      setAiStep(2);
     } catch (err: any) {
       console.error("Generation error:", err);
       alert(err.message || "Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setAiLoading(false);
     }
   };
 
-  const handleSaveDraft = async () => {
-    if (!result?.post) return;
-    setLoading(true);
+  // --- RSS TRENDING HANDLERS ---
+  const handleGetTrendingPosts = async () => {
+    setRssLoading(true);
+    try {
+      const response = await fetch("/generate-posts");
+      const data = await response.json();
+
+      if (data.success && data.posts && data.posts.length > 0) {
+        setRssTrendingPosts(data.posts);
+      } else {
+        alert("No trending posts available. Try again later.");
+      }
+    } catch (err: any) {
+      console.error("Trending posts error:", err);
+      alert("Failed to fetch trending posts");
+    } finally {
+      setRssLoading(false);
+    }
+  };
+
+  // --- SAVE DRAFT HANDLERS ---
+  const saveDraftFromAI = async () => {
+    if (!aiResult?.post) return;
+    await saveDraftGeneric(aiResult.post, aiResult.suggested_hashtags, topic);
+  };
+
+  const saveDraftFromRSS = async () => {
+    if (!selectedRssPost?.post) return;
+    await saveDraftGeneric(selectedRssPost.post, selectedRssPost.suggested_hashtags || [], selectedRssPost.title);
+  };
+
+  const saveDraftGeneric = async (postContent: string, hashtags: string[], postTopic: string) => {
+    setAiLoading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized");
 
-      // Convert scores to integers (database expects INT)
-      const hookScore = Math.round(result.estimated_scores.hook || 0);
-      const engagementScore = Math.round(result.estimated_scores.engagement || 0);
-      const structureScore = Math.round(result.estimated_scores.structure || 0);
-      const readabilityScore = Math.round(result.estimated_scores.readability || 0);
-      const overallScore = (hookScore + engagementScore + structureScore + readabilityScore) / 4;
+      // Include hashtags in the post content
+      const hashtagString = hashtags.length > 0 ? "\n\n" + hashtags.map(tag => `#${tag.replace("#", "")}`).join(" ") : "";
+      const fullContent = postContent + hashtagString;
+
+      // Default scores for RSS posts (they don't have scoring)
+      const score = 7;
 
       const { error } = await supabase.from("posts").insert({
         user_id: user.id,
         type: "draft",
-        topic: topic,
-        improved_content: result.post,
-        hook_score: hookScore,
-        engagement_score: engagementScore,
-        structure_score: structureScore,
-        readability_score: readabilityScore,
-        overall_score: overallScore
+        topic: postTopic,
+        improved_content: fullContent,
+        hook_score: score,
+        engagement_score: score,
+        structure_score: score,
+        readability_score: score,
+        overall_score: score
       });
 
       if (error) throw error;
@@ -128,168 +183,302 @@ export default function CreatePostPage() {
       console.error("Save draft error:", err);
       alert(err.message || "Failed to save draft");
     } finally {
-      setLoading(false);
+      setAiLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <AnimatePresence mode="wait">
+    <div className="max-w-4xl mx-auto">
+      {/* TAB SWITCHER */}
+      <div className="pt-2 mb-8">
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-4">Content Studio</p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setActiveTab("ai");
+              setAiStep(1);
+            }}
+            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
+              activeTab === "ai"
+                ? "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md"
+                : "bg-surface-container text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30"
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            Generate Custom
+          </button>
+          <button
+            onClick={() => setActiveTab("rss")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
+              activeTab === "rss"
+                ? "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md"
+                : "bg-surface-container text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30"
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Get Trending Ideas
+          </button>
+        </div>
+      </div>
 
-        {/* Step 1: Input */}
-        {step === 1 && (
+      <AnimatePresence mode="wait">
+        {/* AI TAB CONTENT */}
+        {activeTab === "ai" && (
           <motion.div
-            key="step1"
+            key="ai-tab"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="space-y-8"
           >
-            {/* Header */}
-            <div className="pt-2">
-              <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">Content Studio</p>
-              <h1 className="text-4xl font-serif text-on-background mb-2">What's on your mind?</h1>
-              <p className="text-[0.95rem] font-medium text-on-surface-variant">Describe your topic, idea, or story. The AI will craft a high-impact post around it.</p>
-            </div>
+            {/* AI STEP 1: INPUT */}
+            {aiStep === 1 && (
+              <>
+                <div>
+                  <h2 className="text-3xl font-serif text-on-background mb-2">What's on your mind?</h2>
+                  <p className="text-[0.95rem] font-medium text-on-surface-variant">Enter a topic, story, or idea. I'll generate a high-impact LinkedIn post.</p>
+                </div>
 
-            {/* Input Box */}
-            <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all">
-              <textarea
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                placeholder="Example: I failed my first client pitch, but then I realized the one lesson nobody talks about..."
-                className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 text-[1rem] font-mono resize-none p-6 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
-              />
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-6 py-4 border-t border-[rgba(229,226,218,0.4)]">
-                <span className="text-[0.6875rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest">
-                  {topic.length} characters
-                </span>
-                <button
-                  onClick={handleGenerate}
-                  disabled={!topic.trim() || loading || !!(userData && userData.credits_generate <= 0)}
-                  className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
-                >
-                  {loading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      {userData && userData.credits_generate <= 0 ? "No Credits" : "Generate Post"}
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+                <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all">
+                  <textarea
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    placeholder="Example: I failed my first client pitch, but then I realized the one lesson nobody talks about..."
+                    className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 text-[1rem] font-mono resize-none p-6 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
+                  />
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-6 py-4 border-t border-[rgba(229,226,218,0.4)]">
+                    <span className="text-[0.6875rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest">
+                      {topic.length} characters
+                    </span>
+                    <button
+                      onClick={handleGenerateAI}
+                      disabled={!topic.trim() || aiLoading || !!(userData && userData.credits_generate <= 0)}
+                      className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+                    >
+                      {aiLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          {userData && userData.credits_generate <= 0 ? "No Credits" : "Generate"}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-            {/* Prompt Sparks */}
-            <div>
-              <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-3">Prompt Sparks</p>
-              <div className="flex flex-wrap gap-2">
-                {PROMPT_SPARKS.map((spark) => (
+                <div>
+                  <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-3">Quick Prompts</p>
+                  <div className="flex flex-wrap gap-2">
+                    {PROMPT_SPARKS.map((spark) => (
+                      <button
+                        key={spark}
+                        onClick={() => setTopic(spark)}
+                        className="px-4 py-2 bg-surface-2 text-on-surface-variant text-[0.8125rem] font-medium rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"
+                      >
+                        {spark}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* AI STEP 2: RESULT */}
+            {aiStep === 2 && aiResult && (
+              <>
+                <div className="flex items-center justify-between">
                   <button
-                    key={spark}
-                    onClick={() => setTopic(spark)}
-                    className="px-4 py-2 bg-surface-2 text-on-surface-variant text-[0.8125rem] font-medium rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary transition-all"
+                    onClick={() => setAiStep(1)}
+                    className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold uppercase tracking-[0.08em] text-on-surface-variant/60 hover:text-primary transition-colors font-mono"
                   >
-                    {spark}
+                    <ChevronLeft className="w-3.5 h-3.5" /> Back
+                  </button>
+                  <div className="px-3 py-1 bg-secondary/10 text-secondary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-secondary/20">
+                    AI Optimized ✦
+                  </div>
+                </div>
+
+                <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
+                  <div className="p-8">
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-4">Generated Draft</p>
+                    <div className="whitespace-pre-wrap text-[1rem] text-on-background leading-[1.8] font-mono">
+                      {aiResult.post}
+                    </div>
+                  </div>
+
+                  <div className="bg-surface-2 border-t border-[rgba(229,226,218,0.4)] px-8 py-4 flex flex-wrap gap-6 items-center">
+                    <ScoreChip label="Hook" score={aiResult.estimated_scores.hook} />
+                    <ScoreChip label="Engagement" score={aiResult.estimated_scores.engagement} />
+                    <ScoreChip label="Structure" score={aiResult.estimated_scores.structure} />
+                    <div className="h-4 w-px bg-[rgba(229,226,218,0.6)] hidden md:block" />
+                    <div className="flex items-center gap-2 text-[0.6875rem] font-bold text-on-surface-variant font-mono uppercase tracking-wider">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      Best at {aiResult.best_time_to_post}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hashtags */}
+                {aiResult.suggested_hashtags && aiResult.suggested_hashtags.length > 0 && (
+                  <div>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-3">Suggested Hashtags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {aiResult.suggested_hashtags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-2 text-on-surface-variant text-[0.75rem] font-bold rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] font-mono"
+                        >
+                          <Hash className="w-3 h-3 opacity-50" />{tag.replace("#", "")}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <button
+                    onClick={saveDraftFromAI}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
+                  >
+                    <Bookmark className="w-4 h-4" /> Save to Drafts
+                  </button>
+
+                  <button
+                    onClick={handleGenerateAI}
+                    disabled={aiLoading}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all disabled:opacity-50"
+                  >
+                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                    Regenerate
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (aiResult.post) {
+                        const encodedPost = encodeURIComponent(aiResult.post);
+                        router.push(`/dashboard/analyze?content=${encodedPost}`);
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all"
+                  >
+                    <BarChart2 className="w-4 h-4" /> Analyze
+                  </button>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+
+        {/* RSS TAB CONTENT */}
+        {activeTab === "rss" && (
+          <motion.div
+            key="rss-tab"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-8"
+          >
+            <div>
+              <h2 className="text-3xl font-serif text-on-background mb-2">Trending Ideas</h2>
+              <p className="text-[0.95rem] font-medium text-on-surface-variant">Discover posts based on what's trending in tech right now.</p>
+            </div>
+
+            {!selectedRssPost ? (
+              <button
+                onClick={handleGetTrendingPosts}
+                disabled={rssLoading}
+                className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+              >
+                {rssLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <TrendingUp className="w-4 h-4" />
+                    Load Trending Posts
+                  </>
+                )}
+              </button>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setSelectedRssPost(null);
+                      setRssTrendingPosts([]);
+                    }}
+                    className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold uppercase tracking-[0.08em] text-on-surface-variant/60 hover:text-primary transition-colors font-mono"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" /> Back to List
+                  </button>
+                  <div className="px-3 py-1 bg-tertiary/10 text-tertiary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-tertiary/20">
+                    Trending ✦
+                  </div>
+                </div>
+
+                <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
+                  <div className="p-8">
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-2">From: {selectedRssPost.source}</p>
+                    <p className="text-[0.8125rem] font-bold text-on-surface-variant/70 font-mono mb-6">{selectedRssPost.title}</p>
+                    <div className="whitespace-pre-wrap text-[1rem] text-on-background leading-[1.8] font-mono">
+                      {selectedRssPost.post}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedRssPost.suggested_hashtags && selectedRssPost.suggested_hashtags.length > 0 && (
+                  <div>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-3">Suggested Hashtags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRssPost.suggested_hashtags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-2 text-on-surface-variant text-[0.75rem] font-bold rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] font-mono"
+                        >
+                          <Hash className="w-3 h-3 opacity-50" />{tag.replace("#", "")}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <button
+                    onClick={saveDraftFromRSS}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
+                  >
+                    <Bookmark className="w-4 h-4" /> Save to Drafts
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedRssPost(null)}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Try Another
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Trending Posts List */}
+            {rssTrendingPosts.length > 0 && !selectedRssPost && (
+              <div className="space-y-3">
+                <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Available Posts ({rssTrendingPosts.length})</p>
+                {rssTrendingPosts.map((post, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedRssPost(post)}
+                    className="w-full text-left p-4 bg-surface-container-lowest rounded-[8px] ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 transition-all"
+                  >
+                    <p className="text-[0.75rem] font-bold text-on-surface-variant/60 font-mono uppercase mb-1">{post.source}</p>
+                    <p className="text-[0.9375rem] text-on-background font-medium line-clamp-2">{post.title}</p>
                   </button>
                 ))}
               </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Step 2: Result */}
-        {step === 2 && (
-          <motion.div
-            key="step2"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Back Nav */}
-            <div className="flex items-center justify-between pt-2">
-              <button
-                onClick={() => setStep(1)}
-                className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold uppercase tracking-[0.08em] text-on-surface-variant/60 hover:text-primary transition-colors font-mono"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" /> Back to Topic
-              </button>
-              <div className="px-3 py-1 bg-secondary/10 text-secondary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-secondary/20">
-                AI Optimized ✦
-              </div>
-            </div>
-
-            {/* Generated Post Card */}
-            <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
-              {/* Post Content */}
-              <div className="p-8">
-                <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-4">Generated Draft</p>
-                <div className="whitespace-pre-wrap text-[1rem] text-on-background leading-[1.8] font-mono">
-                  {result?.post}
-                </div>
-              </div>
-
-              {/* Score Footer */}
-              <div className="bg-surface-2 border-t border-[rgba(229,226,218,0.4)] px-8 py-4 flex flex-wrap gap-6 items-center">
-                <ScoreChip label="Hook" score={result?.estimated_scores.hook} />
-                <ScoreChip label="Engagement" score={result?.estimated_scores.engagement} />
-                <ScoreChip label="Structure" score={result?.estimated_scores.structure} />
-                <div className="h-4 w-px bg-[rgba(229,226,218,0.6)] hidden md:block" />
-                <div className="flex items-center gap-2 text-[0.6875rem] font-bold text-on-surface-variant font-mono uppercase tracking-wider">
-                  <Clock className="w-3.5 h-3.5 text-primary" />
-                  Best at {result?.best_time_to_post}
-                </div>
-              </div>
-            </div>
-
-            {/* Hashtags */}
-            {result?.suggested_hashtags && result.suggested_hashtags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {result.suggested_hashtags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-surface-2 text-on-surface-variant text-[0.75rem] font-bold rounded-[6px] ring-1 ring-[rgba(229,226,218,0.4)] font-mono"
-                  >
-                    <Hash className="w-3 h-3 opacity-50" />{tag.replace("#", "")}
-                  </span>
-                ))}
-              </div>
             )}
-
-            {/* Action Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button
-                onClick={handleSaveDraft}
-                className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all"
-              >
-                <Bookmark className="w-4 h-4" /> Save Draft
-              </button>
-
-              <button
-                onClick={handleGenerate}
-                disabled={loading}
-                className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all disabled:opacity-50"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                Regenerate
-              </button>
-
-              <button
-                onClick={() => {
-                  if (result?.post) {
-                    const encodedPost = encodeURIComponent(result.post);
-                    router.push(`/dashboard/analyze?content=${encodedPost}`);
-                  }
-                }}
-                className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
-              >
-                <BarChart2 className="w-4 h-4" /> Analyze This
-              </button>
-            </div>
           </motion.div>
         )}
-
       </AnimatePresence>
     </div>
   );
