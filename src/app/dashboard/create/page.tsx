@@ -102,16 +102,23 @@ export default function CreatePostPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized");
 
+      // Convert scores to integers (database expects INT)
+      const hookScore = Math.round(result.estimated_scores.hook || 0);
+      const engagementScore = Math.round(result.estimated_scores.engagement || 0);
+      const structureScore = Math.round(result.estimated_scores.structure || 0);
+      const readabilityScore = Math.round(result.estimated_scores.readability || 0);
+      const overallScore = (hookScore + engagementScore + structureScore + readabilityScore) / 4;
+
       const { error } = await supabase.from("posts").insert({
         user_id: user.id,
         type: "draft",
         topic: topic,
         improved_content: result.post,
-        hook_score: result.estimated_scores.hook,
-        engagement_score: result.estimated_scores.engagement,
-        structure_score: result.estimated_scores.structure,
-        readability_score: result.estimated_scores.readability,
-        overall_score: (result.estimated_scores.hook + result.estimated_scores.engagement + result.estimated_scores.structure + result.estimated_scores.readability) / 4
+        hook_score: hookScore,
+        engagement_score: engagementScore,
+        structure_score: structureScore,
+        readability_score: readabilityScore,
+        overall_score: overallScore
       });
 
       if (error) throw error;
