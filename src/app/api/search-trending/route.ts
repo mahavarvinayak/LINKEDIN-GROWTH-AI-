@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
 
+// Mark this route as dynamic (uses query parameters)
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
