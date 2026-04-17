@@ -4,8 +4,14 @@ import Groq from "groq-sdk";
 let _gemini: GoogleGenerativeAI | null = null;
 let _groq: Groq | null = null;
 
+type NvidiaModelKey = "deepseek" | "moonshot";
+type ResolvedPlan = "free" | "starter" | "pro";
+
+export type UserPlan = "free" | "starter" | "pro" | "premium";
+
 type NvidiaTextClient = {
   name: string;
+  modelKey: NvidiaModelKey;
   apiKey: string;
   baseURL: string;
   model: string;
@@ -28,9 +34,35 @@ const MAX_REQUESTS_PER_MINUTE = 40;
 
 const usage: Record<string, UsageEntry> = {};
 
-const NIM_DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1";
-const PREMIUM_DEFAULT_MODEL = "moonshotai/kimi-k2-instruct";
-const SHARED_DEFAULT_MODEL = "deepseek-ai/deepseek-v3.1-terminus";
+const DEFAULT_NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
+const DEFAULT_DEEPSEEK_MODEL = "deepseek-ai/deepseek-v3.1-terminus";
+const DEFAULT_MOONSHOT_MODEL = "moonshotai/kimi-k2-instruct";
+
+const PLAN_MODEL_ATTENTION: Record<ResolvedPlan, Record<NvidiaModelKey, number>> = {
+  // Free users get majority DeepSeek attention.
+  free: { deepseek: 95, moonshot: 5 },
+  // Starter shares both: less DeepSeek and heavier Moonshot.
+  starter: { deepseek: 20, moonshot: 80 },
+  // Pro also shares Moonshot, but Starter is intentionally heavier as requested.
+  pro: { deepseek: 25, moonshot: 75 },
+};
+
+const nvidiaClients: Record<NvidiaModelKey, NvidiaTextClient> = {
+  deepseek: {
+    name: "nvidia_deepseek",
+    modelKey: "deepseek",
+    apiKey: getEnvValue("NVIDIA_API_KEY_DEEPSEEK", "NVIDIA_SHARED_API_KEY", "NVIDIA_NIM_API_KEY_2"),
+    baseURL: getEnvValue("NVIDIA_BASE_URL", "NVIDIA_SHARED_BASE_URL", "NVIDIA_NIM_BASE_URL_2", "NVIDIA_NIM_BASE_URL") || DEFAULT_NVIDIA_BASE_URL,
+    model: getEnvValue("NVIDIA_MODEL_DEEPSEEK", "NVIDIA_SHARED_MODEL", "NVIDIA_NIM_MODEL_2", "NVIDIA_NIM_MODEL") || DEFAULT_DEEPSEEK_MODEL,
+  },
+  moonshot: {
+    name: "nvidia_moonshot",
+    modelKey: "moonshot",
+    apiKey: getEnvValue("NVIDIA_API_KEY_MOONSHOT", "NVIDIA_PREMIUM_API_KEY", "NVIDIA_NIM_API_KEY_1"),
+    baseURL: getEnvValue("NVIDIA_BASE_URL", "NVIDIA_PREMIUM_BASE_URL", "NVIDIA_NIM_BASE_URL_1", "NVIDIA_NIM_BASE_URL") || DEFAULT_NVIDIA_BASE_URL,
+    model: getEnvValue("NVIDIA_MODEL_MOONSHOT", "NVIDIA_PREMIUM_MODEL", "NVIDIA_NIM_MODEL_1", "NVIDIA_NIM_MODEL") || DEFAULT_MOONSHOT_MODEL,
+  },
+};
 
 function getEnvValue(...keys: string[]): string {
   for (const key of keys) {
@@ -40,66 +72,6 @@ function getEnvValue(...keys: string[]): string {
     }
   }
   return "";
-}
-
-function resolveNvidiaEndpoint(baseURL: string): string {
-  const trimmed = baseURL.trim().replace(/\/+$/, "");
-  if (/\/chat\/completions$/i.test(trimmed)) {
-    return trimmed;
-  }
-  if (/\/v1$/i.test(trimmed)) {
-    return `${trimmed}/chat/completions`;
-  }
-  return `${trimmed}/v1/chat/completions`;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-const premiumClient: NvidiaTextClient = {
-  name: "nvidia_premium_kimi",
-  apiKey: getEnvValue("NVIDIA_PREMIUM_API_KEY", "NVIDIA_NIM_API_KEY_1"),
-  baseURL: getEnvValue("NVIDIA_PREMIUM_BASE_URL", "NVIDIA_NIM_BASE_URL_1", "NVIDIA_NIM_BASE_URL") || NIM_DEFAULT_BASE_URL,
-  model: getEnvValue("NVIDIA_PREMIUM_MODEL", "NVIDIA_NIM_MODEL_1", "NVIDIA_NIM_MODEL") || PREMIUM_DEFAULT_MODEL,
-};
-
-const sharedClient: NvidiaTextClient = {
-  name: "nvidia_shared_deepseek",
-  apiKey: getEnvValue("NVIDIA_SHARED_API_KEY", "NVIDIA_NIM_API_KEY_2"),
-  baseURL: getEnvValue("NVIDIA_SHARED_BASE_URL", "NVIDIA_NIM_BASE_URL_2", "NVIDIA_NIM_BASE_URL") || NIM_DEFAULT_BASE_URL,
-  model: getEnvValue("NVIDIA_SHARED_MODEL", "NVIDIA_NIM_MODEL_2", "NVIDIA_NIM_MODEL") || SHARED_DEFAULT_MODEL,
-};
-
-const FREE_QUALITY_PROFILE: QualityProfile = {
-  temperature: 0.2,
-  topP: 0.7,
-  maxTokensCap: 900,
-  thinking: false,
-};
-
-const PRO_QUALITY_PROFILE: QualityProfile = {
-  temperature: 0.2,
-  topP: 0.7,
-  maxTokensCap: 4096,
-  thinking: true,
-};
-
-const PREMIUM_QUALITY_PROFILE: QualityProfile = {
-  temperature: 0.6,
-  topP: 0.9,
-  maxTokensCap: 4096,
-  thinking: false,
-};
-
-function resolvePlanTier(userPlan: UserPlan): "free" | "pro" | "premium" {
-  if (userPlan === "starter" || userPlan === "premium") {
-    return "premium";
-  }
-  if (userPlan === "pro") {
-    return "pro";
-  }
-  return "free";
 }
 
 function hasEnv(key: string): boolean {
@@ -112,6 +84,33 @@ function normalizeError(error: unknown): string {
     return error.message;
   }
   return String(error);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function resolveNvidiaEndpoint(baseURL: string): string {
+  const trimmed = baseURL.trim().replace(/\/+$/, "");
+
+  if (/\/chat\/completions$/i.test(trimmed)) {
+    return trimmed;
+  }
+  if (/\/v1$/i.test(trimmed)) {
+    return `${trimmed}/chat/completions`;
+  }
+
+  return `${trimmed}/v1/chat/completions`;
+}
+
+function resolvePlanTier(userPlan: UserPlan): ResolvedPlan {
+  if (userPlan === "pro") {
+    return "pro";
+  }
+  if (userPlan === "starter" || userPlan === "premium") {
+    return "starter";
+  }
+  return "free";
 }
 
 function getUsageEntry(clientName: string): UsageEntry {
@@ -142,6 +141,70 @@ function markClientUsed(clientName: string): void {
   entry.count += 1;
 }
 
+function pickModelByWeight(plan: ResolvedPlan): NvidiaModelKey {
+  const weights = PLAN_MODEL_ATTENTION[plan];
+  const total = weights.deepseek + weights.moonshot;
+
+  if (total <= 0) {
+    return "deepseek";
+  }
+
+  const roll = Math.random() * total;
+  return roll < weights.deepseek ? "deepseek" : "moonshot";
+}
+
+function getPlanCandidates(plan: ResolvedPlan): NvidiaTextClient[] {
+  const primaryModel = pickModelByWeight(plan);
+  const secondaryModel: NvidiaModelKey = primaryModel === "deepseek" ? "moonshot" : "deepseek";
+
+  return [nvidiaClients[primaryModel], nvidiaClients[secondaryModel]];
+}
+
+function getQualityProfile(plan: ResolvedPlan, modelKey: NvidiaModelKey): QualityProfile {
+  if (modelKey === "deepseek") {
+    if (plan === "free") {
+      return {
+        temperature: 0.2,
+        topP: 0.7,
+        maxTokensCap: 1000,
+        thinking: false,
+      };
+    }
+
+    if (plan === "starter") {
+      return {
+        temperature: 0.2,
+        topP: 0.7,
+        maxTokensCap: 2400,
+        thinking: false,
+      };
+    }
+
+    return {
+      temperature: 0.2,
+      topP: 0.7,
+      maxTokensCap: 4096,
+      thinking: true,
+    };
+  }
+
+  if (plan === "free") {
+    return {
+      temperature: 0.5,
+      topP: 0.85,
+      maxTokensCap: 1000,
+      thinking: false,
+    };
+  }
+
+  return {
+    temperature: 0.6,
+    topP: 0.9,
+    maxTokensCap: 4096,
+    thinking: false,
+  };
+}
+
 function getGemini(): GoogleGenerativeAI {
   if (!_gemini) {
     _gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -156,16 +219,11 @@ function getGroq(): Groq {
   return _groq;
 }
 
-// ─── Model Names ─────────────────────────────────────────────
 const MODELS = {
   gemini: "gemini-1.5-flash",
-  groq_fallback: "llama-3.1-8b-instant",
+  groqFallback: "llama-3.1-8b-instant",
 };
 
-// ─── User Plan Type ──────────────────────────────────────────
-export type UserPlan = "free" | "starter" | "pro" | "premium";
-
-// ─── Main Router Function ─────────────────────────────────────
 export async function callAI(
   systemPrompt: string,
   userPrompt: string,
@@ -173,43 +231,39 @@ export async function callAI(
   temperature: number = 0.5,
   maxTokens: number = 1000
 ): Promise<string> {
-  const hasGroq = hasEnv("GROQ_API_KEY");
+  const plan = resolvePlanTier(userPlan);
+  const hasDeepseek = nvidiaClients.deepseek.apiKey.length > 0;
+  const hasMoonshot = nvidiaClients.moonshot.apiKey.length > 0;
   const hasGemini = hasEnv("GEMINI_API_KEY");
-  const hasPremiumNvidia = premiumClient.apiKey.length > 0;
-  const hasSharedNvidia = sharedClient.apiKey.length > 0;
+  const hasGroq = hasEnv("GROQ_API_KEY");
 
-  const tier = resolvePlanTier(userPlan);
-
-  if (!hasPremiumNvidia && !hasSharedNvidia && !hasGroq && !hasGemini) {
-    throw new Error("No AI provider configured. Set NVIDIA_PREMIUM_API_KEY or NVIDIA_SHARED_API_KEY (or NVIDIA_NIM_API_KEY_1/2), GEMINI_API_KEY, or GROQ_API_KEY.");
+  if (!hasDeepseek && !hasMoonshot && !hasGemini && !hasGroq) {
+    throw new Error("No AI provider configured. Set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT, or fallback keys.");
   }
 
   const providerErrors: string[] = [];
+  const nvidiaCandidates = getPlanCandidates(plan);
 
-  if (tier === "premium") {
-    if (hasPremiumNvidia) {
-      try {
-        return await callNvidia(premiumClient, PREMIUM_QUALITY_PROFILE, systemPrompt, userPrompt, temperature, maxTokens);
-      } catch (error) {
-        providerErrors.push(`premium model failed: ${normalizeError(error)}`);
-        console.warn("Premium NVIDIA call failed:", error);
-      }
-    } else {
-      providerErrors.push("premium model missing NVIDIA_PREMIUM_API_KEY");
+  for (const client of nvidiaCandidates) {
+    if (!client.apiKey) {
+      providerErrors.push(`${client.name}: missing API key`);
+      continue;
     }
-  }
 
-  if (tier === "pro" || tier === "free" || providerErrors.length > 0) {
-    if (hasSharedNvidia) {
-      const profile = tier === "free" ? FREE_QUALITY_PROFILE : PRO_QUALITY_PROFILE;
-      try {
-        return await callNvidia(sharedClient, profile, systemPrompt, userPrompt, temperature, maxTokens);
-      } catch (error) {
-        providerErrors.push(`shared model failed: ${normalizeError(error)}`);
-        console.warn("Shared NVIDIA call failed:", error);
-      }
-    } else {
-      providerErrors.push("shared model missing NVIDIA_SHARED_API_KEY");
+    if (!canUseClient(client.name)) {
+      providerErrors.push(`${client.name}: rate limit reached (${MAX_REQUESTS_PER_MINUTE}/min)`);
+      continue;
+    }
+
+    markClientUsed(client.name);
+
+    try {
+      const profile = getQualityProfile(plan, client.modelKey);
+      return await callNvidia(client, profile, systemPrompt, userPrompt, temperature, maxTokens);
+    } catch (error) {
+      const message = normalizeError(error);
+      providerErrors.push(`${client.name}: ${message}`);
+      console.warn(`NVIDIA call failed (${client.name}):`, message);
     }
   }
 
@@ -217,7 +271,7 @@ export async function callAI(
     try {
       return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
     } catch (error) {
-      providerErrors.push(`gemini fallback failed: ${normalizeError(error)}`);
+      providerErrors.push(`gemini fallback: ${normalizeError(error)}`);
       console.warn("Gemini fallback failed:", error);
     }
   } else {
@@ -226,20 +280,18 @@ export async function callAI(
 
   if (hasGroq) {
     try {
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
+      return await callGroq(systemPrompt, userPrompt, MODELS.groqFallback, temperature, maxTokens);
     } catch (error) {
-      providerErrors.push(`groq fallback failed: ${normalizeError(error)}`);
+      providerErrors.push(`groq fallback: ${normalizeError(error)}`);
       console.warn("Groq fallback failed:", error);
     }
   } else {
     providerErrors.push("groq fallback unavailable (missing GROQ_API_KEY)");
   }
 
-  const details = providerErrors.join(" | ");
-  throw new Error(`All AI providers failed. ${details}`.trim());
+  throw new Error(`All AI providers failed. ${providerErrors.join(" | ")}`.trim());
 }
 
-// ─── NVIDIA NIM Call (Primary) ───────────────────────────────
 async function callNvidia(
   client: NvidiaTextClient,
   profile: QualityProfile,
@@ -248,12 +300,6 @@ async function callNvidia(
   temperature: number,
   maxTokens: number
 ): Promise<string> {
-  if (!canUseClient(client.name)) {
-    throw new Error(`${client.name} rate limit reached (${MAX_REQUESTS_PER_MINUTE}/min)`);
-  }
-
-  markClientUsed(client.name);
-
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15_000);
 
@@ -313,7 +359,6 @@ async function callNvidia(
   }
 }
 
-// ─── Gemini Call (Paid Users) ─────────────────────────────────
 async function callGemini(
   systemPrompt: string,
   userPrompt: string,
@@ -324,7 +369,7 @@ async function callGemini(
     model: MODELS.gemini,
     systemInstruction: systemPrompt,
     generationConfig: {
-      temperature: temperature,
+      temperature,
       maxOutputTokens: maxTokens,
     },
   });
@@ -336,7 +381,6 @@ async function callGemini(
   return text;
 }
 
-// ─── Groq Call (Free & Fallback) ─────────────────────────────
 async function callGroq(
   systemPrompt: string,
   userPrompt: string,
@@ -346,7 +390,7 @@ async function callGroq(
 ): Promise<string> {
   const completion = await getGroq().chat.completions.create({
     model: modelName,
-    temperature: temperature,
+    temperature,
     max_tokens: maxTokens,
     messages: [
       { role: "system", content: systemPrompt },
@@ -359,18 +403,14 @@ async function callGroq(
   return text;
 }
 
-// ─── JSON Parser Helper ───────────────────────────────────────
 export function parseAIJson<T>(rawText: string): T {
-  // 1. Initial cleanup
   let cleaned = rawText.trim();
 
-  // 2. Remove markdown backticks if present (including variations like ```json or ```)
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
 
   try {
     return JSON.parse(cleaned) as T;
-  } catch (initialError) {
-    // 3. Heuristic: Try to find the first '{' and last '}'
+  } catch {
     const startIndex = cleaned.indexOf("{");
     const endIndex = cleaned.lastIndexOf("}");
 
@@ -378,15 +418,14 @@ export function parseAIJson<T>(rawText: string): T {
       const jsonContent = cleaned.substring(startIndex, endIndex + 1);
       try {
         return JSON.parse(jsonContent) as T;
-      } catch (nestedError) {
+      } catch {
         console.error("Failed to parse extracted JSON block:", jsonContent);
       }
     }
 
-    // 4. Last resort: Clean common AI mistakes like trailing commas
     const repaired = cleaned
-      .replace(/,\s*([\]}])/g, "$1") // Remove trailing commas
-      .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":'); // Ensure keys are quoted (if missing)
+      .replace(/,\s*([\]}])/g, "$1")
+      .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
 
     try {
       return JSON.parse(repaired) as T;
