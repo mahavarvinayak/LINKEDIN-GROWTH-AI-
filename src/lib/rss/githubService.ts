@@ -130,9 +130,10 @@ export async function fetchGithubTrendingViaAPI(
   try {
     // If query provided, search for that specific topic
     // Otherwise search for popular recent repos
+    // Only fetch repos with real traction (>100 stars) to avoid low-quality/spam repos
     let searchQuery = query 
-      ? `${query} stars:>100 sort:stars`
-      : "created:>2024-01-01&sort=stars";
+      ? `${query} stars:>500 sort:stars`
+      : "stars:>500 created:>2024-01-01 sort:stars";
 
     const response = await fetch(
       `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQuery)}&order=desc&per_page=${limit}`,
@@ -151,13 +152,17 @@ export async function fetchGithubTrendingViaAPI(
 
     const data: any = await response.json();
 
-    return (data.items || []).map((repo: any) => ({
-      title: repo.full_name,
-      link: repo.html_url,
-      date: repo.updated_at,
-      description: repo.description || `${repo.stargazers_count} stars`,
-      source: `GitHub (${repo.stargazers_count} ⭐)`,
-    }));
+    // Only return repos with real descriptions (quality filter)
+    return (data.items || [])
+      .filter((repo: any) => repo.description && repo.description.trim().length > 10)
+      .slice(0, 15)
+      .map((repo: any) => ({
+        title: repo.full_name,
+        link: repo.html_url,
+        date: repo.updated_at,
+        description: repo.description.trim().substring(0, 150),
+        source: `GitHub (${repo.stargazers_count} ⭐)`,
+      }));
   } catch (error) {
     console.error("Error fetching GitHub API:", error);
     return [];

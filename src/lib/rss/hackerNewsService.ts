@@ -46,14 +46,21 @@ export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArt
 
         const story: HNStory = await storyRes.json();
 
-        // Only include valid stories with URLs or text
+        // Only include valid stories with URLs and EXCLUDE Ask HN, Show HN, Launch HN
         if (!story.title) continue;
+        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) continue; // Skip non-news posts
+        if (!story.url) continue; // Only include stories with URLs (real external content)
+        if (story.score < 20) continue; // Only include posts with some engagement
+
+        const description = story.text 
+          ? story.text.trim().substring(0, 150) 
+          : "Trending on Hacker News";
 
         articles.push({
           title: story.title,
-          link: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+          link: story.url,
           date: new Date(story.time * 1000).toISOString(),
-          description: story.text ? story.text.substring(0, 150) : story.title,
+          description,
           source: `Hacker News (${story.score} pts)`,
         });
       } catch (error) {
@@ -96,13 +103,20 @@ export async function fetchHackerNewsBestStories(limit: number = 10): Promise<Rs
 
         const story: HNStory = await storyRes.json();
 
+        // Best stories - still filter out non-news
         if (!story.title) continue;
+        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) continue;
+        if (!story.url) continue; // Only external content
+
+        const description = story.text 
+          ? story.text.trim().substring(0, 150) 
+          : "Top story on Hacker News";
 
         articles.push({
           title: story.title,
-          link: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
+          link: story.url,
           date: new Date(story.time * 1000).toISOString(),
-          description: story.text ? story.text.substring(0, 150) : story.title,
+          description,
           source: `HN Best (${story.score} pts)`,
         });
       } catch (error) {

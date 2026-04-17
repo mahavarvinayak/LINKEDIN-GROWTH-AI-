@@ -49,13 +49,16 @@ export async function fetchDevtoArticles(limit: number = 15, tag: string = "tech
 
     const articles: DevtoArticle[] = await response.json();
 
-    return articles.map((article) => ({
-      title: article.title,
-      link: article.url,
-      date: article.published_at,
-      description: article.description || article.title,
-      source: `Dev.to (${article.user.name})`,
-    }));
+    return articles
+      .filter((article) => article.title && article.title.trim().length > 0)
+      .filter((article) => article.description && article.description.trim().length > 20) // Only substantive articles
+      .map((article) => ({
+        title: article.title,
+        link: article.url,
+        date: article.published_at,
+        description: article.description.trim().substring(0, 150),
+        source: `Dev.to (${article.user.name})`,
+      }));
   } catch (error) {
     console.error("Error fetching Dev.to articles:", error);
     return [];
@@ -106,13 +109,16 @@ export async function fetchDevtoTrending(limit: number = 15): Promise<RssArticle
 
     const articles: DevtoArticle[] = await response.json();
 
-    return articles.map((article) => ({
-      title: article.title,
-      link: article.url,
-      date: article.published_at,
-      description: article.description || article.title,
-      source: `Dev.to Trending (${article.user.name})`,
-    }));
+    return articles
+      .filter((article) => article.title && article.title.trim().length > 0)
+      .filter((article) => article.description && article.description.trim().length > 20) // Only substantive articles
+      .map((article) => ({
+        title: article.title,
+        link: article.url,
+        date: article.published_at,
+        description: article.description.trim().substring(0, 150),
+        source: `Dev.to Trending (${article.user.name})`,
+      }));
   } catch (error) {
     console.error("Error fetching Dev.to trending:", error);
     return [];

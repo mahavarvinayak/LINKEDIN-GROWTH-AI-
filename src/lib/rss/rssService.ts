@@ -91,10 +91,10 @@ async function fetchFeed(feed: RssFeedConfig): Promise<RssArticle[]> {
       title: sanitizeText(item.title),
       link: sanitizeText(item.link) || feed.url,
       date: toIsoDate(item.isoDate ?? item.pubDate),
-      description: sanitizeText(item.contentSnippet || item.content || item.title).substring(0, 150),
+      description: sanitizeText(item.contentSnippet || item.content || "").substring(0, 150),
       source: feed.name,
     }))
-    .filter((item) => item.title.length > 0);
+    .filter((item) => item.title.length > 0 && item.description.length > 10); // Only items with real descriptions
 }
 
 export async function fetchLatestRssArticles(): Promise<RssArticle[]> {
