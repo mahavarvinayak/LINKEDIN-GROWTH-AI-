@@ -29,9 +29,16 @@ export async function GET() {
 
   if (snapshot.cachedFeeds.length > 0) {
     const fallbackPosts: GeneratedLinkedInPost[] = snapshot.cachedFeeds.slice(0, 5).map((article) => ({
-      post: article.title,
-      source: article.link,
+      post: [
+        article.title,
+        "",
+        article.description || "This trend is getting attention in the tech ecosystem.",
+        "",
+        "My take: this is worth watching if you are building right now.",
+      ].join("\n"),
+      source: article.source,
       title: article.title,
+      description: article.description,
       generatedAt: new Date().toISOString(),
       fallback: true,
     }));

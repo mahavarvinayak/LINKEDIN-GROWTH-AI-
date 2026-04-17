@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
           post: post.post,
           source: post.source,
           title: post.title,
-          suggested_hashtags: extractHashtags(post.post),
+          description: post.description || post.title,
+          suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
         })),
       });
     }
@@ -44,7 +45,8 @@ export async function POST(req: NextRequest) {
         post: post.post,
         source: post.source,
         title: post.title,
-        suggested_hashtags: extractHashtags(post.post),
+        description: post.description || post.title,
+        suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
       })),
     });
   } catch (error) {
@@ -73,7 +75,8 @@ export async function GET(req: NextRequest) {
           post: post.post,
           source: post.source,
           title: post.title,
-          suggested_hashtags: extractHashtags(post.post),
+          description: post.description || post.title,
+          suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
         })),
       });
     }
@@ -84,7 +87,8 @@ export async function GET(req: NextRequest) {
         post: post.post,
         source: post.source,
         title: post.title,
-        suggested_hashtags: extractHashtags(post.post),
+        description: post.description || post.title,
+        suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
       })),
     });
   } catch (error) {
@@ -97,6 +101,35 @@ export async function GET(req: NextRequest) {
 }
 
 function extractHashtags(text: string): string[] {
-  const hashtags = text.match(/#\w+/g) || [];
-  return [...new Set(hashtags)].slice(0, 5);
+  const stopWords = new Set([
+    "that",
+    "this",
+    "with",
+    "from",
+    "have",
+    "will",
+    "into",
+    "their",
+    "about",
+    "after",
+    "before",
+    "there",
+    "these",
+    "those",
+    "where",
+    "which",
+    "https",
+    "www",
+  ]);
+
+  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) => tag.replace(/^#/, "").toLowerCase());
+  const keywords = text
+    .toLowerCase()
+    .replace(/<[^>]+>/g, " ")
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 3 && word.length <= 20)
+    .filter((word) => !stopWords.has(word))
+    .filter((word) => !/^\d+$/.test(word));
+
+  return Array.from(new Set([...explicitHashtags, ...keywords])).slice(0, 5);
 }

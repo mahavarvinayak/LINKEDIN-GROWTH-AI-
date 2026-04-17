@@ -4,11 +4,88 @@ import { fetchHackerNewsStories } from "./hackerNewsService";
 import { fetchDevtoArticles } from "./devtoService";
 import { fetchGithubTrendingViaAPI } from "./githubService";
 
+const SEARCH_STOP_WORDS = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "that",
+  "this",
+  "into",
+  "over",
+  "about",
+  "your",
+  "have",
+  "will",
+  "what",
+  "when",
+  "where",
+  "after",
+  "before",
+]);
+
 export interface SearchResult {
   articles: RssArticle[];
   query: string;
   totalFound: number;
   sources: string[];
+}
+
+function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getSourceKey(source: string): string {
+  return source.split("(")[0].trim().toLowerCase();
+}
+
+function queryTokens(query: string): string[] {
+  const tokens = normalizeText(query)
+    .split(" ")
+    .filter((token) => token.length > 1 && !SEARCH_STOP_WORDS.has(token));
+
+  return tokens.length > 0 ? tokens : [normalizeText(query)];
+}
+
+function getPrimaryKeyword(query: string): string {
+  return queryTokens(query)[0] || "technology";
+}
+
+function computeRelevance(article: RssArticle, normalizedQuery: string, tokens: string[]): number {
+  const title = normalizeText(article.title);
+  const description = normalizeText(article.description ?? "");
+  const source = normalizeText(article.source);
+  let score = 0;
+
+  if (title.includes(normalizedQuery)) score += 20;
+  if (description.includes(normalizedQuery)) score += 14;
+  if (source.includes(normalizedQuery)) score += 8;
+
+  for (const token of tokens) {
+    if (title.includes(token)) score += 6;
+    if (description.includes(token)) score += 3;
+    if (source.includes(token)) score += 2;
+  }
+
+  const publishedAt = Date.parse(article.date);
+  if (!Number.isNaN(publishedAt)) {
+    const ageHours = (Date.now() - publishedAt) / (1000 * 60 * 60);
+    if (ageHours <= 24) score += 6;
+    else if (ageHours <= 72) score += 4;
+    else if (ageHours <= 168) score += 2;
+  }
+
+  if (/techcrunch|the verge|a16z|hacker news|dev\.to/i.test(article.source)) {
+    score += 2;
+  }
+
+  return score;
 }
 
 /**
@@ -29,6 +106,19 @@ export async function searchTrendingArticles(
   }
 
   const normalizedQuery = query.toLowerCase().trim();
+  const normalizedSearchQuery = normalizeText(normalizedQuery);
+
+  if (!normalizedSearchQuery) {
+    return {
+      articles: [],
+      query: normalizedQuery,
+      totalFound: 0,
+      sources: [],
+    };
+  }
+
+  const tokens = queryTokens(normalizedSearchQuery);
+  const devtoTag = getPrimaryKeyword(normalizedSearchQuery);
 
   try {
     // Fetch from all 4 sources in parallel
@@ -41,7 +131,7 @@ export async function searchTrendingArticles(
         console.error("HN search error:", error);
         return [];
       }),
-      fetchDevtoArticles(30, normalizedQuery).catch((error) => {
+      fetchDevtoArticles(30, devtoTag).catch((error) => {
         console.error("DevTo search error:", error);
         return [];
       }),
@@ -59,27 +149,66 @@ export async function searchTrendingArticles(
       ...githubArticles,
     ];
 
-    // Filter by query - check title and source
-    const filtered = allArticles.filter((article) => {
-      const titleMatch = article.title.toLowerCase().includes(normalizedQuery);
-      const sourceMatch = article.source.toLowerCase().includes(normalizedQuery);
-      return titleMatch || sourceMatch;
+    const scored = allArticles
+      .map((article) => ({
+        article,
+        score: computeRelevance(article, normalizedSearchQuery, tokens),
+      }))
+      .filter(({ score }) => score >= 8)
+      .sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return new Date(b.article.date).getTime() - new Date(a.article.date).getTime();
+      });
+
+    const seen = new Set<string>();
+    const deduped = scored.filter(({ article }) => {
+      const key = `${article.link}|${article.title.toLowerCase()}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
     });
 
-    // Sort by relevance (title matches first, then source matches)
-    const sorted = filtered.sort((a, b) => {
-      const aExactMatch = a.title.toLowerCase().includes(normalizedQuery) ? 1 : 0;
-      const bExactMatch = b.title.toLowerCase().includes(normalizedQuery) ? 1 : 0;
-      return bExactMatch - aExactMatch;
-    });
+    const perSourceLimit = 2;
+    const sourceCounts = new Map<string, number>();
+    const selected: RssArticle[] = [];
+
+    for (const item of deduped) {
+      const source = getSourceKey(item.article.source);
+      const count = sourceCounts.get(source) || 0;
+      if (count >= perSourceLimit) {
+        continue;
+      }
+      selected.push(item.article);
+      sourceCounts.set(source, count + 1);
+      if (selected.length >= limit) {
+        break;
+      }
+    }
+
+    if (selected.length < limit) {
+      for (const item of deduped) {
+        const exists = selected.some((current) => current.link === item.article.link);
+        if (exists) {
+          continue;
+        }
+        selected.push(item.article);
+        if (selected.length >= limit) {
+          break;
+        }
+      }
+    }
 
     // Get unique sources from results
-    const sourcesSet = new Set(sorted.map((a) => a.source.split("(")[0].trim()));
+    const sourcesSet = new Set(selected.map((a) => a.source.split("(")[0].trim()));
 
     return {
-      articles: sorted.slice(0, limit),
+      articles: selected.slice(0, limit),
       query: normalizedQuery,
-      totalFound: sorted.length,
+      totalFound: deduped.length,
       sources: Array.from(sourcesSet),
     };
   } catch (error) {

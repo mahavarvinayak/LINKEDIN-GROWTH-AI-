@@ -23,13 +23,13 @@ export async function GET(req: NextRequest) {
       success: true,
       ...results,
       posts: results.articles.map((article) => ({
-        post: article.title,
-        description: article.description || article.title,
+        post: composeTrendingPost(article.title, article.description, article.source),
+        description: cleanDescription(article.description) || article.title,
         source: article.source,
         title: article.title,
         link: article.link,
         date: article.date,
-        suggested_hashtags: extractHashtags(article.title || article.description || ""),
+        suggested_hashtags: extractHashtags(`${article.title} ${article.description || ""}`),
       })),
     });
   } catch (error) {
@@ -41,14 +41,63 @@ export async function GET(req: NextRequest) {
   }
 }
 
+function cleanDescription(text?: string): string {
+  if (!text) {
+    return "";
+  }
+
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 220);
+}
+
+function composeTrendingPost(title: string, description: string | undefined, source: string): string {
+  const summary = cleanDescription(description);
+  const sourceName = source.split("(")[0].trim();
+
+  return [
+    title,
+    "",
+    summary || `This is trending right now in ${sourceName}.`,
+    "",
+    "My take: this is a signal worth watching if you are building in tech.",
+    "",
+    "Do you think this trend will grow in the next 12 months?",
+  ].join("\n");
+}
+
 function extractHashtags(text: string): string[] {
-  const hashtags = text.match(/#\w+/g) || [];
-  // Also extract potential keywords as hashtags
+  const stopWords = new Set([
+    "that",
+    "this",
+    "with",
+    "from",
+    "have",
+    "will",
+    "into",
+    "their",
+    "about",
+    "after",
+    "before",
+    "there",
+    "these",
+    "those",
+    "where",
+    "which",
+    "https",
+    "www",
+  ]);
+
+  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) => tag.replace(/^#/, "").toLowerCase());
   const keywords = text
     .toLowerCase()
-    .split(/[\s\-.,;:!?()]+/)
-    .filter((word) => word.length > 3 && word.length < 15)
-    .slice(0, 3);
+    .replace(/<[^>]+>/g, " ")
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 3 && word.length <= 20)
+    .filter((word) => !stopWords.has(word))
+    .filter((word) => !/^\d+$/.test(word));
 
-  return [...new Set([...hashtags, ...keywords])].slice(0, 5);
+  return Array.from(new Set([...explicitHashtags, ...keywords])).slice(0, 5);
 }

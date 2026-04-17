@@ -15,6 +15,7 @@ export interface GeneratedLinkedInPost {
   post: string;
   source: string;
   title: string;
+  description?: string;
   generatedAt: string;
   fallback: boolean;
 }

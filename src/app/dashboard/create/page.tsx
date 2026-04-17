@@ -167,7 +167,7 @@ export default function CreatePostPage() {
 
     setSearchLoading(true);
     try {
-      const response = await fetch(`/api/search-trending?q=${encodeURIComponent(query)}&limit=5`);
+      const response = await fetch(`/api/search-trending?q=${encodeURIComponent(query)}&limit=10`);
       const data = await response.json();
 
       if (data.success && data.posts && data.posts.length > 0) {
