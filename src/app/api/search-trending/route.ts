@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
-    const limit = parseInt(searchParams.get("limit") || "5", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
 
     if (!query || query.trim().length < 2) {
       return NextResponse.json(

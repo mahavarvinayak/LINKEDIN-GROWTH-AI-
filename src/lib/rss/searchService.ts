@@ -37,15 +37,15 @@ export async function searchTrendingArticles(
         console.error("RSS search error:", error);
         return [];
       }),
-      fetchHackerNewsStories(20).catch((error) => {
+      fetchHackerNewsStories(30).catch((error) => {
         console.error("HN search error:", error);
         return [];
       }),
-      fetchDevtoArticles(20, "").catch((error) => {
+      fetchDevtoArticles(30, normalizedQuery).catch((error) => {
         console.error("DevTo search error:", error);
         return [];
       }),
-      fetchGithubTrendingViaAPI(20).catch((error) => {
+      fetchGithubTrendingViaAPI(30, normalizedQuery).catch((error) => {
         console.error("GitHub search error:", error);
         return [];
       }),

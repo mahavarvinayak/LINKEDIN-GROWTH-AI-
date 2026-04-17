@@ -120,14 +120,22 @@ function parseGithubTrendingHTML(html: string): GithubTrendingRepo[] {
 }
 
 /**
- * Alternative: Fetch using GitHub REST API
+ * Alternative: Fetch using GitHub REST API with search query
  * Still free but has rate limits (no auth: 60 req/hour, with auth: 5000 req/hour)
  */
-export async function fetchGithubTrendingViaAPI(limit: number = 15): Promise<RssArticle[]> {
+export async function fetchGithubTrendingViaAPI(
+  limit: number = 15,
+  query?: string
+): Promise<RssArticle[]> {
   try {
-    // Search for recently created repositories with high stars
+    // If query provided, search for that specific topic
+    // Otherwise search for popular recent repos
+    let searchQuery = query 
+      ? `${query} stars:>100 sort:stars`
+      : "created:>2024-01-01&sort=stars";
+
     const response = await fetch(
-      `https://api.github.com/search/repositories?q=created:>2024-01-01&sort=stars&order=desc&per_page=${limit}`,
+      `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQuery)}&order=desc&per_page=${limit}`,
       {
         headers: {
           "Accept": "application/vnd.github+json",
