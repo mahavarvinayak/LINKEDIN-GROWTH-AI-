@@ -120,7 +120,7 @@ export default function CreatePostPage() {
           alert("No credits remaining. Please upgrade your plan.");
           return;
         }
-        throw new Error(data.error || "Generation failed");
+        throw new Error(data.message || data.error || "Generation failed");
       }
 
       setAiResult(data);

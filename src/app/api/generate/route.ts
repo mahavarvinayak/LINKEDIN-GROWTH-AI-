@@ -165,8 +165,32 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error("Generation API Error:", error);
+
+    const message = typeof error?.message === "string" ? error.message : "Generation failed";
+    const lowered = message.toLowerCase();
+
+    if (lowered.includes("no ai provider configured") || lowered.includes("api key")) {
+      return NextResponse.json(
+        {
+          error: "ai_provider_missing",
+          message: "AI service is not configured properly. Please set GROQ_API_KEY or GEMINI_API_KEY in server environment.",
+        },
+        { status: 503 }
+      );
+    }
+
+    if (lowered.includes("rate limit") || lowered.includes("429")) {
+      return NextResponse.json(
+        {
+          error: "ai_rate_limited",
+          message: "AI provider rate limit reached. Please retry after a short wait.",
+        },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Failed to generate post. Please try again." },
+      { error: "Failed to generate post. Please try again.", message },
       { status: 500 }
     );
   }

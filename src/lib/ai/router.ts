@@ -7,6 +7,11 @@ import Groq from "groq-sdk";
 let _gemini: GoogleGenerativeAI | null = null;
 let _groq: Groq | null = null;
 
+function hasEnv(key: string): boolean {
+  const value = process.env[key];
+  return Boolean(value && value.trim().length > 0);
+}
+
 function getGemini(): GoogleGenerativeAI {
   if (!_gemini) {
     _gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -39,24 +44,50 @@ export async function callAI(
   temperature: number = 0.5,
   maxTokens: number = 1000
 ): Promise<string> {
+  const hasGroq = hasEnv("GROQ_API_KEY");
+  const hasGemini = hasEnv("GEMINI_API_KEY");
+
+  if (!hasGroq && !hasGemini) {
+    throw new Error("No AI provider configured. Please set GROQ_API_KEY or GEMINI_API_KEY.");
+  }
 
   // Route based on user plan
   if (userPlan === "free") {
-    // Free users → Groq 8B first, Gemini fallback (within free RPM) or Groq 70B
-    try {
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_free, temperature, maxTokens);
-    } catch (error) {
-      console.log("Groq 8B failed, falling back to Groq 70B:", error);
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
+    // Free users → Groq first (fast), fallback to Gemini, then Groq large model
+    if (hasGroq) {
+      try {
+        return await callGroq(systemPrompt, userPrompt, MODELS.groq_free, temperature, maxTokens);
+      } catch (error) {
+        console.log("Groq 8B failed, trying fallback providers:", error);
+      }
+
+      try {
+        return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
+      } catch (error) {
+        console.log("Groq 70B failed, trying Gemini fallback:", error);
+      }
     }
+
+    if (hasGemini) {
+      return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
+    }
+
+    throw new Error("AI generation unavailable for free plan. GROQ_API_KEY is missing and Gemini fallback failed.");
   } else {
     // Paid users (starter/pro) → Gemini first, Groq 70B fallback
-    try {
-      return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
-    } catch (error) {
-      console.log("Gemini failed, falling back to Groq 70B:", error);
+    if (hasGemini) {
+      try {
+        return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
+      } catch (error) {
+        console.log("Gemini failed, trying Groq 70B fallback:", error);
+      }
+    }
+
+    if (hasGroq) {
       return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
     }
+
+    throw new Error("AI generation unavailable for paid plan. GEMINI_API_KEY is missing and GROQ_API_KEY fallback is unavailable.");
   }
 }
 
