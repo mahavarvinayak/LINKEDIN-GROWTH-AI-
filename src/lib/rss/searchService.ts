@@ -3,6 +3,7 @@ import { fetchLatestRssArticles } from "./rssService";
 import { fetchHackerNewsStories } from "./hackerNewsService";
 import { fetchDevtoArticles } from "./devtoService";
 import { fetchGithubTrendingViaAPI } from "./githubService";
+import { fetchCurrentsNewsByKeyword } from "../news/currentsService";
 
 const SEARCH_STOP_WORDS = new Set([
   "the",
@@ -89,7 +90,7 @@ function computeRelevance(article: RssArticle, normalizedQuery: string, tokens: 
 }
 
 /**
- * Search trending articles across all 4 sources by keyword
+ * Search trending articles across all sources by keyword
  * Returns top 5 matching results
  */
 export async function searchTrendingArticles(
@@ -121,8 +122,8 @@ export async function searchTrendingArticles(
   const devtoTag = getPrimaryKeyword(normalizedSearchQuery);
 
   try {
-    // Fetch from all 4 sources in parallel
-    const [rssArticles, hnArticles, devtoArticles, githubArticles] = await Promise.all([
+    // Fetch from all sources in parallel
+    const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] = await Promise.all([
       fetchLatestRssArticles().catch((error) => {
         console.error("RSS search error:", error);
         return [];
@@ -139,6 +140,10 @@ export async function searchTrendingArticles(
         console.error("GitHub search error:", error);
         return [];
       }),
+      fetchCurrentsNewsByKeyword(normalizedQuery, 30).catch((error) => {
+        console.error("Currents search error:", error);
+        return [];
+      }),
     ]);
 
     // Combine all articles
@@ -147,6 +152,7 @@ export async function searchTrendingArticles(
       ...hnArticles,
       ...devtoArticles,
       ...githubArticles,
+      ...currentsArticles,
     ];
 
     const scored = allArticles

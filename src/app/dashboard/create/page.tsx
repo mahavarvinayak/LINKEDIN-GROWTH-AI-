@@ -39,6 +39,8 @@ interface RssTrendingPost {
   source: string;
   title: string;
   description?: string;
+  link?: string;
+  date?: string;
   suggested_hashtags?: string[];
 }
 
@@ -62,6 +64,7 @@ export default function CreatePostPage() {
   const [aiStep, setAiStep] = useState<1 | 2>(1);
   const [topic, setTopic] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [creatingFromNews, setCreatingFromNews] = useState(false);
   const [aiResult, setAiResult] = useState<GeneratedPost | null>(null);
   
   // RSS Trending state
@@ -180,6 +183,53 @@ export default function CreatePostPage() {
       setSearchResults([]);
     } finally {
       setSearchLoading(false);
+    }
+  };
+
+  // --- GENERATE FROM SELECTED NEWS ---
+  const handleCreatePostFromNews = async () => {
+    if (!selectedRssPost) return;
+
+    setCreatingFromNews(true);
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: selectedRssPost.title,
+          news: {
+            title: selectedRssPost.title,
+            description: selectedRssPost.description,
+            source: selectedRssPost.source,
+            link: selectedRssPost.link,
+            date: selectedRssPost.date,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.error === "no_credits") {
+          alert("No credits remaining. Please upgrade your plan.");
+          return;
+        }
+        throw new Error(data.message || data.error || "Generation failed");
+      }
+
+      setSelectedRssPost((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          post: data.post || prev.post,
+          suggested_hashtags: data.suggested_hashtags || prev.suggested_hashtags,
+        };
+      });
+    } catch (err: any) {
+      console.error("Generate from news error:", err);
+      alert(err.message || "Failed to generate post from selected news");
+    } finally {
+      setCreatingFromNews(false);
     }
   };
 
@@ -572,12 +622,21 @@ export default function CreatePostPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <button
                     onClick={saveDraftFromRSS}
                     className="flex items-center justify-center gap-2 py-3.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
                   >
                     <Bookmark className="w-4 h-4" /> Save to Drafts
+                  </button>
+
+                  <button
+                    onClick={handleCreatePostFromNews}
+                    disabled={creatingFromNews}
+                    className="flex items-center justify-center gap-2 py-3.5 bg-surface-container-lowest rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 hover:text-primary transition-all disabled:opacity-50"
+                  >
+                    {creatingFromNews ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    Create Post from This News
                   </button>
 
                   <button

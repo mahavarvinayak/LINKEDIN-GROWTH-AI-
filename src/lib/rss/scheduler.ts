@@ -2,6 +2,7 @@ import { fetchLatestRssArticles } from "./rssService";
 import { fetchHackerNewsStories } from "./hackerNewsService";
 import { fetchDevtoArticles } from "./devtoService";
 import { fetchGithubTrendingViaAPI } from "./githubService";
+import { fetchCurrentsLatestNews } from "../news/currentsService";
 import {
   getRssCacheSnapshot,
   pickRandomArticles,
@@ -19,8 +20,8 @@ async function rebuildCaches(): Promise<void> {
   setRefreshing(true);
 
   try {
-    // Fetch from all 4 sources in parallel
-    const [rssArticles, hnArticles, devtoArticles, githubArticles] = await Promise.all([
+    // Fetch from all sources in parallel
+    const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] = await Promise.all([
       fetchLatestRssArticles().catch((error) => {
         console.error("RSS fetch error:", error);
         return [];
@@ -37,6 +38,10 @@ async function rebuildCaches(): Promise<void> {
         console.error("GitHub fetch error:", error);
         return [];
       }),
+      fetchCurrentsLatestNews(20).catch((error) => {
+        console.error("Currents fetch error:", error);
+        return [];
+      }),
     ]);
 
     // Combine all articles
@@ -45,6 +50,7 @@ async function rebuildCaches(): Promise<void> {
       ...hnArticles,
       ...devtoArticles,
       ...githubArticles,
+      ...currentsArticles,
     ];
 
     // Store combined articles

@@ -2,7 +2,106 @@ import { NextRequest, NextResponse } from "next/server";
 import { callAI, parseAIJson } from "../../../lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
-import { predictEngagementRate, convertLegacyScore } from "@/lib/ai/scoringEngine";
+import { predictEngagementRate } from "@/lib/ai/scoringEngine";
+import { fetchCurrentsNewsByKeyword } from "@/lib/news/currentsService";
+import { searchTrendingArticles } from "@/lib/rss/searchService";
+
+interface NewsContext {
+  title?: string;
+  description?: string;
+  source?: string;
+  link?: string;
+  date?: string;
+}
+
+function cleanText(text: string | undefined | null): string {
+  if (!text) {
+    return "";
+  }
+
+  return text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeNewsContext(input: NewsContext | null | undefined): NewsContext | null {
+  if (!input) {
+    return null;
+  }
+
+  const title = cleanText(input.title);
+  const description = cleanText(input.description);
+  const source = cleanText(input.source);
+  const link = cleanText(input.link);
+  const date = cleanText(input.date);
+
+  if (!title && !description) {
+    return null;
+  }
+
+  return {
+    title: title || description,
+    description: description || title,
+    source: source || "News Source",
+    link,
+    date,
+  };
+}
+
+function appendNewsContextToPrompt(basePrompt: string, newsContext: NewsContext | null): string {
+  if (!newsContext) {
+    return basePrompt;
+  }
+
+  const lines = [
+    "",
+    "VERIFIED NEWS CONTEXT (USE THESE FACTS IN THE POST):",
+    `Headline: ${newsContext.title || "N/A"}`,
+    `Summary: ${newsContext.description || "N/A"}`,
+    `Source: ${newsContext.source || "N/A"}`,
+  ];
+
+  if (newsContext.link) {
+    lines.push(`URL: ${newsContext.link}`);
+  }
+
+  lines.push("Instructions: Keep claims grounded in the context above. Do not invent facts or numbers.");
+
+  return `${basePrompt}\n${lines.join("\n")}`;
+}
+
+async function resolveNewsContext(topic: string, providedNews: NewsContext | null): Promise<NewsContext | null> {
+  if (providedNews) {
+    return providedNews;
+  }
+
+  const currentsArticles = await fetchCurrentsNewsByKeyword(topic, 5).catch(() => []);
+  if (currentsArticles.length > 0) {
+    const article = currentsArticles[0];
+    return {
+      title: article.title,
+      description: article.description,
+      source: article.source,
+      link: article.link,
+      date: article.date,
+    };
+  }
+
+  const fallbackResults = await searchTrendingArticles(topic, 5).catch(() => ({ articles: [] }));
+  if (fallbackResults.articles.length > 0) {
+    const article = fallbackResults.articles[0];
+    return {
+      title: article.title,
+      description: article.description,
+      source: article.source,
+      link: article.link,
+      date: article.date,
+    };
+  }
+
+  return null;
+}
 
 // Helper to validate and clamp scores to 0-10 range
 function validateScore(score: any): number {
@@ -12,7 +111,9 @@ function validateScore(score: any): number {
 
 export async function POST(req: NextRequest) {
   try {
-    const { topic } = await req.json();
+    const body = await req.json();
+    const topic = cleanText(body?.topic);
+    const providedNews = normalizeNewsContext(body?.news);
 
     if (!topic || topic.length < 5) {
       return NextResponse.json(
@@ -61,8 +162,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Build Prompt and Call AI
-    const userPrompt = buildGeneratePrompt(
+    // 2. Build Prompt with optional news context and Call AI
+    const resolvedNewsContext = await resolveNewsContext(topic, providedNews);
+
+    const basePrompt = buildGeneratePrompt(
       topic,
       persona.role,
       persona.topics,
@@ -70,6 +173,8 @@ export async function POST(req: NextRequest) {
       persona.tone,
       persona.audience
     );
+
+    const userPrompt = appendNewsContextToPrompt(basePrompt, resolvedNewsContext);
 
     const rawResponse = await callAI(
       LINKEDIN_SYSTEM_PROMPT,
@@ -148,6 +253,7 @@ export async function POST(req: NextRequest) {
       hook_type: (result as any).hook_type,
       suggested_hashtags: (result as any).suggested_hashtags,
       best_time_to_post: (result as any).best_time_to_post,
+      news_context: resolvedNewsContext,
       estimated_scores: {
         hook: hookS,
         readability: readS,
@@ -173,7 +279,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: "ai_provider_missing",
-          message: "AI service is not configured properly. Please set GROQ_API_KEY or GEMINI_API_KEY in server environment.",
+          message: "AI service is not configured properly. Please set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT (or fallback GEMINI/GROQ keys).",
         },
         { status: 503 }
       );

@@ -63,6 +63,12 @@ if (!hasDeepseekNvidia && !hasMoonshotNvidia) {
   console.log("⚠️  NVIDIA NIM keys are not configured. Traffic will use fallback providers only.");
 }
 
+if (!process.env.CURRENTS_API_KEY) {
+  console.log("⚠️  CURRENTS_API_KEY is not set. Trending/search will run without Currents API augmentation.");
+} else {
+  console.log("✅ CURRENTS_API_KEY is set.");
+}
+
 if (missing) {
   console.log("\n⚠️  Some required environment variables are missing.");
   process.exit(1);
