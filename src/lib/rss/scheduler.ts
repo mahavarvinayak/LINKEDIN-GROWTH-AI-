@@ -1,4 +1,7 @@
 import { fetchLatestRssArticles } from "./rssService";
+import { fetchHackerNewsStories } from "./hackerNewsService";
+import { fetchDevtoArticles } from "./devtoService";
+import { fetchGithubTrendingViaAPI } from "./githubService";
 import {
   getRssCacheSnapshot,
   pickRandomArticles,
@@ -8,6 +11,7 @@ import {
   setRefreshing,
 } from "./cacheService";
 import { generateLinkedInPostsFromArticles } from "./aiService";
+import type { RssArticle } from "./types";
 
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
@@ -15,15 +19,44 @@ async function rebuildCaches(): Promise<void> {
   setRefreshing(true);
 
   try {
-    const articles = await fetchLatestRssArticles();
+    // Fetch from all 4 sources in parallel
+    const [rssArticles, hnArticles, devtoArticles, githubArticles] = await Promise.all([
+      fetchLatestRssArticles().catch((error) => {
+        console.error("RSS fetch error:", error);
+        return [];
+      }),
+      fetchHackerNewsStories(15).catch((error) => {
+        console.error("Hacker News fetch error:", error);
+        return [];
+      }),
+      fetchDevtoArticles(15, "technology").catch((error) => {
+        console.error("Dev.to fetch error:", error);
+        return [];
+      }),
+      fetchGithubTrendingViaAPI(15).catch((error) => {
+        console.error("GitHub fetch error:", error);
+        return [];
+      }),
+    ]);
 
-    if (articles.length > 0) {
-      setCachedFeeds(articles);
+    // Combine all articles
+    const allArticles: RssArticle[] = [
+      ...rssArticles,
+      ...hnArticles,
+      ...devtoArticles,
+      ...githubArticles,
+    ];
+
+    // Store combined articles
+    if (allArticles.length > 0) {
+      setCachedFeeds(allArticles);
     }
 
-    const sourceArticles = articles.length > 0 ? articles : getRssCacheSnapshot().cachedFeeds;
-    const selectedArticles = pickRandomArticles(Math.min(5, sourceArticles.length));
+    // Select diverse articles (up to 25 from combined sources)
+    const sourceArticles = allArticles.length > 0 ? allArticles : getRssCacheSnapshot().cachedFeeds;
+    const selectedArticles = pickRandomArticles(Math.min(25, sourceArticles.length));
 
+    // Generate LinkedIn posts from selected articles
     if (selectedArticles.length > 0) {
       const generatedPosts = await generateLinkedInPostsFromArticles(selectedArticles);
       if (generatedPosts.length > 0) {
@@ -35,6 +68,7 @@ async function rebuildCaches(): Promise<void> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "RSS refresh failed";
     setLastError(message);
+    console.error("Scheduler error:", message);
   } finally {
     setRefreshing(false);
   }

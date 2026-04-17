@@ -65,6 +65,7 @@ export default function CreatePostPage() {
   const [rssLoading, setRssLoading] = useState(false);
   const [rssTrendingPosts, setRssTrendingPosts] = useState<RssTrendingPost[]>([]);
   const [selectedRssPost, setSelectedRssPost] = useState<RssTrendingPost | null>(null);
+  const [rssRefreshTime, setRssRefreshTime] = useState<string | null>(null);
   
   // User data
   const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
@@ -120,14 +121,19 @@ export default function CreatePostPage() {
   };
 
   // --- RSS TRENDING HANDLERS ---
-  const handleGetTrendingPosts = async () => {
+  const handleGetTrendingPosts = async (forceRefresh: boolean = false) => {
     setRssLoading(true);
     try {
-      const response = await fetch("/generate-posts");
+      const response = await fetch("/api/generate-posts", {
+        method: forceRefresh ? "POST" : "GET",
+        headers: forceRefresh ? { "Content-Type": "application/json" } : {},
+        body: forceRefresh ? JSON.stringify({ forceRefresh: true }) : undefined,
+      });
       const data = await response.json();
 
       if (data.success && data.posts && data.posts.length > 0) {
         setRssTrendingPosts(data.posts);
+        setRssRefreshTime(new Date().toLocaleTimeString());
       } else {
         alert("No trending posts available. Try again later.");
       }
@@ -385,20 +391,40 @@ export default function CreatePostPage() {
             </div>
 
             {!selectedRssPost ? (
-              <button
-                onClick={handleGetTrendingPosts}
-                disabled={rssLoading}
-                className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
-              >
-                {rssLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <TrendingUp className="w-4 h-4" />
-                    Load Trending Posts
-                  </>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleGetTrendingPosts(false)}
+                  disabled={rssLoading}
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+                >
+                  {rssLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <TrendingUp className="w-4 h-4" />
+                      Load Trending Posts
+                    </>
+                  )}
+                </button>
+
+                {rssTrendingPosts.length > 0 && (
+                  <button
+                    onClick={() => handleGetTrendingPosts(true)}
+                    disabled={rssLoading}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-surface-container text-on-surface-variant hover:ring-primary/30 disabled:opacity-40 disabled:pointer-events-none px-7 rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] ring-1 ring-[rgba(229,226,218,0.5)] transition-all"
+                  >
+                    {rssLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <RotateCcw className="w-4 h-4" />
+                        Refresh Posts
+                        {rssRefreshTime && <span className="ml-2 text-[0.7rem] opacity-60">Last updated at {rssRefreshTime}</span>}
+                      </>
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
             ) : (
               <>
                 <div className="flex items-center justify-between">
