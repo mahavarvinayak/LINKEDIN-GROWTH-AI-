@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { callAI, parseAIJson } from "@/lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
+import { predictEngagementRate, convertLegacyScore } from "@/lib/ai/scoringEngine";
 
 // Helper to validate and clamp scores to 0-10 range
 function validateScore(score: any): number {
@@ -80,26 +81,47 @@ export async function POST(req: NextRequest) {
 
     // 3. Parse JSON response
     const result = parseAIJson(rawResponse);
+    const post = (result as any).post || "";
+    const hookType = (result as any).hook_type || "generic";
+    const hashtagsFromAI = (result as any).suggested_hashtags || [];
 
-    // 4. Validate and extract scores
-    const scores = (result as any).estimated_scores || {};
-    const hookS = validateScore(scores.hook);
-    const readS = validateScore(scores.readability);
-    const engS = validateScore(scores.engagement);
-    const structS = validateScore(scores.structure);
-    const overallScore = (hookS + readS + engS + structS) / 4;
+    // 4. CALCULATE REALISTIC ENGAGEMENT PREDICTION
+    // (Based on real LinkedIn data, not subjective structure scoring)
+    const postMetrics = {
+      contentLength: post.length,
+      hasHashtags: hashtagsFromAI.length > 0,
+      hashtagCount: hashtagsFromAI.length,
+      postType: "text" as const, // Default for text posts from AI
+      dayOfWeek: new Date().toLocaleDateString("en-US", { weekday: "long" }),
+      postHour: new Date().getHours(),
+      hasMedia: false,
+      hookType: hookType,
+      hookQuality: 8, // AI generated hooks are usually strong
+      ctaSpecificity: 8, // Our new prompts enforce specific CTAs
+      emotionalIndex: 7,
+    };
+
+    const engagementPrediction = predictEngagementRate(postMetrics);
+
+    // Convert to database scores (for compatibility with existing system)
+    // These are NOW realistic predictions, not fake structural scores
+    const hookS = Math.round(engagementPrediction.breakdown.hookScore);
+    const readS = Math.round(engagementPrediction.breakdown.contentLengthScore);
+    const engS = Math.round(engagementPrediction.breakdown.postTypeScore);
+    const structS = Math.round(engagementPrediction.breakdown.timingScore);
+    const overallScore = engagementPrediction.predictedEngagementRate;
 
     // 5. Save to history FIRST
     const { error: saveError } = await supabase.from("posts").insert({
       user_id: user.id,
-      type: 'generated',
+      type: "generated",
       topic: topic,
-      improved_content: (result as any).post,
+      improved_content: post,
       hook_score: hookS,
       readability_score: readS,
       engagement_score: engS,
       structure_score: structS,
-      overall_score: overallScore
+      overall_score: overallScore,
     });
 
     if (saveError) {
@@ -120,7 +142,26 @@ export async function POST(req: NextRequest) {
     const { updateUserStreak } = await import("@/lib/supabase/streak");
     await updateUserStreak(supabase, user.id);
 
-    return NextResponse.json(result);
+    // 8. Return enhanced response with engagement insights
+    const responsePayload = {
+      post: (result as any).post,
+      hook_type: (result as any).hook_type,
+      suggested_hashtags: (result as any).suggested_hashtags,
+      best_time_to_post: (result as any).best_time_to_post,
+      estimated_scores: {
+        hook: hookS,
+        readability: readS,
+        engagement: engS,
+        structure: structS,
+      },
+      // New engagement prediction system
+      predictedEngagementRate: engagementPrediction.predictedEngagementRate,
+      engagementPredictionConfidence: engagementPrediction.confidence,
+      engagementInsights: engagementPrediction.insights,
+      engagementRecommendation: engagementPrediction.recommendation,
+    };
+
+    return NextResponse.json(responsePayload);
 
   } catch (error: any) {
     console.error("Generation API Error:", error);
