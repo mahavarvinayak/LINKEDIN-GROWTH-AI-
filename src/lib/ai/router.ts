@@ -6,10 +6,115 @@ import Groq from "groq-sdk";
 // don't crash the process. Clients are created on first use only.
 let _gemini: GoogleGenerativeAI | null = null;
 let _groq: Groq | null = null;
+let nvidiaClientIndex = 0;
+
+type NvidiaTextClient = {
+  name: string;
+  provider: "nvidia";
+  type: "text";
+  apiKey: string;
+  baseURL: string;
+  model: string;
+};
+
+type FallbackClient = {
+  name: "gemini" | "groq";
+  provider: "gemini" | "groq";
+};
+
+type UsageEntry = {
+  count: number;
+  lastReset: number;
+};
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const MAX_REQUESTS_PER_MINUTE = 40;
+
+const usage: Record<string, UsageEntry> = {};
+
+const NIM_DEFAULT_BASE_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
+const NIM_DEFAULT_MODEL = "meta/llama-3.1-8b-instruct";
+
+function normalizeNimEndpoint(baseURL: string): string {
+  const trimmed = baseURL.trim().replace(/\/+$/, "");
+  if (/\/v1\/chat\/completions$/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `${trimmed}/v1/chat/completions`;
+}
+
+const configuredNvidiaClients: NvidiaTextClient[] = [
+  {
+    name: "nvidia_text_1",
+    provider: "nvidia",
+    type: "text",
+    apiKey: process.env.NVIDIA_NIM_API_KEY_1 || "",
+    baseURL: process.env.NVIDIA_NIM_BASE_URL_1 || process.env.NVIDIA_NIM_BASE_URL || NIM_DEFAULT_BASE_URL,
+    model: process.env.NVIDIA_NIM_MODEL_1 || process.env.NVIDIA_NIM_MODEL || NIM_DEFAULT_MODEL,
+  },
+  {
+    name: "nvidia_text_2",
+    provider: "nvidia",
+    type: "text",
+    apiKey: process.env.NVIDIA_NIM_API_KEY_2 || "",
+    baseURL: process.env.NVIDIA_NIM_BASE_URL_2 || process.env.NVIDIA_NIM_BASE_URL || NIM_DEFAULT_BASE_URL,
+    model: process.env.NVIDIA_NIM_MODEL_2 || process.env.NVIDIA_NIM_MODEL || NIM_DEFAULT_MODEL,
+  },
+];
+
+const apiClients: NvidiaTextClient[] = configuredNvidiaClients.filter(
+  (client) => client.apiKey.trim().length > 0
+);
+
+const fallbackClients: FallbackClient[] = [
+  { name: "gemini", provider: "gemini" },
+  { name: "groq", provider: "groq" },
+];
 
 function hasEnv(key: string): boolean {
   const value = process.env[key];
   return Boolean(value && value.trim().length > 0);
+}
+
+function normalizeError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
+function getUsageEntry(clientName: string): UsageEntry {
+  const now = Date.now();
+  const existing = usage[clientName];
+
+  if (!existing) {
+    const next: UsageEntry = { count: 0, lastReset: now };
+    usage[clientName] = next;
+    return next;
+  }
+
+  if (now - existing.lastReset >= RATE_LIMIT_WINDOW_MS) {
+    existing.count = 0;
+    existing.lastReset = now;
+  }
+
+  return existing;
+}
+
+function canUseClient(clientName: string): boolean {
+  const entry = getUsageEntry(clientName);
+  return entry.count < MAX_REQUESTS_PER_MINUTE;
+}
+
+function markClientUsed(clientName: string): void {
+  const entry = getUsageEntry(clientName);
+  entry.count += 1;
+}
+
+function getNextClient(): NvidiaTextClient {
+  const client = apiClients[nvidiaClientIndex % apiClients.length];
+  nvidiaClientIndex += 1;
+  return client;
 }
 
 function getGemini(): GoogleGenerativeAI {
@@ -28,9 +133,8 @@ function getGroq(): Groq {
 
 // ─── Model Names ─────────────────────────────────────────────
 const MODELS = {
-  gemini: "gemini-1.5-flash",       // paid users — best quality
-  groq_free: "llama-3.1-8b-instant", // free users — fast
-  groq_fallback: "llama-3.3-70b-versatile", // fallback — good and large
+  gemini: "gemini-1.5-flash",
+  groq_fallback: "llama-3.1-8b-instant",
 };
 
 // ─── User Plan Type ──────────────────────────────────────────
@@ -44,50 +148,129 @@ export async function callAI(
   temperature: number = 0.5,
   maxTokens: number = 1000
 ): Promise<string> {
+  void userPlan;
+
   const hasGroq = hasEnv("GROQ_API_KEY");
   const hasGemini = hasEnv("GEMINI_API_KEY");
+  const hasNvidia = apiClients.length > 0;
 
-  if (!hasGroq && !hasGemini) {
-    throw new Error("No AI provider configured. Please set GROQ_API_KEY or GEMINI_API_KEY.");
+  if (!hasNvidia && !hasGroq && !hasGemini) {
+    throw new Error("No AI provider configured. Set NVIDIA_NIM_API_KEY_1/2, GEMINI_API_KEY, or GROQ_API_KEY.");
   }
 
-  // Route based on user plan
-  if (userPlan === "free") {
-    // Free users → Groq first (fast), fallback to Gemini, then Groq large model
-    if (hasGroq) {
+  const nvidiaErrors: string[] = [];
+
+  // FEATURE: Round-robin load balancing across NVIDIA clients.
+  for (let attempt = 0; attempt < apiClients.length; attempt += 1) {
+    const client = getNextClient();
+
+    if (!canUseClient(client.name)) {
+      nvidiaErrors.push(`${client.name}: rate limit reached (${MAX_REQUESTS_PER_MINUTE}/min)`);
+      continue;
+    }
+
+    markClientUsed(client.name);
+
+    try {
+      return await callNvidia(client, systemPrompt, userPrompt, temperature, maxTokens);
+    } catch (error) {
+      const message = normalizeError(error);
+      nvidiaErrors.push(`${client.name}: ${message}`);
+      console.warn(`NVIDIA client failed (${client.name}):`, message);
+    }
+  }
+
+  const fallbackErrors: string[] = [];
+
+  for (const fallback of fallbackClients) {
+    if (fallback.provider === "gemini") {
+      if (!hasGemini) {
+        fallbackErrors.push("gemini: missing GEMINI_API_KEY");
+        continue;
+      }
+
       try {
-        return await callGroq(systemPrompt, userPrompt, MODELS.groq_free, temperature, maxTokens);
+        return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
       } catch (error) {
-        console.log("Groq 8B failed, trying fallback providers:", error);
+        fallbackErrors.push(`gemini: ${normalizeError(error)}`);
+        console.warn("Gemini fallback failed:", error);
+      }
+      continue;
+    }
+
+    if (fallback.provider === "groq") {
+      if (!hasGroq) {
+        fallbackErrors.push("groq: missing GROQ_API_KEY");
+        continue;
       }
 
       try {
         return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
       } catch (error) {
-        console.log("Groq 70B failed, trying Gemini fallback:", error);
+        fallbackErrors.push(`groq: ${normalizeError(error)}`);
+        console.warn("Groq fallback failed:", error);
       }
     }
+  }
 
-    if (hasGemini) {
-      return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
+  const details = [...nvidiaErrors, ...fallbackErrors].join(" | ");
+  throw new Error(`All AI providers failed. ${details}`.trim());
+}
+
+// ─── NVIDIA NIM Call (Primary) ───────────────────────────────
+async function callNvidia(
+  client: NvidiaTextClient,
+  systemPrompt: string,
+  userPrompt: string,
+  temperature: number,
+  maxTokens: number
+): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+  try {
+    const response = await fetch(normalizeNimEndpoint(client.baseURL), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${client.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: client.model,
+        temperature,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`status ${response.status}: ${errorText.slice(0, 240)}`);
     }
 
-    throw new Error("AI generation unavailable for free plan. GROQ_API_KEY is missing and Gemini fallback failed.");
-  } else {
-    // Paid users (starter/pro) → Gemini first, Groq 70B fallback
-    if (hasGemini) {
-      try {
-        return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
-      } catch (error) {
-        console.log("Gemini failed, trying Groq 70B fallback:", error);
-      }
+    const payload: any = await response.json();
+    const text =
+      payload?.choices?.[0]?.message?.content ||
+      payload?.output_text ||
+      payload?.text ||
+      "";
+
+    if (!text || typeof text !== "string") {
+      throw new Error("empty response payload from NVIDIA NIM");
     }
 
-    if (hasGroq) {
-      return await callGroq(systemPrompt, userPrompt, MODELS.groq_fallback, temperature, maxTokens);
+    return text;
+  } catch (error: any) {
+    if (error?.name === "AbortError") {
+      throw new Error("request timeout after 15s");
     }
-
-    throw new Error("AI generation unavailable for paid plan. GEMINI_API_KEY is missing and GROQ_API_KEY fallback is unavailable.");
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

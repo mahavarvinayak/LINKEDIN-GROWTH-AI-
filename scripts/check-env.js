@@ -7,8 +7,13 @@ const requiredEnvs = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+];
+
+const aiProviderEnvs = [
+  "NVIDIA_NIM_API_KEY_1",
+  "NVIDIA_NIM_API_KEY_2",
   "GEMINI_API_KEY",
-  "GROQ_API_KEY"
+  "GROQ_API_KEY",
 ];
 
 console.log("🔍 Checking Environment Variables...");
@@ -23,6 +28,20 @@ requiredEnvs.forEach((env) => {
     missing = true;
   }
 });
+
+const configuredAiProviders = aiProviderEnvs.filter((env) => Boolean(process.env[env]));
+
+if (configuredAiProviders.length === 0) {
+  console.log("❌ No AI provider key is configured.");
+  console.log("   Set NVIDIA_NIM_API_KEY_1/2 (recommended), GEMINI_API_KEY, or GROQ_API_KEY.");
+  missing = true;
+} else {
+  console.log(`✅ AI providers configured: ${configuredAiProviders.join(", ")}`);
+}
+
+if (!process.env.NVIDIA_NIM_API_KEY_1 && !process.env.NVIDIA_NIM_API_KEY_2) {
+  console.log("⚠️  NVIDIA NIM keys are not configured. Traffic will use fallback providers only.");
+}
 
 if (missing) {
   console.log("\n⚠️  Some required environment variables are missing.");

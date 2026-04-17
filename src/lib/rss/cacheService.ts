@@ -75,6 +75,6 @@ export function pickRandomGeneratedPosts(count: number): GeneratedLinkedInPost[]
     [posts[index], posts[swapIndex]] = [posts[swapIndex], posts[index]];
   }
 
-  const maxCount = Math.min(posts.length, Math.max(3, Math.min(5, count)));
+  const maxCount = Math.min(posts.length, Math.max(5, Math.min(10, count)));
   return posts.slice(0, maxCount);
 }

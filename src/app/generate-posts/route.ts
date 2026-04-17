@@ -9,7 +9,7 @@ export async function GET() {
   startRssScheduler();
 
   const snapshot = getRssSystemSnapshot();
-  const cachedGeneratedPosts = pickRandomGeneratedPosts(5);
+  const cachedGeneratedPosts = pickRandomGeneratedPosts(10);
 
   if (cachedGeneratedPosts.length > 0) {
     return NextResponse.json({
@@ -28,7 +28,7 @@ export async function GET() {
   }
 
   if (snapshot.cachedFeeds.length > 0) {
-    const fallbackPosts: GeneratedLinkedInPost[] = snapshot.cachedFeeds.slice(0, 5).map((article) => ({
+    const fallbackPosts: GeneratedLinkedInPost[] = snapshot.cachedFeeds.slice(0, 10).map((article) => ({
       post: [
         article.title,
         "",

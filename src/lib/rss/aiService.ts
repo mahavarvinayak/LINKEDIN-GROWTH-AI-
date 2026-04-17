@@ -82,7 +82,7 @@ export async function generateLinkedInPostsFromArticles(articles: RssArticle[]):
     return [];
   }
 
-  const limit = Math.min(5, articles.length);
+  const limit = Math.min(10, articles.length);
   const selectedArticles = articles.slice(0, limit);
   return Promise.all(selectedArticles.map((article) => generateLinkedInPostFromArticle(article)));
 }
