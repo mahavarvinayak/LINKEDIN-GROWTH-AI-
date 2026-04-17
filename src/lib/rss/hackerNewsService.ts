@@ -11,6 +11,7 @@ export interface HNStory {
   score: number;
   time: number;
   descendants?: number;
+  text?: string;
 }
 
 /**
@@ -52,6 +53,7 @@ export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArt
           title: story.title,
           link: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
           date: new Date(story.time * 1000).toISOString(),
+          description: story.text ? story.text.substring(0, 150) : story.title,
           source: `Hacker News (${story.score} pts)`,
         });
       } catch (error) {
@@ -100,6 +102,7 @@ export async function fetchHackerNewsBestStories(limit: number = 10): Promise<Rs
           title: story.title,
           link: story.url || `https://news.ycombinator.com/item?id=${story.id}`,
           date: new Date(story.time * 1000).toISOString(),
+          description: story.text ? story.text.substring(0, 150) : story.title,
           source: `HN Best (${story.score} pts)`,
         });
       } catch (error) {

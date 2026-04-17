@@ -8,6 +8,7 @@ export interface RssArticle {
   link: string;
   date: string;
   source: string;
+  description?: string; // Add rich description/summary
 }
 
 export interface GeneratedLinkedInPost {

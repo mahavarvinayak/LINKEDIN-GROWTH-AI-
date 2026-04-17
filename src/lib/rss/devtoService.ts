@@ -53,6 +53,7 @@ export async function fetchDevtoArticles(limit: number = 15, tag: string = "tech
       title: article.title,
       link: article.url,
       date: article.published_at,
+      description: article.description || article.title,
       source: `Dev.to (${article.user.name})`,
     }));
   } catch (error) {
@@ -109,6 +110,7 @@ export async function fetchDevtoTrending(limit: number = 15): Promise<RssArticle
       title: article.title,
       link: article.url,
       date: article.published_at,
+      description: article.description || article.title,
       source: `Dev.to Trending (${article.user.name})`,
     }));
   } catch (error) {

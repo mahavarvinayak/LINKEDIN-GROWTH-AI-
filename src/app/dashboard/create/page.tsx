@@ -38,6 +38,7 @@ interface RssTrendingPost {
   post: string;
   source: string;
   title: string;
+  description?: string;
   suggested_hashtags?: string[];
 }
 
@@ -545,7 +546,10 @@ export default function CreatePostPage() {
                 <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
                   <div className="p-8">
                     <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-2">From: {selectedRssPost.source}</p>
-                    <p className="text-[0.8125rem] font-bold text-on-surface-variant/70 font-mono mb-6">{selectedRssPost.title}</p>
+                    <p className="text-[0.8125rem] font-bold text-on-surface-variant/70 font-mono mb-2">{selectedRssPost.title}</p>
+                    {selectedRssPost.description && selectedRssPost.description !== selectedRssPost.title && (
+                      <p className="text-[0.875rem] text-on-surface-variant mb-6 leading-relaxed">{selectedRssPost.description}</p>
+                    )}
                     <div className="whitespace-pre-wrap text-[1rem] text-on-background leading-[1.8] font-mono">
                       {selectedRssPost.post}
                     </div>
@@ -603,7 +607,10 @@ export default function CreatePostPage() {
                     className="w-full text-left p-4 bg-surface-container-lowest rounded-[8px] ring-1 ring-[rgba(229,226,218,0.5)] hover:ring-primary/30 transition-all"
                   >
                     <p className="text-[0.75rem] font-bold text-on-surface-variant/60 font-mono uppercase mb-1">{post.source}</p>
-                    <p className="text-[0.9375rem] text-on-background font-medium line-clamp-2">{post.title}</p>
+                    <p className="text-[0.9375rem] text-on-background font-medium mb-1">{post.title}</p>
+                    {post.description && post.description !== post.title && (
+                      <p className="text-[0.8125rem] text-on-surface-variant/70 line-clamp-2">{post.description}</p>
+                    )}
                   </button>
                 ))}
               </div>

@@ -24,11 +24,12 @@ export async function GET(req: NextRequest) {
       ...results,
       posts: results.articles.map((article) => ({
         post: article.title,
+        description: article.description || article.title,
         source: article.source,
         title: article.title,
         link: article.link,
         date: article.date,
-        suggested_hashtags: extractHashtags(article.title),
+        suggested_hashtags: extractHashtags(article.title || article.description || ""),
       })),
     });
   } catch (error) {

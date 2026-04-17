@@ -152,10 +152,11 @@ export async function fetchGithubTrendingViaAPI(
     const data: any = await response.json();
 
     return (data.items || []).map((repo: any) => ({
-      title: `${repo.full_name} - ${repo.description || "No description"}`,
+      title: repo.full_name,
       link: repo.html_url,
       date: repo.updated_at,
-      source: `GitHub Trending (${repo.stargazers_count} ⭐)`,
+      description: repo.description || `${repo.stargazers_count} stars`,
+      source: `GitHub (${repo.stargazers_count} ⭐)`,
     }));
   } catch (error) {
     console.error("Error fetching GitHub API:", error);
