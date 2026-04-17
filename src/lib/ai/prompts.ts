@@ -149,44 +149,109 @@ export function buildGeneratePrompt(
 ): string {
 
   const toneVoiceMap: Record<string, string> = {
-    "Bold & direct": "Write like you're delivering a verdict. Short declarative sentences. No hedging.",
-    "Storytelling": "Write in scenes. Start in the middle of a moment.",
-    "Educational": "Structure as a clear framework. Use plain language. Every point must have an example.",
-    "Casual": "Write like a WhatsApp message to a sharp friend. Contractions. Self-aware humour.",
+    "Bold & direct": "Deliver verdicts. Controversial if you believe it. Short sharp sentences. No apologies.",
+    "Storytelling": "Start IN the story moment. Dialogue. Tension first. Lesson last.",
+    "Educational": "Clear framework: PROBLEM → 3 SOLUTIONS → LESSON. Real examples, not theory.",
+    "Casual": "Text a friend. Typos okay. Self-deprecating humor. Conversational tone.",
   };
 
   const goalContextMap: Record<string, string> = {
-    "Get followers": "Relatable and shareable. Apply to a broad audience.",
-    "Generate leads": "Demonstrate expertise. CTA for the right person to raise their hand.",
-    "Find a job": "Show proof of thinking. Potential over polish.",
-    "Build my brand": "Strong point of view. Say something you believe.",
+    "Get followers": "Make people SHARE. Hit pain points your audience has. Be relatable but specific.",
+    "Generate leads": "Finish with: specific question showing expertise. Attract the RIGHT person.",
+    "Find a job": "Prove you're thinking + shipping. Show growth. Make people want to hire you.",
+    "Build my brand": "Take a stand. Say what you believe. Controversial = memorable.",
   };
 
   const voiceInstruction = toneVoiceMap[tone] || "Write clearly and authentically.";
   const goalInstruction = goalContextMap[goal] || "Optimize for the writer's goal.";
 
   return `
-Generate a high-performing LinkedIn post. Topic: "${topic}"
+TASK: Generate a LinkedIn post for a ${role} aimed at ${audience}.
+TOPIC: ${topic}
+GOAL: ${goal}
+TONE: ${tone}
 
-CONTEXT: ${role} | TONE: ${tone} | GOAL: ${goal} | AUDIENCE: ${audience}
+KEY PRINCIPLES FOR VIRAL ENGAGEMENT:
+========================
 
-INSTRUCTIONS:
 ${voiceInstruction}
 ${goalInstruction}
 
-RULES:
-1. HOOK: Cognitive interrupt. No "I". Specificity is key.
-2. BODY: TENSION → EVIDENCE → LESSON. Short lines.
-3. CTA: Specific answerable question.
-4. FORMAT: \\n for line breaks. No markdown. No hashtags in body.
+HOOK PATTERNS (Pick ONE, make it SHARP):
+  • NEGATIVE CONTRARIAN: "Everyone says X. Nobody talks about Y."
+  • SPECIFIC NUMBER: "I made X mistakes before realizing Y."
+  • PROBLEM STATEMENT: "Most [role] fail at X because..."
+  • QUESTION AS HOOK: "Have you ever done X and regretted Y?"
+  • BOLD CLAIM: "[Thing most people believe] is wrong."
+  • SCENE SETTING: "Last Tuesday, I was in a meeting when..."
 
-Return ONLY this JSON:
+REQUIRED STRUCTURE (ONE idea per line, max 3-line sections):
+  1. HOOK → creates curiosity/emotional reaction
+  2. SETUP → context or problem (1-2 lines max)
+  3. TURNING POINT → the moment everything changed
+  4. LESSON/INSIGHT → what you learned (specific, actionable)
+  5. CTA → specific question that gets responses
+
+SPECIFIC ANTI-PATTERNS (NEVER write these):
+  ❌ Starting with "I" or "So" or "Today"
+  ❌ "Let me share...", "Thrilled to share...", "Excited to announce..."
+  ❌ Trying to be funny when the topic is serious
+  ❌ Vague CTAs like "What do you think?" or "Drop your thoughts"
+  ❌ Long paragraphs. Break after EVERY 2-3 sentences
+  ❌ "This is a game-changer" or "Will change your life"
+  ❌ Generic motivational. Be SPECIFIC.
+
+CTA STRATEGY (must be specific + answerable):
+  ✓ "What's ONE mistake you didn't realize cost you?"
+  ✓ "Reply with your biggest blocker right now"
+  ✓ "Tag someone who needs to see this"
+  ✓ "What would you change if you had to redo this?"
+  ✓ "How long did it take you to figure out Y?"
+
+EXAMPLE GOOD POST (${tone} tone, ${goal}):
+  "Most developers think clean code is about variable names.
+
+  I spent 3 years writing 'perfect' code nobody wanted to use.
+
+  Then my co-founder said: 'It doesn't matter if it's clean if it doesn't ship.'
+
+  That one sentence changed everything. I started shipping 10x faster.
+
+  The dirty secret? Refactored > Perfect. Shipped > Pristine.
+
+  What's the uncomfortable truth in your industry that nobody admits?"
+
+TONE SPECIFICS FOR ${tone.toUpperCase()}:
+  ${voiceInstruction}
+
+GOAL SPECIFICS FOR ${goal.toUpperCase()}:
+  ${goalInstruction}
+
+FINAL CHECKLIST:
+  ✓ Hook in first line creates a STOP moment
+  ✓ No introduction or setup before the hook
+  ✓ Each section is 1-3 lines max
+  ✓ Includes specific number OR specific moment OR specific mistake
+  ✓ Has emotional resonance (vulnerability, surprise, recognition)
+  ✓ CTA is a specific question they WANT to answer
+  ✓ Reads like the writer's actual voice, not corporate
+  ✓ No hashtags in the body (we add them separately)
+  ✓ Uses \\n for line breaks ONLY
+  ✓ Feels like it came from human experience, not a template
+
+Return ONLY valid JSON, NO markdown, NO backticks:
+
 {
-  "post": "The full post with \\n for line breaks.",
-  "hook_type": "vulnerability|bold_claim|curiosity_gap|data_backed|contrarian",
-  "estimated_scores": { "hook": 0, "readability": 0, "engagement": 0, "structure": 0 },
-  "best_time_to_post": "Specific window",
-  "suggested_hashtags": ["tag1", "tag2"]
+  "post": "Full post with \\n for line breaks",
+  "hook_type": "bold_claim|vulnerability|curiosity_gap|contrarian|number_backed|question|scene",
+  "estimated_scores": {
+    "hook": 8,
+    "readability": 9,
+    "engagement": 8,
+    "structure": 9
+  },
+  "best_time_to_post": "Tuesday 9am",
+  "suggested_hashtags": ["tag1", "tag2", "tag3", "tag4"]
 }
 `;
 }
