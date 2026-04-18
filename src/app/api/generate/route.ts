@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     // 1. Fetch User Data & Persona
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("plan, credits_generate")
+      .select("plan")
       .eq("id", user.id)
       .single();
 
@@ -140,12 +140,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User data not found" }, { status: 404 });
     }
 
-    const isPaid = userData.plan === "starter" || userData.plan === "pro";
+    const userPlan = (userData.plan as any) || "free";
 
-    if (!isPaid && userData.credits_generate <= 0) {
+    const { data: limitCheck, error: limitError } = await supabase
+      .rpc("check_and_increment_generate", {
+        p_user_id: user.id,
+        p_plan: userPlan,
+      });
+
+    if (limitError) {
+      console.error("Limit check error:", limitError);
+      return NextResponse.json({ error: "Service error" }, { status: 500 });
+    }
+
+    const limitResult = limitCheck as { allowed: boolean; used: number; limit: number };
+
+    if (!limitResult.allowed) {
       return NextResponse.json(
-        { error: "no_credits", message: "You have used your free generate credits. Upgrade to continue." },
-        { status: 403 }
+        {
+          error: "daily_limit_reached",
+          message: `You've used all ${limitResult.limit} generations for today.`,
+          used: limitResult.used,
+          limit: limitResult.limit,
+          resets_at: "midnight UTC",
+        },
+        { status: 429 }
       );
     }
 
@@ -179,7 +198,7 @@ export async function POST(req: NextRequest) {
     const rawResponse = await callAI(
       LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
-      userData.plan as any || "free",
+      userPlan,
       AI_CONFIG.temperature.generate,
       AI_CONFIG.max_tokens.generate
     );
@@ -234,20 +253,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save generated post" }, { status: 500 });
     }
 
-    // 6. Deduct credit AFTER successful save (only for free users)
-    if (!isPaid) {
-      const { error: creditError } = await supabase.rpc("decrement_generate_credits", { user_id: user.id });
-      if (creditError) {
-        console.error("Credit deduction error:", creditError);
-        // Don't fail the response, post already saved
-      }
-    }
-
-    // 7. Update Streak
+    // 6. Update Streak
     const { updateUserStreak } = await import("@/lib/supabase/streak");
     await updateUserStreak(supabase, user.id);
 
-    // 8. Return enhanced response with engagement insights
+    // 7. Return enhanced response with engagement insights
     const responsePayload = {
       post: (result as any).post,
       hook_type: (result as any).hook_type,

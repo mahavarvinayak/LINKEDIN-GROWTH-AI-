@@ -3,10 +3,18 @@ import { callAI, parseAIJson } from "../../../lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 
-// Helper to validate and clamp scores to 0-10 range
+// Validate score is strictly 0-10 integer
 function validateScore(score: any): number {
-  const num = parseInt(score) || 0;
-  return Math.max(0, Math.min(10, num));
+  const num = Number(score);
+  if (isNaN(num)) return 0;
+  // Clamp strictly between 0 and 10
+  return Math.max(0, Math.min(10, Math.round(num)));
+}
+
+// Recalculate overall score server-side (don't trust AI's math)
+function calculateOverall(hook: number, read: number, eng: number, str: number): number {
+  const avg = (hook + read + eng + str) / 4;
+  return Math.round(avg * 10) / 10; // 1 decimal place
 }
 
 export async function POST(req: NextRequest) {
@@ -28,10 +36,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Get user data and check credits
+    // 2. Get user data
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("plan, credits_analyze")
+      .select("plan")
       .eq("id", user.id)
       .single();
     
@@ -40,11 +48,31 @@ export async function POST(req: NextRequest) {
     }
 
     const userPlan = (userData.plan as any) || "free";
-    
-    if (userData.credits_analyze <= 0 && userPlan === "free") {
+
+    // Daily limit check via Supabase RPC
+    const { data: limitCheck, error: limitError } = await supabase
+      .rpc("check_and_increment_analyze", {
+        p_user_id: user.id,
+        p_plan: userPlan,
+      });
+
+    if (limitError) {
+      console.error("Limit check error:", limitError);
+      return NextResponse.json({ error: "Service error" }, { status: 500 });
+    }
+
+    const limitResult = limitCheck as { allowed: boolean; used: number; limit: number };
+
+    if (!limitResult.allowed) {
       return NextResponse.json(
-        { error: "no_credits", message: "You have used your free credits." },
-        { status: 403 }
+        {
+          error: "daily_limit_reached",
+          message: `You've used all ${limitResult.limit} analyses for today.`,
+          used: limitResult.used,
+          limit: limitResult.limit,
+          resets_at: "midnight UTC",
+        },
+        { status: 429 }
       );
     }
 
@@ -76,7 +104,9 @@ export async function POST(req: NextRequest) {
     const readS = validateScore(scores.readability?.score);
     const engS = validateScore(scores.engagement?.score);
     const structS = validateScore(scores.structure?.score);
-    const overallScore = (hookS + readS + engS + structS) / 4;
+
+    // Calculate server-side — never trust AI's overall_score
+    const overallScore = calculateOverall(hookS, readS, engS, structS);
 
     // 7. Save to history FIRST
     const { error: saveError } = await supabase.from("posts").insert({
@@ -95,14 +125,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to save analysis" }, { status: 500 });
     }
 
-    // 8. Deduct credit AFTER successful save
-    const { error: creditError } = await supabase.rpc("decrement_analyze_credits", { user_id: user.id });
-    if (creditError) {
-      console.error("Credit deduction error:", creditError);
-      // Don't fail the response, credit already saved
-    }
-
-    // 9. Update Streak
+    // 8. Update Streak
     const { updateUserStreak } = await import("@/lib/supabase/streak");
     await updateUserStreak(supabase, user.id);
 

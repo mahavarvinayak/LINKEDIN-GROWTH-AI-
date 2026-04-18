@@ -7,6 +7,7 @@ import {
   PenTool, 
   BarChart2, 
   Bookmark, 
+  BookOpen,
   Settings,
   LogOut,
   CreditCard,
@@ -22,8 +23,17 @@ const NAV_ITEMS = [
   { label: "Create Post", href: "/dashboard/create", icon: PenTool },
   { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
+  { label: "Daily Learn", href: "/dashboard/learn", icon: BookOpen },
   { label: "Pricing", href: "/dashboard/pricing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
+];
+
+const MOBILE_NAV_ITEMS = [
+  { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Create Post", href: "/dashboard/create", icon: PenTool },
+  { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
+  { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
+  { label: "Daily Learn", href: "/dashboard/learn", icon: BookOpen },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -143,7 +153,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Bottom Nav - Mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around p-2 pb-6 bg-background border-t border-[rgba(229,226,218,0.4)]">
-        {NAV_ITEMS.slice(0, 4).map((item) => {
+        {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (

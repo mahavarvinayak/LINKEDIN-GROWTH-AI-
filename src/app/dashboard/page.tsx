@@ -21,10 +21,16 @@ import Paywall from "@/components/shared/Paywall";
 interface UserData {
   full_name: string;
   plan: string;
-  credits_analyze: number;
-  credits_generate: number;
+  daily_analyze_count: number;
+  daily_generate_count: number;
   streak_count: number;
   post_count?: number;
+}
+
+function getDailyGenerateLimit(plan: string) {
+  if (plan === "pro") return 10;
+  if (plan === "starter") return 5;
+  return 1;
 }
 
 export default function DashboardPage() {
@@ -54,8 +60,8 @@ export default function DashboardPage() {
       setUserData({
         full_name: profile?.full_name || "User",
         plan: profile?.plan || "free",
-        credits_analyze: profile?.credits_analyze || 0,
-        credits_generate: profile?.credits_generate || 0,
+        daily_analyze_count: profile?.daily_analyze_count || 0,
+        daily_generate_count: profile?.daily_generate_count || 0,
         streak_count: profile?.streak_count || 0,
         post_count: postCount || 0,
       });
@@ -108,11 +114,7 @@ export default function DashboardPage() {
               Upgrade ↗
             </button>
           </div>
-          <CreditBadge
-            analyze={userData?.credits_analyze || 0}
-            generate={userData?.credits_generate || 0}
-            plan={userData?.plan}
-          />
+          <CreditBadge />
         </div>
       </div>
 
@@ -134,7 +136,7 @@ export default function DashboardPage() {
         />
         <StatCard
           label="Generation Quota"
-          value={(userData?.credits_generate || 0).toString()}
+          value={`${userData?.daily_generate_count || 0}/${getDailyGenerateLimit(userData?.plan || "free")}`}
           icon={Zap}
           trend="Refreshes 00:00 UTC"
         />
@@ -145,11 +147,16 @@ export default function DashboardPage() {
         {/* Streak Panel */}
         <div className="lg:col-span-2 bg-surface-container-lowest rounded-[12px] p-8 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-[1rem] font-serif text-on-background flex items-center gap-2">
-              <Flame className="w-4 h-4 text-tertiary" /> Consistency Vector
-            </h2>
+            <div>
+              <h2 className="text-[1rem] font-serif text-on-background flex items-center gap-2">
+                <Flame className="w-4 h-4 text-tertiary" /> Writing Streak
+              </h2>
+              <p className="text-xs text-on-surface-variant/60 mt-1">
+                Days you used LinkedIn AI to write or analyze posts
+              </p>
+            </div>
             <div className="px-3 py-1 bg-surface-container rounded-[6px] font-mono text-[0.6875rem] font-bold text-tertiary ring-1 ring-[rgba(229,226,218,0.5)]">
-              🔥 {userData?.streak_count} Days Active
+              🔥 {userData?.streak_count} active days
             </div>
           </div>
 
@@ -174,6 +181,11 @@ export default function DashboardPage() {
               );
             })}
           </div>
+
+          <p className="text-xs text-gray-400 mt-2">
+            Based on days you used this tool. Keep your streak alive by analyzing
+            or generating a post each day.
+          </p>
         </div>
 
         {/* Priority Action Card */}

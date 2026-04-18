@@ -12,6 +12,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import Paywall from "@/components/shared/Paywall";
 
 // --- Types ---
 interface Score {
@@ -37,31 +38,17 @@ export default function AnalyzePostPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [userData, setUserData] = useState<{ credits_analyze: number; plan: string } | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
   const supabase = createClient();
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("users")
-        .select("credits_analyze, plan")
-        .eq("id", user.id)
-        .single();
-
-      if (profile) setUserData(profile);
-    };
-    fetchUser();
-
     // Check for content in URL
     const content = searchParams?.get("content");
     if (content) {
       setPostContent(decodeURIComponent(content));
     }
-  }, [supabase, searchParams]);
+  }, [searchParams]);
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;
@@ -74,6 +61,12 @@ export default function AnalyzePostPage() {
         body: JSON.stringify({ post: postContent }),
       });
 
+      if (response.status === 429) {
+        setShowPaywall(true);
+        setView("input");
+        return;
+      }
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to analyze post");
 
@@ -81,7 +74,7 @@ export default function AnalyzePostPage() {
       setView("results");
     } catch (error: any) {
       console.error("Analysis failed:", error);
-      alert(error.message || "Something went wrong. Please try again.");
+      setShowPaywall(true);
       setView("input");
     }
   };
@@ -118,11 +111,11 @@ export default function AnalyzePostPage() {
                 </span>
                 <button
                   onClick={handleAnalyze}
-                  disabled={postContent.trim().length < 20 || !!(userData && userData.credits_analyze <= 0)}
+                  disabled={postContent.trim().length < 20}
                   className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4" />
-                  {userData && userData.credits_analyze <= 0 ? "No Credits" : "Run Analysis"} <ArrowRight className="w-4 h-4" />
+                  Run Analysis <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -248,6 +241,12 @@ export default function AnalyzePostPage() {
         )}
 
       </AnimatePresence>
+
+      <Paywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        reason="daily_limit"
+      />
     </div>
   );
 }

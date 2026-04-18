@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 interface PaywallProps {
   isOpen: boolean;
   onClose: () => void;
+  reason?: "daily_limit" | "no_credits";
 }
 
 const PLANS = [
@@ -37,8 +38,10 @@ const PLANS = [
   },
 ];
 
-export default function Paywall({ isOpen, onClose }: PaywallProps) {
+export default function Paywall({ isOpen, onClose, reason = "no_credits" }: PaywallProps) {
   const router = useRouter();
+
+  const isDailyLimit = reason === "daily_limit";
 
   const handleUpgrade = () => {
     onClose();
@@ -84,10 +87,20 @@ export default function Paywall({ isOpen, onClose }: PaywallProps) {
                   </div>
 
                   <h2 className="text-4xl font-serif text-on-background mb-4 leading-[1.1]">
-                    You've used your<br />free credits.
+                    {isDailyLimit ? (
+                      <>
+                        You've hit today's<br />limit
+                      </>
+                    ) : (
+                      <>
+                        You've used your<br />free credits.
+                      </>
+                    )}
                   </h2>
                   <p className="text-[0.9375rem] font-medium text-on-surface-variant leading-relaxed mb-10">
-                    Upgrade to keep growing your LinkedIn presence with high-performing, AI-optimized editorial content.
+                    {isDailyLimit
+                      ? "Resets at midnight • Upgrade for more daily usage"
+                      : "Upgrade to keep growing your LinkedIn presence with high-performing, AI-optimized editorial content."}
                   </p>
 
                   <div className="space-y-4">

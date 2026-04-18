@@ -84,43 +84,132 @@ THE POST TO ANALYZE:
 ${post}
 """
 
-SCORING CRITERIA — read these carefully before scoring:
+SCORING CRITERIA — These are STRICT. Do not be lenient.
 
-HOOK (0–10):
-10 = First line is so specific or provocative that skipping it feels like a loss.
-7–9 = Strong opening, creates curiosity or makes a claim, but could be sharper.
-4–6 = Generic opener. Starts with context, not with impact.
-1–3 = Opens with "I", a greeting, a job title, or a pleasantry. Reader is already gone.
-0 = Actively bad. Cliché, corporate, or meaningless.
+IMPORTANT SCORING RULES:
+- A score of 8+ means this post could genuinely go viral. Be stingy with 8+.
+- A score of 5-7 means "average LinkedIn post" — most posts land here.
+- A score of 1-4 means "this post will be ignored" — be honest, not kind.
+- You MUST give at least 2 scores below 7 for any mediocre post.
+- If a post has a cliché hook, structure score CANNOT exceed 5.
+- If a post starts with "I", hook score CANNOT exceed 3.
+- If a post has no question at end, engagement score CANNOT exceed 4.
+- If a post has long paragraphs (3+ lines), readability CANNOT exceed 4.
+- Overall score = simple average of 4 scores. Calculate it exactly.
+- Never give a score above 10. Never.
 
-READABILITY (0–10):
-10 = Reads like a text message. One idea per line. Instant comprehension on mobile.
-7–9 = Mostly short lines, minor blocks of text.
-4–6 = Mix of short and long. Skimmable but requires effort.
-1–3 = Dense paragraphs. Most readers will skip.
-0 = Wall of text. No breaks. Guaranteed to be scrolled past.
+HOOK SCORE (0-10) — How badly does the first line make you stop scrolling?
 
-ENGAGEMENT (0–10):
-10 = Contains an emotional trigger (vulnerability, surprise, or controversy) AND ends with a specific answerable question.
-7–9 = Has one of the two. Either emotionally resonant OR good CTA, not both.
-4–6 = Mildly interesting. No emotional pull. CTA is generic ("What do you think?").
-1–3 = Purely informational. No reason to comment.
-0 = Actively alienating or braggy with no self-awareness.
+Score 9-10 (ELITE — rare):
+  Example: "84 cold DMs. 3 replies. Here's what I changed."
+  Example: "My co-founder fired me. Best day of my life."
+  Criteria: Specific number OR shocking contrast OR bold controversial claim.
+  Reader CANNOT scroll past without feeling they'll miss something.
 
-STRUCTURE (0–10):
-10 = Clear Hook → Tension/Problem → Evidence/Story → Lesson → CTA. Every line earns its place.
-7–9 = Mostly logical flow, one section weak or missing.
-4–6 = Identifiable structure but disconnected or padded.
-1–3 = Random order. Ideas scattered.
-0 = No structure. Stream of consciousness.
+Score 6-8 (GOOD):
+  Example: "Most developers think clean code is about variable names."
+  Example: "I quit a ₹40 LPA job last year. Here's what happened."
+  Criteria: Creates curiosity but not jaw-dropping. Slightly generic.
 
-REWRITE INSTRUCTIONS:
+Score 3-5 (AVERAGE — most posts land here):
+  Example: "I recently had an amazing experience at work."
+  Example: "Today I want to talk about leadership."
+  Criteria: Vague, context-setting, no immediate hook.
+
+Score 0-2 (WEAK — honest score for bad hooks):
+  Example: "I am thrilled to share that I got promoted!"
+  Example: "In today's world, communication is key."
+  Example: "Hello LinkedIn family! Hope everyone is doing well."
+  Criteria: Starts with "I am", cliché opener, greeting, or corporate speak.
+  If the hook matches any of these patterns → score CANNOT exceed 2.
+
+READABILITY SCORE (0-10) — Can it be read in 15 seconds on a phone?
+
+Score 9-10 (ELITE):
+  - Every line is 1-7 words maximum.
+  - Blank line after every 1-2 sentences.
+  - Reads like a series of punchy text messages.
+
+Score 6-8 (GOOD):
+  - Mostly short lines. 1-2 denser sections.
+  - Readable but requires slight effort.
+
+Score 3-5 (AVERAGE):
+  - Mix of short and long. Some paragraphs 3-4 lines.
+  - Hard to skim on mobile.
+
+Score 0-2 (WEAK):
+  - Paragraph of 5+ lines with no breaks → score is 2 MAX.
+  - Wall of text → score is 0-1.
+  - If the post is ONE continuous paragraph → readability score is 1.
+
+ENGAGEMENT SCORE (0-10) — Will this make someone stop and comment?
+
+Score 9-10 (ELITE):
+  - Contains a real vulnerability, surprise, or controversial opinion.
+  - Ends with a SPECIFIC question that has a personal answer.
+  - Example CTA: "What was the hardest part of your first year?"
+  - Reader WANTS to answer. It's about THEM, not the writer.
+
+Score 6-8 (GOOD):
+  - Has emotional resonance OR good CTA, but not both.
+  - Example CTA: "What do you think?" → this is a 6 at best.
+
+Score 3-5 (AVERAGE):
+  - Informational. No emotional pull.
+  - No CTA or generic CTA like "Follow for more."
+  - Post ends with a statement, not a question → 5 MAX.
+
+Score 0-2 (WEAK):
+  - Pure brag with no self-awareness → 2 MAX.
+  - No CTA at all → 3 MAX.
+  - Motivational fluff ("Believe in yourself!") → 1 MAX.
+
+STRUCTURE SCORE (0-10) — Does the post have a spine?
+
+Score 9-10 (ELITE):
+  Clear: HOOK → TENSION/PROBLEM → EVIDENCE/STORY → LESSON → CTA.
+  Every single line earns its place. Nothing is filler.
+
+Score 6-8 (GOOD):
+  Mostly logical. One section weak or missing.
+  Good flow overall.
+
+Score 3-5 (AVERAGE):
+  Some structure visible. Disconnected sections.
+  Jumps from idea to idea without clear flow.
+
+Score 0-2 (WEAK):
+  No structure. Stream of consciousness.
+  Randomly ordered paragraphs → 2 MAX.
+  Generic motivational post with no story → 2 MAX.
+
+HONEST SCORING EXAMPLES:
+
+Example post: "I am thrilled to share that I got promoted to Senior Engineer! Hard work always pays off. Keep grinding everyone! #motivation #career"
+CORRECT scores: hook: 1, readability: 6, engagement: 2, structure: 2, overall: 2.75
+WRONG scores: hook: 7, readability: 8, engagement: 7, structure: 7 ← DO NOT DO THIS
+
+Example post: "84 applications. 0 callbacks.\n\nI thought I was doing everything right.\n\nTurns out, I was optimizing the wrong thing.\n\nI fixed my LinkedIn. Got 3 interviews in a week.\n\nHere's the exact change I made:\n[continues with specific insight]\n\nWhat's the biggest mistake you made in your job search?"
+CORRECT scores: hook: 9, readability: 9, engagement: 8, structure: 8, overall: 8.5
+
+REWRITE INSTRUCTIONS (unchanged):
 Your improved_post must:
-- Fix the exact problems you identified — not generic improvements.
-- Keep the writer's voice and persona (${role}, ${tone}).
+- Fix the exact problems you identified, not generic improvements.
+- Keep the writer's voice and persona.
 - Preserve the core idea. Do not change the topic.
-- Be immediately publishable. No placeholders like "[Insert story here]".
+- Be immediately publishable. No placeholders.
 - Use \\n for line breaks. No markdown.
+
+SELF-CHECK BEFORE RESPONDING:
+Before writing your JSON, ask yourself:
+1. Did I give at least 2 scores below 7? If not, reconsider.
+2. Is the hook genuinely scroll-stopping? If not, is the hook score truly above 6?
+3. Does the post have a specific CTA question? If not, engagement cannot exceed 4.
+4. Are there long paragraphs? If yes, readability cannot exceed 4.
+5. Is my overall_score the exact mathematical average of the 4 scores?
+
+Be an editor, not a cheerleader.
 
 Return ONLY this JSON:
 {

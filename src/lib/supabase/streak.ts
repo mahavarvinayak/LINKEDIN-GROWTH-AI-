@@ -2,11 +2,15 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { format, differenceInDays, parseISO } from "date-fns";
 
 /**
- * Updates the user's streak logic based on a new activity (post or analyze).
+ * Updates the user's writing streak based on a new tool activity (analyze or generate).
  * Logic:
  * - If last activity was today: no change to streak count.
  * - If last activity was yesterday: increment streak count.
  * - If last activity was more than 1 day ago: reset streak to 1.
+ *
+ * Note:
+ * - `last_posted_at` column name is retained for compatibility.
+ * - Semantically it means "last day the user was active in this tool".
  */
 export async function updateUserStreak(supabase: SupabaseClient, userId: string) {
   try {

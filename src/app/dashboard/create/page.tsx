@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import Paywall from "@/components/shared/Paywall";
 
 // --- Types ---
 interface GeneratedPost {
@@ -83,26 +84,8 @@ export default function CreatePostPage() {
     "JavaScript", "DevOps", "Cloud", "Crypto", "Startup", "Tech News"
   ]);
   
-  // User data
-  const [userData, setUserData] = useState<{ credits_generate: number; plan: string } | null>(null);
-
-  
-  // 1. Fetch User Data on mount
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("users")
-        .select("credits_generate, plan")
-        .eq("id", user.id)
-        .single();
-
-      if (profile) setUserData(profile);
-    };
-    fetchUser();
-  }, [supabase]);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallReason, setPaywallReason] = useState<"daily_limit" | "no_credits">("daily_limit");
 
   // --- AI GENERATION HANDLERS ---
   const handleGenerateAI = async () => {
@@ -116,11 +99,18 @@ export default function CreatePostPage() {
         body: JSON.stringify({ topic }),
       });
 
+      if (response.status === 429) {
+        setPaywallReason("daily_limit");
+        setShowPaywall(true);
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
         if (data.error === "no_credits") {
-          alert("No credits remaining. Please upgrade your plan.");
+          setPaywallReason("no_credits");
+          setShowPaywall(true);
           return;
         }
         throw new Error(data.message || data.error || "Generation failed");
@@ -130,7 +120,8 @@ export default function CreatePostPage() {
       setAiStep(2);
     } catch (err: any) {
       console.error("Generation error:", err);
-      alert(err.message || "Something went wrong. Please try again.");
+      setPaywallReason("daily_limit");
+      setShowPaywall(true);
     } finally {
       setAiLoading(false);
     }
@@ -151,11 +142,10 @@ export default function CreatePostPage() {
         setRssTrendingPosts(data.posts);
         setRssRefreshTime(new Date().toLocaleTimeString());
       } else {
-        alert("No trending posts available. Try again later.");
+        setRssTrendingPosts([]);
       }
     } catch (err: any) {
       console.error("Trending posts error:", err);
-      alert("Failed to fetch trending posts");
     } finally {
       setRssLoading(false);
     }
@@ -224,11 +214,18 @@ export default function CreatePostPage() {
         }),
       });
 
+      if (response.status === 429) {
+        setPaywallReason("daily_limit");
+        setShowPaywall(true);
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
         if (data.error === "no_credits") {
-          alert("No credits remaining. Please upgrade your plan.");
+          setPaywallReason("no_credits");
+          setShowPaywall(true);
           return;
         }
         throw new Error(data.message || data.error || "Generation failed");
@@ -244,7 +241,8 @@ export default function CreatePostPage() {
       });
     } catch (err: any) {
       console.error("Generate from news error:", err);
-      alert(err.message || "Failed to generate post from selected news");
+      setPaywallReason("daily_limit");
+      setShowPaywall(true);
     } finally {
       setCreatingFromNews(false);
     }
@@ -288,11 +286,9 @@ export default function CreatePostPage() {
       });
 
       if (error) throw error;
-      alert("Draft saved successfully!");
       router.push("/dashboard/drafts");
     } catch (err: any) {
       console.error("Save draft error:", err);
-      alert(err.message || "Failed to save draft");
     } finally {
       setAiLoading(false);
     }
@@ -363,7 +359,7 @@ export default function CreatePostPage() {
                     </span>
                     <button
                       onClick={handleGenerateAI}
-                      disabled={!topic.trim() || aiLoading || !!(userData && userData.credits_generate <= 0)}
+                      disabled={!topic.trim() || aiLoading}
                       className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                     >
                       {aiLoading ? (
@@ -371,7 +367,7 @@ export default function CreatePostPage() {
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4" />
-                          {userData && userData.credits_generate <= 0 ? "No Credits" : "Generate"}
+                          Generate
                         </>
                       )}
                     </button>
@@ -716,6 +712,12 @@ export default function CreatePostPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Paywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        reason={paywallReason}
+      />
     </div>
   );
 }
