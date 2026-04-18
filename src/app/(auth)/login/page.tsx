@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowRight, Loader2, Mail, Lock, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const supabase = createClient();
   const isSupabaseConfigured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -43,22 +41,32 @@ export default function LoginPage() {
       if (authError) throw authError;
 
       if (data.user) {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          throw new Error("Session not ready. Please try signing in again.");
+        }
+
         // Fetch profile status
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("users")
           .select("persona_complete")
           .eq("id", data.user.id)
           .single();
 
-        if (profile && !profile.persona_complete) {
-          router.push("/onboarding");
-        } else {
-          router.push("/dashboard");
+        if (profileError) {
+          console.warn("Profile lookup warning after login:", profileError.message);
         }
+
+        const nextPath = profile && !profile.persona_complete ? "/onboarding" : "/dashboard";
+        window.location.assign(nextPath);
+        return;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
-      const message = String(err?.message || "");
+      const message = err instanceof Error ? err.message : "";
       if (/failed to fetch|placeholder|invalid url/i.test(message)) {
         setError("Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local.");
       } else {

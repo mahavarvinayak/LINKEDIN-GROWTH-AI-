@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart3,
   AlertCircle,
@@ -87,19 +86,25 @@ export default function LandingPage() {
   }, [isLoggedIn, authChecked]);
 
   useEffect(() => {
-    const loadRatings = async () => {
+    let isMounted = true;
+    const timer = window.setTimeout(async () => {
       try {
-        const response = await fetch("/api/ratings", { cache: "no-store" });
-        if (!response.ok) return;
+        const response = await fetch("/api/ratings", { cache: "force-cache" });
+        if (!response.ok || !isMounted) return;
 
         const payload = await response.json();
-        setRatingsFeed(payload.ratings || []);
+        if (isMounted) {
+          setRatingsFeed(payload.ratings || []);
+        }
       } catch (error) {
         console.error("Failed to load ratings feed:", error);
       }
-    };
+    }, 250);
 
-    void loadRatings();
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const handleAnalyze = async () => {
@@ -138,25 +143,19 @@ export default function LandingPage() {
       }
 
       setView("results");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Analysis failed:", error);
-      setAnalyzeError(error.message || "Something went wrong. Try again.");
+      const message = error instanceof Error ? error.message : "Something went wrong. Try again.";
+      setAnalyzeError(message);
       setView("input");
     }
   };
 
   return (
     <main className="min-h-screen bg-background text-on-background font-sans selection:bg-primary/10">
-      <AnimatePresence mode="wait">
-
-        {/* ======================== INPUT STATE ======================== */}
-        {view === "input" && (
-          <motion.div
-            key="input"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-          >
+      {/* ======================== INPUT STATE ======================== */}
+      {view === "input" && (
+          <div key="input">
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
               <div className="inline-flex items-center gap-2">
@@ -202,7 +201,7 @@ export default function LandingPage() {
                   </div>
 
                   <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                    You've used your free analysis
+                    You&apos;ve used your free analysis
                   </h2>
                   <p className="text-gray-500 text-base mb-8 max-w-sm mx-auto">
                     Sign up free to analyze unlimited posts, generate content,
@@ -320,16 +319,13 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-          </motion.div>
-        )}
+          </div>
+      )}
 
-        {/* ======================== LOADING STATE ======================== */}
-        {view === "loading" && (
-          <motion.div
+      {/* ======================== LOADING STATE ======================== */}
+      {view === "loading" && (
+          <div
             key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center min-h-screen p-6"
           >
             <Loader2 className="w-10 h-10 text-primary animate-spin mb-6" />
@@ -340,15 +336,13 @@ export default function LandingPage() {
               <div className="h-2 bg-surface-container rounded-full animate-pulse w-full" />
               <div className="h-2 bg-surface-container rounded-full animate-pulse w-3/5" />
             </div>
-          </motion.div>
-        )}
+          </div>
+      )}
 
-        {/* ======================== RESULTS STATE ======================== */}
-        {view === "results" && (
-          <motion.div
+      {/* ======================== RESULTS STATE ======================== */}
+      {view === "results" && (
+          <div
             key="results"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto py-14 px-6"
           >
             {/* Top nav */}
@@ -431,9 +425,21 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
+
+      <div className="overflow-hidden border-y border-[rgba(229,226,218,0.4)] bg-surface-container-lowest py-4">
+        <div className="credit-track flex w-max items-center gap-10 px-6">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <p
+              key={idx}
+              className="text-[1.125rem] md:text-[1.75rem] font-serif font-bold uppercase tracking-[0.08em] text-on-background/85 whitespace-nowrap"
+            >
+              Built with love by VINAYAK MAHAVAR
+            </p>
+          ))}
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="bg-surface-container py-20 border-t border-[rgba(229,226,218,0.3)]">
@@ -466,9 +472,10 @@ export default function LandingPage() {
              <h4 className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono mb-6">Help & Legal</h4>
             <ul className="space-y-4 text-[0.875rem] font-medium text-on-surface-variant">
               <li><Link href="/support" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><a href="mailto:hello@thepilab.in" className="hover:text-primary transition-colors">Contact Support</a></li>
+              <li><a href="mailto:mahavarvinayak@gmail.com" className="hover:text-primary transition-colors">mahavarvinayak@gmail.com</a></li>
               <li><a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB Website</a></li>
               <li><a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB LinkedIn</a></li>
             </ul>
@@ -476,7 +483,7 @@ export default function LandingPage() {
         </div>
         <div className="max-w-6xl mx-auto px-8 mt-20 pt-10 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[0.6875rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">
-            © 2024 THE Π LAB — PRECISION ENGINEERING
+            © 2024 THE Π LAB — MERCHANT: MAHAVAR VINAYAK DILIPKUMAR
           </p>
           <div className="flex gap-6 text-[0.6875rem] font-mono font-bold uppercase tracking-tighter text-on-surface-variant/30">
              <span>v4.2.0-stable</span>
@@ -490,7 +497,20 @@ export default function LandingPage() {
           animation: rating-scroll 32s linear infinite;
         }
 
+        .credit-track {
+          animation: credit-scroll 18s linear infinite;
+        }
+
         @keyframes rating-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+
+        @keyframes credit-scroll {
           from {
             transform: translateX(0);
           }

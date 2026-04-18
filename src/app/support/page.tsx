@@ -6,13 +6,9 @@ import {
   Search,
   Sparkles,
   CreditCard,
-  UserCog,
   ChevronDown,
   ChevronUp,
-  Play,
-  BookOpen,
   Mail,
-  MessageCircle,
   ArrowLeft,
   ShieldCheck,
 } from "lucide-react";
@@ -54,7 +50,7 @@ const FAQ_CATEGORIES = [
         question: "How does the AI Persona logic work?",
         answer: (
           <p className="text-[0.875rem] text-on-surface-variant leading-relaxed">
-            When you set up your Persona (e.g., PM, Founder, Developer), our "Editorial Intelligence" engine adjusts its scoring weights. For a Founder, it prioritizes authority and vision; for a Developer, it prioritizes technical clarity and high-signal value.
+            When you set up your Persona (e.g., PM, Founder, Developer), our &ldquo;Editorial Intelligence&rdquo; engine adjusts its scoring weights. For a Founder, it prioritizes authority and vision; for a Developer, it prioritizes technical clarity and high-signal value.
           </p>
         )
       }
@@ -92,7 +88,7 @@ const FAQ_CATEGORIES = [
         question: "Does the AI learn from my private data?", 
         answer: (
           <p className="text-[0.875rem] text-on-surface-variant leading-relaxed">
-            No. We utilize "Zero-Retention" protocols. Your input data is sent to our inference engines (Gemini/Groq) for real-time analysis, but it is **never** used to train public models or shared with other users.
+            No. We utilize &ldquo;Zero-Retention&rdquo; protocols. Your input data is sent to our inference engines (Gemini/Groq) for real-time analysis, but it is **never** used to train public models or shared with other users.
           </p>
         )
       },
@@ -177,8 +173,8 @@ export default function SupportPage() {
 
             <div className="p-6 bg-surface-container rounded-[12px]">
               <h4 className="font-serif text-lg mb-2">Need a Specialist?</h4>
-              <p className="text-[0.8125rem] text-on-surface-variant mb-4 leading-relaxed">Our concierge team is available for all enterprise and pro partners.</p>
-              <button className="text-[0.6875rem] font-bold uppercase tracking-wider text-primary hover:underline underline-offset-4 font-mono">Speak to Support</button>
+              <p className="text-[0.8125rem] text-on-surface-variant mb-4 leading-relaxed">Merchant support is managed by MAHAVAR VINAYAK DILIPKUMAR.</p>
+              <Link href="/contact" className="text-[0.6875rem] font-bold uppercase tracking-wider text-primary hover:underline underline-offset-4 font-mono">Open Contact Us</Link>
             </div>
           </aside>
 
@@ -229,12 +225,16 @@ export default function SupportPage() {
           <div className="p-10 bg-[#1A1814] rounded-[16px] text-white relative overflow-hidden flex flex-col justify-between min-h-[300px]">
             <div className="relative z-10">
               <h2 className="font-serif text-3xl mb-4">Still need assistance?</h2>
-              <p className="text-white/50 max-w-sm mb-8 leading-relaxed">Our support concierge is available for technical implementation help.</p>
+              <p className="text-white/50 max-w-sm mb-3 leading-relaxed">Our support concierge is available for technical implementation help.</p>
+              <p className="text-white/70 text-[0.8125rem] font-mono">Merchant: MAHAVAR VINAYAK DILIPKUMAR</p>
             </div>
             <div className="flex flex-wrap gap-4 relative z-10">
-              <a href="mailto:hello@thepilab.in" className="bg-primary hover:px-8 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
-                <Mail className="w-4 h-4" /> Email hello@thepilab.in
+              <a href="mailto:mahavarvinayak@gmail.com" className="bg-primary hover:px-8 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
+                <Mail className="w-4 h-4" /> Email mahavarvinayak@gmail.com
               </a>
+              <Link href="/contact" className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
+                Contact Us Page
+              </Link>
               <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
                 THE Π LAB Website
               </a>
