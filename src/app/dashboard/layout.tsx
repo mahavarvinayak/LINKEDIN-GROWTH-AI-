@@ -41,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [userProfile, setUserProfile] = useState<{ name: string; plan: string } | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -81,8 +82,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [router, supabase]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    try {
+      // Clear auth cookies on the server first to prevent middleware bounce-back.
+      await fetch("/api/auth/signout", { method: "POST" });
+      // Also clear local session cache in the browser.
+      await supabase.auth.signOut({ scope: "local" });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      window.location.href = "/login";
+    }
   };
 
   return (
@@ -178,10 +192,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <button
             onClick={handleLogout}
+            disabled={isSigningOut}
             className="flex w-full items-center gap-3 px-4 py-2 text-white/30 hover:text-red-400 hover:bg-white/[0.03] rounded-[8px] transition-all group"
           >
             <LogOut className="w-[0.9rem] h-[0.9rem] transition-colors" />
-            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.06em]">Sign Out</span>
+            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.06em]">
+              {isSigningOut ? "Signing Out..." : "Sign Out"}
+            </span>
           </button>
         </div>
       </aside>

@@ -34,6 +34,25 @@ You will need:
 - [Google AI Studio](https://aistudio.google.com/) Gemini Key (fallback).
 - [Groq Console](https://console.groq.com/) API Key (fallback).
 
+### Cashfree Payment Testing (Sandbox)
+
+1. Log in to Cashfree Merchant Dashboard.
+2. Switch to `Test` mode.
+3. Generate API keys from Developers > API Keys.
+4. Copy keys into `.env.local`:
+
+```bash
+CASHFREE_ENV="sandbox"
+CASHFREE_APP_ID="TEST_..."
+CASHFREE_SECRET_KEY="TEST_..."
+NEXT_PUBLIC_CASHFREE_MODE="sandbox"
+```
+
+Notes:
+- Sandbox keys always start with `TEST_`.
+- Do not share production keys (`PROD_`) for testing.
+- Share only sandbox credentials for QA/demo testing.
+
 ### 3. Install Dependencies
 
 ```bash
