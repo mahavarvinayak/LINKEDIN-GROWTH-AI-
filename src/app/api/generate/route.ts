@@ -289,7 +289,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: "ai_provider_missing",
-          message: "AI service is not configured properly. Please set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT (or fallback GEMINI/GROQ keys).",
+          message: "AI service is not configured properly. Please contact support.",
         },
         { status: 503 }
       );

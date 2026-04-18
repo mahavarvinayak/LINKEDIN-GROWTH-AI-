@@ -1657,34 +1657,65 @@ You've built something here. Keep building.`,
   }
 ];
 
+interface LearnNewsItem {
+  topic: string;
+  article: {
+    title: string;
+    description: string;
+    source: string;
+    link: string;
+    date: string;
+  } | null;
+}
+
 export default function LearnPage() {
   const [userDayNumber, setUserDayNumber] = useState(1);
-  const [currentLesson, setCurrentLesson] = useState(LESSONS[0]);
+  const [selectedLessonDay, setSelectedLessonDay] = useState(1);
+  const [topicNews, setTopicNews] = useState<LearnNewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewsLoading, setIsNewsLoading] = useState(true);
+
+  const currentLesson = LESSONS[selectedLessonDay - 1] || LESSONS[0];
 
   useEffect(() => {
-    async function getUserDay() {
+    async function loadLearnData() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+      } else {
+        const { data } = await supabase
+          .from('users')
+          .select('created_at')
+          .eq('id', user.id)
+          .single();
 
-      const { data } = await supabase
-        .from('users')
-        .select('created_at')
-        .eq('id', user.id)
-        .single();
+        if (data) {
+          const created = new Date(data.created_at);
+          const now = new Date();
+          const diffDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+          const dayNumber = Math.min(diffDays + 1, 30);
+          setUserDayNumber(dayNumber);
+          setSelectedLessonDay(dayNumber);
+        }
 
-      if (data) {
-        const created = new Date(data.created_at);
-        const now = new Date();
-        const diffDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-        const dayNumber = Math.min(diffDays + 1, 30);
-        setUserDayNumber(dayNumber);
-        setCurrentLesson(LESSONS[dayNumber - 1]);
+        setIsLoading(false);
       }
-      setIsLoading(false);
+
+      try {
+        const response = await fetch('/api/learn-news', { cache: 'no-store' });
+        if (response.ok) {
+          const payload = await response.json();
+          setTopicNews((payload.items || []) as LearnNewsItem[]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch learn news:', error);
+      } finally {
+        setIsNewsLoading(false);
+      }
     }
-    getUserDay();
+
+    void loadLearnData();
   }, []);
 
   if (isLoading) {
@@ -1703,6 +1734,73 @@ export default function LearnPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
+      {/* Topic News */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">Daily Topic News (10 Focus Topics)</h2>
+        {isNewsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-20 rounded-lg bg-gray-100 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {topicNews.map((item) => (
+              <div key={item.topic} className="rounded-lg border border-gray-200 bg-white p-3">
+                <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-700 mb-1">{item.topic}</p>
+                {item.article ? (
+                  <>
+                    <a
+                      href={item.article.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold text-gray-900 hover:text-blue-700 line-clamp-2"
+                    >
+                      {item.article.title}
+                    </a>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.article.description}</p>
+                    <p className="text-[0.68rem] text-gray-400 mt-1">{item.article.source}</p>
+                  </>
+                ) : (
+                  <p className="text-xs text-gray-500">No fresh article found for this topic yet.</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Lesson Navigator */}
+      <div className="mb-6">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lessons</p>
+        <div className="grid grid-cols-10 gap-2">
+          {Array.from({ length: 30 }, (_, idx) => {
+            const day = idx + 1;
+            const isLocked = day > userDayNumber;
+            const isActive = day === selectedLessonDay;
+
+            return (
+              <button
+                key={day}
+                type="button"
+                disabled={isLocked}
+                onClick={() => setSelectedLessonDay(day)}
+                className={`rounded-md px-2 py-2 text-xs font-semibold transition-colors ${
+                  isLocked
+                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                    : isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-400'
+                }`}
+                title={isLocked ? `Unlocks on Day ${day}` : `Open Day ${day}`}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
@@ -1758,6 +1856,8 @@ export default function LearnPage() {
             window.location.href = '/dashboard/create';
           } else if (currentLesson.action === 'Analyze a post') {
             window.location.href = '/dashboard/analyze';
+          } else {
+            window.location.href = '/dashboard/create';
           }
         }}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl text-sm transition-colors"
@@ -1766,7 +1866,7 @@ export default function LearnPage() {
       </button>
 
       <p className="text-xs text-gray-400 text-center mt-4">
-        New lesson unlocks every day. Come back tomorrow for Day {Math.min(userDayNumber + 1, 30)}.
+        Future lessons unlock day-by-day. You can revisit any past lesson anytime.
       </p>
     </div>
   );

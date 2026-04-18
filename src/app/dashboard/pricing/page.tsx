@@ -9,9 +9,9 @@ const PLANS = [
     price: "0",
     description: "Ideal for beginners starting their networking trajectory.",
     features: [
-      "3 AI Analyses per day",
-      "2 AI Content Generations",
-      "Draft Storage",
+      "2 AI Analyses per day",
+      "1 AI Content Generation per day",
+      "No Draft Storage",
       "Basic Consistency Streak",
       "Standard Algorithm Scoring"
     ],
@@ -24,11 +24,11 @@ const PLANS = [
     price: "499",
     description: "For professionals scaling their network velocity.",
     features: [
-      "15 AI Analyses per day",
-      "10 AI Content Generations",
-      "Priority Draft Cloud",
+      "5 AI Analyses per day",
+      "5 AI Content Generations per day",
+      "Store up to 10 Drafts",
       "Advanced Persona Suite",
-      "Enhanced Gemini Model Access"
+      "Enhanced Quality Mode"
     ],
     cta: "Upgrade to Starter",
     current: false,
@@ -39,8 +39,9 @@ const PLANS = [
     price: "999",
     description: "Maximum output for executive-level brand development.",
     features: [
-      "Unlimited AI Analyses",
-      "Unlimited Generations",
+      "15 AI Analyses per day",
+      "10 AI Content Generations per day",
+      "Store up to 30 Drafts",
       "Deep Narrative Analysis",
       "Custom Brand Tone Mapping",
       "Priority Developer Support"

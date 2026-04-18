@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 interface PaywallProps {
   isOpen: boolean;
   onClose: () => void;
-  reason?: "daily_limit" | "no_credits";
+  reason?: "daily_limit" | "no_credits" | "draft_limit";
 }
 
 const PLANS = [
@@ -42,6 +42,7 @@ export default function Paywall({ isOpen, onClose, reason = "no_credits" }: Payw
   const router = useRouter();
 
   const isDailyLimit = reason === "daily_limit";
+  const isDraftLimit = reason === "draft_limit";
 
   const handleUpgrade = () => {
     onClose();
@@ -87,7 +88,11 @@ export default function Paywall({ isOpen, onClose, reason = "no_credits" }: Payw
                   </div>
 
                   <h2 className="text-4xl font-serif text-on-background mb-4 leading-[1.1]">
-                    {isDailyLimit ? (
+                    {isDraftLimit ? (
+                      <>
+                        Draft limit<br />reached
+                      </>
+                    ) : isDailyLimit ? (
                       <>
                         You've hit today's<br />limit
                       </>
@@ -98,7 +103,9 @@ export default function Paywall({ isOpen, onClose, reason = "no_credits" }: Payw
                     )}
                   </h2>
                   <p className="text-[0.9375rem] font-medium text-on-surface-variant leading-relaxed mb-10">
-                    {isDailyLimit
+                    {isDraftLimit
+                      ? "Upgrade your plan to store more drafts and keep your workflow uninterrupted."
+                      : isDailyLimit
                       ? "Resets at midnight • Upgrade for more daily usage"
                       : "Upgrade to keep growing your LinkedIn presence with high-performing, AI-optimized editorial content."}
                   </p>
@@ -108,21 +115,6 @@ export default function Paywall({ isOpen, onClose, reason = "no_credits" }: Payw
                     <Benefit text="Advanced Persona-driven generation" />
                     <Benefit text="Early access to viral templates" />
                   </div>
-                </div>
-
-                <div className="mt-10 flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="w-8 h-8 rounded-full border-2 border-background bg-surface-container"
-                        style={{ background: `hsl(${220 + i * 15}, 30%, ${75 - i * 5}%)` }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[0.8125rem] font-medium text-on-surface-variant italic">
-                    Joined by 1,200+ creators this month
-                  </span>
                 </div>
               </div>
 

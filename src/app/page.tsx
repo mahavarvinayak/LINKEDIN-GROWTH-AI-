@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   ArrowRight,
   Loader2,
-  Sparkles,
   ChevronLeft,
   Users,
   Zap,
@@ -35,13 +34,6 @@ interface AnalysisResult {
   improved_post: string;
   improvement_summary: string;
 }
-
-const SOCIAL_PROOF = [
-  { initials: "AR", color: "#2563eb" },
-  { initials: "SJ", color: "#7c3aed" },
-  { initials: "MK", color: "#059669" },
-  { initials: "LP", color: "#d97706" },
-];
 
 const FEATURES = [
   { icon: BarChart3, label: "Hook Score", desc: "AI rates your opening line against 10K viral posts." },
@@ -114,13 +106,6 @@ export default function LandingPage() {
 
             {/* Hero */}
             <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10 mb-8">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span className="text-[0.625rem] font-bold uppercase tracking-[0.12em] text-primary font-mono">
-                  Trusted by 5,000+ LinkedIn creators
-                </span>
-              </div>
-
               <h1 className="text-6xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
                 Is your post<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
@@ -153,24 +138,6 @@ export default function LandingPage() {
                   </button>
                 </div>
               </div>
-            </div>
-
-            {/* Social Proof */}
-            <div className="flex items-center justify-center gap-4 mb-20">
-              <div className="flex -space-x-2.5">
-                {SOCIAL_PROOF.map(({ initials, color }) => (
-                  <div
-                    key={initials}
-                    className="w-8 h-8 rounded-full border-2 border-background flex items-center justify-center text-[0.5625rem] font-bold text-white"
-                    style={{ background: color }}
-                  >
-                    {initials}
-                  </div>
-                ))}
-              </div>
-              <span className="text-[0.8125rem] font-medium text-on-surface-variant italic">
-                1,200+ creators joined this month
-              </span>
             </div>
 
             {/* Feature Strip */}

@@ -10,7 +10,8 @@ import {
   ArrowUpRight,
   TrendingUp,
   Clock,
-  Sparkles
+  Sparkles,
+  Star
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -27,6 +28,13 @@ interface UserData {
   post_count?: number;
 }
 
+interface RatingItem {
+  display_name: string;
+  rating: number;
+  opinion: string;
+  created_at: string;
+}
+
 function getDailyGenerateLimit(plan: string) {
   if (plan === "pro") return 10;
   if (plan === "starter") return 5;
@@ -38,6 +46,23 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const [ratingsFeed, setRatingsFeed] = useState<RatingItem[]>([]);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingName, setRatingName] = useState("");
+  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingOpinion, setRatingOpinion] = useState("");
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+
+  const refreshRatingsFeed = async () => {
+    try {
+      const feedRes = await fetch("/api/ratings", { cache: "no-store" });
+      if (!feedRes.ok) return;
+      const feedJson = await feedRes.json();
+      setRatingsFeed(feedJson.ratings || []);
+    } catch (error) {
+      console.error("Failed to fetch ratings feed:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,6 +90,23 @@ export default function DashboardPage() {
         streak_count: profile?.streak_count || 0,
         post_count: postCount || 0,
       });
+
+      setRatingName(profile?.full_name || "");
+
+      try {
+        const myRes = await fetch("/api/ratings/me", { cache: "no-store" });
+        if (myRes.ok) {
+          const myJson = await myRes.json();
+          if (!myJson.hasRated) {
+            setShowRatingModal(true);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch my rating status:", error);
+      }
+
+      await refreshRatingsFeed();
+
       setLoading(false);
     };
 
@@ -90,6 +132,36 @@ export default function DashboardPage() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  const submitRating = async () => {
+    if (!ratingName.trim() || ratingValue < 1 || !ratingOpinion.trim()) {
+      return;
+    }
+
+    setRatingSubmitting(true);
+    try {
+      const response = await fetch("/api/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          display_name: ratingName.trim(),
+          rating: ratingValue,
+          opinion: ratingOpinion.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit rating");
+      }
+
+      setShowRatingModal(false);
+      await refreshRatingsFeed();
+    } catch (error) {
+      console.error("Rating submit failed:", error);
+    } finally {
+      setRatingSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -120,19 +192,39 @@ export default function DashboardPage() {
 
       <Paywall isOpen={isPaywallOpen} onClose={() => setIsPaywallOpen(false)} />
 
+      {/* Ratings Ticker */}
+      {ratingsFeed.length > 0 && (
+        <div className="overflow-hidden rounded-[12px] border border-[rgba(229,226,218,0.5)] bg-surface-container-lowest p-3 shadow-premium">
+          <div className="rating-track flex w-max items-center gap-3">
+            {[...ratingsFeed, ...ratingsFeed].map((item, idx) => (
+              <div
+                key={`${item.display_name}-${item.created_at}-${idx}`}
+                className="min-w-[280px] rounded-[8px] border border-[rgba(229,226,218,0.5)] bg-white px-3 py-2"
+              >
+                <p className="text-[0.75rem] font-semibold text-on-background">
+                  {item.display_name} rated {"★".repeat(item.rating)}
+                </p>
+                <p className="text-[0.72rem] text-on-surface-variant line-clamp-1">{item.opinion}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <StatCard
           label="Content Assets"
           value={userData?.post_count?.toString() || "0"}
           icon={BarChart2}
-          trend="+12% velocity"
+          trend="Updated live"
         />
         <StatCard
-          label="Conversion Multiplier"
-          value="+2.4x"
+          label="Writing Streak"
+          value={(userData?.streak_count || 0).toString()
+          }
           icon={TrendingUp}
-          trend="Top 5% of network"
+          trend="Based on your activity"
         />
         <StatCard
           label="Generation Quota"
@@ -284,6 +376,79 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Rating Modal */}
+      {showRatingModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-[12px] bg-white p-6 shadow-2xl">
+            <h3 className="text-xl font-serif text-gray-900 mb-2">Rate this tool</h3>
+            <p className="text-sm text-gray-600 mb-4">Please share your name, star rating, and honest opinion.</p>
+
+            <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Your Name</label>
+            <input
+              value={ratingName}
+              onChange={(e) => setRatingName(e.target.value)}
+              className="w-full rounded-[8px] border border-gray-300 px-3 py-2 text-sm mb-4"
+              placeholder="Enter your name"
+            />
+
+            <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Your Rating</label>
+            <div className="flex items-center gap-2 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRatingValue(star)}
+                  className="p-1"
+                >
+                  <Star className={`h-6 w-6 ${star <= ratingValue ? "fill-amber-400 text-amber-400" : "text-gray-300"}`} />
+                </button>
+              ))}
+            </div>
+
+            <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">Your Opinion</label>
+            <textarea
+              value={ratingOpinion}
+              onChange={(e) => setRatingOpinion(e.target.value)}
+              className="w-full min-h-[100px] rounded-[8px] border border-gray-300 px-3 py-2 text-sm mb-5"
+              placeholder="Tool ke baare me apni opinion likho"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowRatingModal(false)}
+                className="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600"
+              >
+                Later
+              </button>
+              <button
+                type="button"
+                onClick={submitRating}
+                disabled={ratingSubmitting || !ratingName.trim() || !ratingOpinion.trim() || ratingValue < 1}
+                className="rounded-[8px] bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              >
+                {ratingSubmitting ? "Submitting..." : "Submit Rating"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .rating-track {
+          animation: rating-scroll 32s linear infinite;
+        }
+
+        @keyframes rating-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </div>
   );
 }

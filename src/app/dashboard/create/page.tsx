@@ -85,7 +85,14 @@ export default function CreatePostPage() {
   ]);
   
   const [showPaywall, setShowPaywall] = useState(false);
-  const [paywallReason, setPaywallReason] = useState<"daily_limit" | "no_credits">("daily_limit");
+  const [paywallReason, setPaywallReason] = useState<"daily_limit" | "no_credits" | "draft_limit">("daily_limit");
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
+
+  const getDraftLimit = (plan: string) => {
+    if (plan === "pro") return 30;
+    if (plan === "starter") return 10;
+    return 0;
+  };
 
   // --- AI GENERATION HANDLERS ---
   const handleGenerateAI = async () => {
@@ -261,10 +268,42 @@ export default function CreatePostPage() {
 
   const saveDraftGeneric = async (postContent: string, hashtags: string[], postTopic: string) => {
     setAiLoading(true);
+    setDraftNotice(null);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Unauthorized");
+
+      const [{ data: userProfile, error: profileError }, { count: draftCount, error: countError }] = await Promise.all([
+        supabase.from("users").select("plan").eq("id", user.id).single(),
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("type", "draft"),
+      ]);
+
+      if (profileError || !userProfile) {
+        throw new Error("Failed to check your plan");
+      }
+
+      if (countError) {
+        throw new Error("Failed to check draft usage");
+      }
+
+      const plan = userProfile.plan || "free";
+      const limit = getDraftLimit(plan);
+      const used = draftCount || 0;
+
+      if (limit === 0) {
+        setDraftNotice("Draft storage is not available on Free plan. Upgrade to Starter or Pro.");
+        setPaywallReason("draft_limit");
+        setShowPaywall(true);
+        return;
+      }
+
+      if (used >= limit) {
+        setDraftNotice(`You've reached your draft limit (${used}/${limit}) on ${plan} plan.`);
+        setPaywallReason("draft_limit");
+        setShowPaywall(true);
+        return;
+      }
 
       // Include hashtags in the post content
       const hashtagString = hashtags.length > 0 ? "\n\n" + hashtags.map(tag => `#${tag.replace("#", "")}`).join(" ") : "";
@@ -289,6 +328,12 @@ export default function CreatePostPage() {
       router.push("/dashboard/drafts");
     } catch (err: any) {
       console.error("Save draft error:", err);
+
+      if (String(err?.message || "").toLowerCase().includes("draft_limit_reached")) {
+        setDraftNotice("Draft limit reached for your current plan.");
+        setPaywallReason("draft_limit");
+        setShowPaywall(true);
+      }
     } finally {
       setAiLoading(false);
     }
@@ -299,6 +344,13 @@ export default function CreatePostPage() {
       {/* TAB SWITCHER */}
       <div className="pt-2 mb-8">
         <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-4">Content Studio</p>
+
+        {draftNotice && (
+          <div className="mb-4 rounded-[8px] border border-red-300 bg-red-50 px-4 py-3 text-[0.8125rem] font-medium text-red-700">
+            {draftNotice}
+          </div>
+        )}
+
         <div className="flex gap-3">
           <button
             onClick={() => {

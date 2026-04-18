@@ -20,9 +20,21 @@ interface UserProfile {
   full_name: string;
   email: string;
   plan: string;
-  credits_analyze: number;
-  credits_generate: number;
+  daily_analyze_count: number;
+  daily_generate_count: number;
   streak_count: number;
+}
+
+function getDailyAnalyzeLimit(plan: string): number {
+  if (plan === "pro") return 15;
+  if (plan === "starter") return 5;
+  return 2;
+}
+
+function getDailyGenerateLimit(plan: string): number {
+  if (plan === "pro") return 10;
+  if (plan === "starter") return 5;
+  return 1;
 }
 
 export default function SettingsPage() {
@@ -49,8 +61,8 @@ export default function SettingsPage() {
         full_name: data?.full_name || "",
         email: user.email || "",
         plan: data?.plan || "free",
-        credits_analyze: data?.credits_analyze ?? 0,
-        credits_generate: data?.credits_generate ?? 0,
+        daily_analyze_count: data?.daily_analyze_count ?? 0,
+        daily_generate_count: data?.daily_generate_count ?? 0,
         streak_count: data?.streak_count ?? 0,
       };
       setProfile(p);
@@ -154,7 +166,7 @@ export default function SettingsPage() {
       <SettingsCard
         icon={<CreditCard className="w-4 h-4" />}
         title="Subscription"
-        subtitle="Your current plan & quota"
+        subtitle="Your current plan & daily usage"
       >
         <div className="space-y-5">
           <div className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)]">
@@ -172,8 +184,16 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <QuotaChip label="Analyze" value={profile?.credits_analyze ?? 0} />
-            <QuotaChip label="Generate" value={profile?.credits_generate ?? 0} />
+            <QuotaChip
+              label="Analyze"
+              value={`${profile?.daily_analyze_count ?? 0}/${getDailyAnalyzeLimit(profile?.plan || "free")}`}
+              suffix="used today"
+            />
+            <QuotaChip
+              label="Generate"
+              value={`${profile?.daily_generate_count ?? 0}/${getDailyGenerateLimit(profile?.plan || "free")}`}
+              suffix="used today"
+            />
             <QuotaChip label="Streak" value={profile?.streak_count ?? 0} suffix="days" />
           </div>
 
@@ -288,7 +308,7 @@ function SettingsCard({
   );
 }
 
-function QuotaChip({ label, value, suffix = "left" }: { label: string; value: number; suffix?: string }) {
+function QuotaChip({ label, value, suffix = "left" }: { label: string; value: number | string; suffix?: string }) {
   return (
     <div className="p-4 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)] text-center">
       <div className="text-2xl font-serif text-on-background mb-1">{value}</div>
