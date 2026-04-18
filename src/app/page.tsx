@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart3,
@@ -35,6 +35,13 @@ interface AnalysisResult {
   improvement_summary: string;
 }
 
+interface RatingItem {
+  display_name: string;
+  rating: number;
+  opinion: string;
+  created_at: string;
+}
+
 const FEATURES = [
   { icon: BarChart3, label: "Hook Score", desc: "AI rates your opening line against 10K viral posts." },
   { icon: Zap, label: "Instant Rewrite", desc: "Get an improved version of your post in seconds." },
@@ -46,6 +53,23 @@ export default function LandingPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [ratingsFeed, setRatingsFeed] = useState<RatingItem[]>([]);
+
+  useEffect(() => {
+    const loadRatings = async () => {
+      try {
+        const response = await fetch("/api/ratings", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const payload = await response.json();
+        setRatingsFeed(payload.ratings || []);
+      } catch (error) {
+        console.error("Failed to load ratings feed:", error);
+      }
+    };
+
+    void loadRatings();
+  }, []);
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;
@@ -85,8 +109,8 @@ export default function LandingPage() {
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
               <div className="inline-flex items-center gap-2">
-                <div className="w-4 h-4 bg-gradient-to-br from-primary to-primary-container rounded-[3px]" />
-                <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-on-background">Growth.AI</span>
+                <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
+                <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-on-background">LUNVO</span>
               </div>
               <div className="flex items-center gap-4">
                 <Link
@@ -106,6 +130,7 @@ export default function LandingPage() {
 
             {/* Hero */}
             <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
+              <p className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-primary/80 mb-5">LUNVO • Smarter LinkedIn content. Zero guesswork.</p>
               <h1 className="text-6xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
                 Is your post<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
@@ -139,6 +164,26 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+
+            {ratingsFeed.length > 0 && (
+              <div className="max-w-5xl mx-auto px-6 pb-10">
+                <div className="overflow-hidden rounded-[12px] border border-[rgba(229,226,218,0.5)] bg-surface-container-lowest p-3 shadow-premium">
+                  <div className="rating-track flex w-max items-center gap-3">
+                    {[...ratingsFeed, ...ratingsFeed].map((item, idx) => (
+                      <div
+                        key={`${item.display_name}-${item.created_at}-${idx}`}
+                        className="min-w-[280px] rounded-[8px] border border-[rgba(229,226,218,0.5)] bg-white px-3 py-2"
+                      >
+                        <p className="text-[0.75rem] font-semibold text-on-background">
+                          {item.display_name} rated {"★".repeat(item.rating)}
+                        </p>
+                        <p className="text-[0.72rem] text-on-surface-variant line-clamp-1">{item.opinion}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Feature Strip */}
             <div className="max-w-5xl mx-auto px-6 pb-24">
@@ -277,14 +322,14 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-2">
             <div className="inline-flex items-center gap-2 mb-6">
-              <div className="w-5 h-5 bg-primary rounded-[4px]" />
-              <span className="font-serif italic text-2xl text-on-background">Growth.AI</span>
+              <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-5 h-5 rounded-[4px] object-contain" />
+              <span className="font-serif italic text-2xl text-on-background">LUNVO</span>
             </div>
             <p className="text-[0.9375rem] text-on-surface-variant max-w-sm leading-relaxed mb-8">
-              Precision editorial tools for high-performing LinkedIn creators. Designed and built by **The Pi Lab**.
+              Smarter LinkedIn content. Zero guesswork.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors ring-1 ring-[rgba(229,226,218,0.4)]">
+              <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors ring-1 ring-[rgba(229,226,218,0.4)]">
                 <span className="sr-only">LinkedIn</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
               </a>
@@ -305,13 +350,15 @@ export default function LandingPage() {
               <li><Link href="/support" className="hover:text-primary transition-colors">Help Center</Link></li>
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><a href="mailto:support@thepilab.ai" className="hover:text-primary transition-colors">Contact Support</a></li>
+              <li><a href="mailto:hello@thepilab.in" className="hover:text-primary transition-colors">Contact Support</a></li>
+              <li><a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB Website</a></li>
+              <li><a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB LinkedIn</a></li>
             </ul>
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-8 mt-20 pt-10 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[0.6875rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">
-            © 2024 THE PI LAB ATELIER — PRECISION ENGINEERING
+            © 2024 THE Π LAB — PRECISION ENGINEERING
           </p>
           <div className="flex gap-6 text-[0.6875rem] font-mono font-bold uppercase tracking-tighter text-on-surface-variant/30">
              <span>v4.2.0-stable</span>
@@ -319,6 +366,21 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      <style jsx>{`
+        .rating-track {
+          animation: rating-scroll 32s linear infinite;
+        }
+
+        @keyframes rating-scroll {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+      `}</style>
     </main>
   );
 }

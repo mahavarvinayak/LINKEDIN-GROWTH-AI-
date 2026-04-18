@@ -267,10 +267,24 @@ export default function SettingsPage() {
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </Link>
-          <a href="mailto:support@thepilab.ai" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <a href="mailto:hello@thepilab.in" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Contact Concierge</div>
               <div className="text-[0.6875rem] text-on-surface-variant/60">Direct Strategic Support</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </a>
+          <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">THE Π LAB Website</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">www.thepilab.in</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+          </a>
+          <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+            <div>
+              <div className="text-[0.8125rem] font-bold text-on-background">THE Π LAB LinkedIn</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">Official company profile</div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </a>

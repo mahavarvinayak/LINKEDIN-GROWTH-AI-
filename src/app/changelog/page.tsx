@@ -57,7 +57,7 @@ const ENTRIES = [
     badge: { label: "Launch", icon: <Rocket className="w-4 h-4" />, color: "bg-tertiary/10 text-tertiary" },
     title: "Hello, World.",
     description:
-      "Today we launch the Editorial Growth Engine. A dedicated workspace for LinkedIn power users who want to treat their personal brand like a premier editorial desk.",
+      "Today we launch LUNVO. A dedicated workspace for LinkedIn power users who want to treat their personal brand like a premier editorial desk.",
     details: (
       <div className="flex flex-wrap gap-3 mt-4">
         {["Growth Analytics", "AI Post Editor", "Scheduling"].map((f) => (
@@ -86,7 +86,7 @@ export default function ChangelogPage() {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-[rgba(229,226,218,0.3)]">
         <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <span className="font-serif italic text-xl text-on-background">Editorial Growth Engine</span>
+            <span className="font-serif italic text-xl text-on-background">LUNVO</span>
             <nav className="hidden md:flex items-center gap-6">
               <Link href="/dashboard" className="text-[0.8125rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Dashboard</Link>
               <Link href="/dashboard/drafts" className="text-[0.8125rem] font-medium text-on-surface-variant hover:text-primary transition-colors">Drafts</Link>
@@ -104,7 +104,7 @@ export default function ChangelogPage() {
         <div className="mb-20">
           <h1 className="text-5xl md:text-7xl font-serif text-on-background tracking-tight mb-6">What&apos;s new</h1>
           <p className="text-on-surface-variant text-lg md:text-xl max-w-2xl leading-relaxed">
-            Stay updated with the latest improvements, features, and refinements at the Editorial Growth Engine.
+            Stay updated with the latest improvements, features, and refinements at LUNVO.
           </p>
         </div>
 

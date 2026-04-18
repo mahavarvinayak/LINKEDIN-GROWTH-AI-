@@ -38,30 +38,17 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const url = request.nextUrl.clone();
+  const isProtectedRoute = url.pathname.startsWith("/dashboard") || url.pathname === "/onboarding";
 
-  // 1. Protected Routes (Dashboard)
-  if (url.pathname.startsWith("/dashboard")) {
+  // 1. Protected Routes
+  if (isProtectedRoute) {
     if (!user) {
       url.pathname = "/login";
       return NextResponse.redirect(url);
     }
-
-    // 2. Persona Completion Check
-    // Fetch profile to see if onboarding is done
-    const { data: profile, error: profileError } = await supabase
-      .from("users")
-      .select("persona_complete")
-      .eq("id", user.id)
-      .single();
-
-    // If there's an error OR persona is not complete, redirect to onboarding
-    if (profileError || !profile || !profile.persona_complete) {
-      url.pathname = "/onboarding";
-      return NextResponse.redirect(url);
-    }
   }
 
-  // 3. Prevent logged in users from visiting auth pages
+  // 2. Prevent logged in users from visiting auth pages
   if ((url.pathname === "/login" || url.pathname === "/signup") && user) {
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
@@ -72,13 +59,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/dashboard/:path*",
+    "/login",
+    "/signup",
+    "/onboarding",
   ],
 };

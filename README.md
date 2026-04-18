@@ -1,6 +1,11 @@
-# LinkedIn AI Growth Assistant
+# LUNVO
 
 Analyze, improve, and generate LinkedIn posts with AI. Get a score for your hook, readability, and engagement instantly.
+
+Built by THE Π LAB
+- Website: https://www.thepilab.in
+- LinkedIn: https://www.linkedin.com/company/the-%CF%80-lab/
+- Support: hello@thepilab.in
 
 ## Tech Stack
 

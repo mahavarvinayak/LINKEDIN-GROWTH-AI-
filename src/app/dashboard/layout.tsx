@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // --- Navigation Configuration ---
 const NAV_ITEMS = [
@@ -39,27 +39,46 @@ const MOBILE_NAV_ITEMS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [userProfile, setUserProfile] = useState<{ name: string; plan: string } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const getProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from("users")
-          .select("full_name, plan")
-          .eq("id", user.id)
-          .single();
-        
-        setUserProfile({
-          name: data?.full_name || "Creative User",
-          plan: data?.plan || "free"
-        });
+      if (!user) {
+        router.replace("/login");
+        return;
       }
+
+      const { data } = await supabase
+        .from("users")
+        .select("full_name, plan, persona_complete")
+        .eq("id", user.id)
+        .single();
+
+      if (!isMounted) {
+        return;
+      }
+
+      if (data && data.persona_complete === false) {
+        router.replace("/onboarding");
+        return;
+      }
+
+      setUserProfile({
+        name: data?.full_name || "Creative User",
+        plan: data?.plan || "free"
+      });
     };
-    getProfile();
-  }, [supabase]);
+
+    void getProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -73,8 +92,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="px-8 py-8">
           <Link href="/dashboard" className="inline-flex items-center gap-2.5">
-            <div className="w-5 h-5 bg-[#2563eb] rounded-[4px]" />
-            <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/90">Growth.AI</span>
+            <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-5 h-5 rounded-[4px] object-contain" />
+            <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-white/90">LUNVO</span>
           </Link>
         </div>
 
@@ -122,6 +141,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             Changelog
           </Link>
+          <a
+            href="https://www.thepilab.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-4 py-2 rounded-[8px] text-[0.75rem] font-bold uppercase tracking-[0.06em] text-white/30 hover:text-white/60 hover:bg-white/[0.02] transition-all"
+          >
+            THE Π LAB
+          </a>
+          <a
+            href="https://www.linkedin.com/company/the-%CF%80-lab/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-4 py-2 rounded-[8px] text-[0.75rem] font-bold uppercase tracking-[0.06em] text-white/30 hover:text-white/60 hover:bg-white/[0.02] transition-all"
+          >
+            LinkedIn
+          </a>
         </nav>
 
         {/* User Profile Footer */}

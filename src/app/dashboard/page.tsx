@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { 
   Flame, 
@@ -42,7 +42,7 @@ function getDailyGenerateLimit(plan: string) {
 }
 
 export default function DashboardPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
@@ -65,22 +65,32 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        if (isMounted) {
+          setLoading(false);
+        }
+        return;
+      }
 
-      // 1. Fetch Profile
-      const { data: profile } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      const [{ data: profile }, { count: postCount }] = await Promise.all([
+        supabase
+          .from("users")
+          .select("*")
+          .eq("id", user.id)
+          .single(),
+        supabase
+          .from("posts")
+          .select("*", { count: 'exact', head: true })
+          .eq("user_id", user.id),
+      ]);
 
-      // 2. Fetch Post Count
-      const { count: postCount } = await supabase
-        .from("posts")
-        .select("*", { count: 'exact', head: true })
-        .eq("user_id", user.id);
+      if (!isMounted) {
+        return;
+      }
 
       setUserData({
         full_name: profile?.full_name || "User",
@@ -107,10 +117,16 @@ export default function DashboardPage() {
 
       await refreshRatingsFeed();
 
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     };
 
-    fetchData();
+    void fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [supabase]);
 
   if (loading) {

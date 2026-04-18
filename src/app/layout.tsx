@@ -24,8 +24,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LinkedIn AI Growth Assistant — Write Posts That Actually Get Seen",
-  description: "Analyze, improve, and generate LinkedIn posts with AI. Get a score for your hook, readability, and engagement instantly.",
+  title: "LUNVO — Smarter LinkedIn content. Zero guesswork.",
+  description: "LUNVO helps you analyze, improve, and generate better LinkedIn posts with less guesswork.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

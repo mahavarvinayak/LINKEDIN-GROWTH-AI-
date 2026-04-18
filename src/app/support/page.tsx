@@ -129,8 +129,8 @@ export default function SupportPage() {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-[rgba(229,226,218,0.3)]">
         <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-             <div className="w-4 h-4 bg-primary rounded-[3px]" />
-             <span className="font-serif italic text-xl text-on-background">Growth.AI Help Center</span>
+             <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
+             <span className="font-serif italic text-xl text-on-background">LUNVO Help Center</span>
           </div>
           <Link href="/dashboard" className="flex items-center gap-2 text-[0.8125rem] font-medium text-on-surface-variant hover:text-primary transition-colors font-mono">
             <ArrowLeft className="w-4 h-4" /> Back to app
@@ -232,8 +232,14 @@ export default function SupportPage() {
               <p className="text-white/50 max-w-sm mb-8 leading-relaxed">Our support concierge is available for technical implementation help.</p>
             </div>
             <div className="flex flex-wrap gap-4 relative z-10">
-              <a href="mailto:support@thepilab.ai" className="bg-primary hover:px-8 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
-                <Mail className="w-4 h-4" /> Email support@thepilab.ai
+              <a href="mailto:hello@thepilab.in" className="bg-primary hover:px-8 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
+                <Mail className="w-4 h-4" /> Email hello@thepilab.in
+              </a>
+              <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
+                THE Π LAB Website
+              </a>
+              <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-[8px] flex items-center gap-2 font-bold transition-all active:scale-[0.97]">
+                THE Π LAB LinkedIn
               </a>
             </div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -mr-32 -mt-32" />
@@ -258,7 +264,7 @@ export default function SupportPage() {
       </div>
 
       <footer className="py-10 border-t border-[rgba(229,226,218,0.3)] px-8 text-center">
-        <p className="text-[0.625rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">Growth.ai © 2024 — Powered by the Pi Lab</p>
+        <p className="text-[0.625rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">LUNVO © 2024 — Powered by THE Π LAB</p>
       </footer>
     </main>
   );

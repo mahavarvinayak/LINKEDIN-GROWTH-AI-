@@ -79,15 +79,15 @@ export default function LoginPage() {
         
         <div className="relative z-10">
           <Link href="/" className="inline-flex items-center gap-2 mb-16 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10">
-            <div className="w-4 h-4 bg-primary rounded-[3px]"></div>
-            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">AI Atelier</span>
+            <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
+            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">LUNVO</span>
           </Link>
           
           <h1 className="text-6xl font-serif text-on-background leading-[1.1] mb-6">
-            The Intelligent <br /> Growth Engine
+            LUNVO
           </h1>
           <p className="text-xl font-medium text-on-surface-variant max-w-md leading-relaxed">
-            Your drafts, scores, and streak are waiting in your editorial suite.
+            Smarter LinkedIn content. Zero guesswork.
           </p>
         </div>
 

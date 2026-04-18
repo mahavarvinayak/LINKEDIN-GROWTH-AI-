@@ -161,7 +161,7 @@ export async function fetchGithubTrendingViaAPI(
       {
         headers: {
           "Accept": "application/vnd.github+json",
-          "User-Agent": "LinkedIn-Growth-AI",
+          "User-Agent": "LUNVO-App",
         },
         next: { revalidate: 3600 },
       }

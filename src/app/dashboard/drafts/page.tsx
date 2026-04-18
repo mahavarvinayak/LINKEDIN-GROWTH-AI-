@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   Bookmark,
@@ -24,15 +24,22 @@ interface Draft {
 }
 
 export default function DraftsPage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchDrafts = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        if (isMounted) {
+          setLoading(false);
+        }
+        return;
+      }
 
       const { data } = await supabase
         .from("posts")
@@ -41,11 +48,19 @@ export default function DraftsPage() {
         .eq("type", "draft")
         .order("created_at", { ascending: false });
 
+      if (!isMounted) {
+        return;
+      }
+
       setDrafts(data || []);
       setLoading(false);
     };
 
-    fetchDrafts();
+    void fetchDrafts();
+
+    return () => {
+      isMounted = false;
+    };
   }, [supabase]);
 
   const handleDelete = async (id: string) => {

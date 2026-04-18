@@ -558,7 +558,7 @@ Personal pillar (10% of posts): Your story, journey, mistakes, opinions
 Example for a UX Designer:
 Primary: UX/Product design insights (60%)
 Secondary: Career growth for designers (30%)
-Personal: My journey building THE Pi Lab (10%)
+Personal: My journey building THE Π LAB (10%)
 
 **Why this works:**
 LinkedIn's algorithm learns what you post about.
@@ -1737,6 +1737,7 @@ export default function LearnPage() {
       {/* Topic News */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-gray-900 mb-3">Daily Topic News (10 Focus Topics)</h2>
+        <p className="text-[0.68rem] text-gray-500 mb-3">Headlines link to original publishers. Rights remain with source websites.</p>
         {isNewsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[...Array(4)].map((_, i) => (
@@ -1753,7 +1754,7 @@ export default function LearnPage() {
                     <a
                       href={item.article.link}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer nofollow"
                       className="text-sm font-semibold text-gray-900 hover:text-blue-700 line-clamp-2"
                     >
                       {item.article.title}

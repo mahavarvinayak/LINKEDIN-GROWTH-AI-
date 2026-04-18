@@ -1,6 +1,6 @@
 // ============================================================
-// LinkedIn AI Growth Assistant — Prompt Engine v2
-// Owner: Vinayak | The Pi Lab
+// LUNVO — Prompt Engine v2
+// Owner: Vinayak | THE Π LAB
 // ============================================================
 
 // ─── SYSTEM PROMPT ───────────────────────────────────────────

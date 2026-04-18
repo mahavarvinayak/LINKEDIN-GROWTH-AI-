@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Check, Shield, Database, Download, Trash2, Edit, Mail, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy Policy | LinkedIn AI Growth Assistant",
-  description: "Read how the LinkedIn AI Growth Assistant protects and governs your creative data.",
+  title: "Privacy Policy | LUNVO",
+  description: "Read how LUNVO protects and governs your creative data.",
 };
 
 const SECTIONS = [
@@ -29,7 +29,7 @@ const SECTIONS = [
       <div className="bg-[#1A1814] text-white p-10 md:p-12 rounded-[16px] relative overflow-hidden">
         <div className="relative z-10 font-mono text-[0.8125rem] space-y-5 opacity-90 leading-relaxed">
           <p className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-primary" /> ZERO-RETENTION INFERENCE PROTOCOL</p>
-          <p>The Growth.AI engine utilizes Large Language Models (LLMs) including Google Gemini 1.5 Flash and Llama 3 (via Groq).</p>
+          <p>The LUNVO platform utilizes Large Language Models (LLMs) including Google Gemini 1.5 Flash and Llama 3 (via Groq).</p>
           <p>BY DEFAULT, WE EMPLOY 'ZERO-RETENTION' TRANSFERS. YOUR DATA IS SENT FOR REAL-TIME ANALYSIS AND GENERATION ONLY. NEITHER WE NOR OUR INFERENCE PARTNERS USE YOUR CREATIVE ASSETS TO TRAIN PUBLIC AI MODELS.</p>
         </div>
         <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/20 rounded-full blur-[100px]" />
@@ -59,8 +59,8 @@ export default function PrivacyPolicyPage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
         <Link href="/" className="inline-flex items-center gap-2">
-          <div className="w-4 h-4 bg-primary rounded-[3px]" />
-          <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em]">Growth.AI</span>
+          <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
+          <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em]">LUNVO</span>
         </Link>
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-[0.8125rem] font-bold text-on-surface-variant hover:text-primary transition-colors uppercase tracking-wider font-mono">App Dashboard</Link>
@@ -104,10 +104,10 @@ export default function PrivacyPolicyPage() {
             Should you have questions regarding our data governance or wish to exercise your legal rights, our specialized team is available for consultation.
           </p>
           <a
-            href="mailto:support@thepilab.ai"
+            href="mailto:hello@thepilab.in"
             className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-[8px] hover:scale-105 transition-transform font-bold"
           >
-            <Mail className="w-5 h-5" /> support@thepilab.ai
+            <Mail className="w-5 h-5" /> hello@thepilab.in
           </a>
         </div>
       </section>
@@ -116,12 +116,14 @@ export default function PrivacyPolicyPage() {
       <footer className="bg-surface py-12 border-t border-[rgba(229,226,218,0.3)]">
         <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
-            <span className="font-serif italic text-xl text-on-background">Growth.ai</span>
-            <p className="text-[0.6875rem] text-on-surface-variant/50 font-mono mt-1">© 2024 THE PI LAB. ALL RIGHTS RESERVED.</p>
+            <span className="font-serif italic text-xl text-on-background">LUNVO</span>
+            <p className="text-[0.6875rem] text-on-surface-variant/50 font-mono mt-1">© 2024 THE Π LAB. ALL RIGHTS RESERVED.</p>
           </div>
           <div className="flex gap-8 text-[0.875rem] font-medium text-on-surface-variant">
             <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
             <span className="text-primary underline underline-offset-4">Privacy Policy</span>
+            <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB Website</a>
+            <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">THE Π LAB LinkedIn</a>
           </div>
         </div>
       </footer>

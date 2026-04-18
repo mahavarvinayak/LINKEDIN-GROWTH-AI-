@@ -46,7 +46,7 @@ export default function NotFound() {
         <div className="pt-10">
           <div className="inline-block px-4 py-2 bg-surface-container rounded-[6px]">
             <p className="font-mono text-[0.6875rem] text-on-surface-variant/50 flex items-center gap-2 uppercase tracking-widest">
-              ERR_CODE: 404_ROUTE_ABANDONED | Growth Engine
+              ERR_CODE: 404_ROUTE_ABANDONED | LUNVO
             </p>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function NotFound() {
         <div className="inline-flex flex-col items-center gap-2">
           <div className="h-px w-12 bg-on-surface-variant/15 mb-2" />
           <p className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-on-surface-variant/40">
-            Editorial Growth Engine
+            LUNVO
           </p>
         </div>
       </footer>

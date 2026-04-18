@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Check, Ban, Download, Mail, MapPin, Sparkles } from "lucide-react";
+import { Check, Ban, Download, Mail, Globe, Linkedin, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: "Terms of Service | LinkedIn AI Growth Assistant",
-  description: "Governance and usage protocols for the LinkedIn AI Growth Assistant platform.",
+  title: "Terms of Service | LUNVO",
+  description: "Governance and usage protocols for the LUNVO platform.",
 };
 
 const TERMS_SECTIONS = [
@@ -13,7 +13,7 @@ const TERMS_SECTIONS = [
     bg: "bg-surface-container-lowest",
     content: (
       <>
-        <p className="mb-4">By accessing or using the LinkedIn AI Growth Assistant (the &ldquo;Platform&rdquo;), operated by The Pi Lab, you agree to be bound by these Terms of Service. These terms govern your creative interaction with our suite of analysis and generation tools.</p>
+        <p className="mb-4">By accessing or using LUNVO (the &ldquo;Platform&rdquo;), operated by THE Π LAB, you agree to be bound by these Terms of Service. These terms govern your creative interaction with our suite of analysis and generation tools.</p>
         <p>Use of the Platform constitutes your acknowledgment that you have read, understood, and agree to be bound by these terms, which include our Privacy Protocol.</p>
       </>
     ),
@@ -74,15 +74,19 @@ const TERMS_SECTIONS = [
     content: (
       <>
         <p className="mb-6">These terms shall be governed by and construed in accordance with the laws of **Gujarat, India**, without regard to its conflict of law provisions.</p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <a href="mailto:support@thepilab.ai" className="flex items-center gap-3 p-4 bg-surface-container rounded-[12px] hover:bg-surface-container-high transition-colors">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <a href="mailto:hello@thepilab.in" className="flex items-center gap-3 p-4 bg-surface-container rounded-[12px] hover:bg-surface-container-high transition-colors">
             <Mail className="w-5 h-5 text-primary" />
-            <span className="font-mono text-[0.8125rem]">support@thepilab.ai</span>
+            <span className="font-mono text-[0.8125rem]">hello@thepilab.in</span>
           </a>
-          <div className="flex items-center gap-3 p-4 bg-surface-container rounded-[12px]">
-            <MapPin className="w-5 h-5 text-primary" />
-            <span className="font-mono text-[0.8125rem]">The Pi Lab HQ</span>
-          </div>
+          <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-surface-container rounded-[12px] hover:bg-surface-container-high transition-colors">
+            <Globe className="w-5 h-5 text-primary" />
+            <span className="font-mono text-[0.8125rem]">www.thepilab.in</span>
+          </a>
+          <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-surface-container rounded-[12px] hover:bg-surface-container-high transition-colors">
+            <Linkedin className="w-5 h-5 text-primary" />
+            <span className="font-mono text-[0.8125rem]">THE Π LAB LinkedIn</span>
+          </a>
         </div>
       </>
     ),
@@ -95,7 +99,7 @@ export default function TermsPage() {
       <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
         {/* Breadcrumb */}
         <nav className="mb-12 flex items-center gap-2 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono">
-          <Link href="/" className="hover:text-primary transition-colors">Growth.AI</Link>
+          <Link href="/" className="hover:text-primary transition-colors">LUNVO</Link>
           <span className="text-[0.5rem]">›</span>
           <span className="text-on-background font-bold tracking-normal">Terms of Service</span>
         </nav>
@@ -106,7 +110,7 @@ export default function TermsPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-[rgba(229,226,218,0.3)] pb-10">
             <div className="space-y-2">
               <p className="text-lg text-on-surface-variant font-medium">Effective Date: April 16, 2024</p>
-              <p className="text-on-surface-variant/60 font-mono text-[0.8125rem]">Revision 4.2.0 — The Pi Lab Atelier</p>
+              <p className="text-on-surface-variant/60 font-mono text-[0.8125rem]">Revision 4.2.0 — THE Π LAB</p>
             </div>
             <button className="bg-surface-container text-on-surface-variant px-6 py-3 rounded-[8px] font-bold flex items-center gap-2 ring-1 ring-[rgba(229,226,218,0.3)] hover:bg-primary/5 transition-all">
               <Download className="w-5 h-5" /> Download Archive
@@ -134,8 +138,8 @@ export default function TermsPage() {
         {/* Footer */}
         <footer className="mt-24 pt-12 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-8 px-4">
           <div>
-            <p className="text-2xl font-serif italic text-on-background">Growth.ai</p>
-            <p className="text-on-surface-variant/50 text-[0.8125rem] font-mono">© 2024 The Pi Lab. All Rights Reserved.</p>
+            <p className="text-2xl font-serif italic text-on-background">LUNVO</p>
+            <p className="text-on-surface-variant/50 text-[0.8125rem] font-mono">© 2024 THE Π LAB. All Rights Reserved.</p>
           </div>
           <div className="flex gap-10">
             <Link href="/" className="text-[0.875rem] font-bold text-on-surface-variant hover:text-primary transition-colors font-mono uppercase tracking-wider">Home</Link>
