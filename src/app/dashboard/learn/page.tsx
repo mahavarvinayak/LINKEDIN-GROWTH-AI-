@@ -1720,7 +1720,7 @@ export default function LearnPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto p-6 animate-pulse">
+      <div className="max-w-2xl mx-auto p-4 sm:p-6 animate-pulse">
         <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
         <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
         <div className="space-y-3">
@@ -1733,7 +1733,7 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6">
       {/* Topic News */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-gray-900 mb-3">Daily Topic News (10 Focus Topics)</h2>
@@ -1774,7 +1774,7 @@ export default function LearnPage() {
       {/* Lesson Navigator */}
       <div className="mb-6">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lessons</p>
-        <div className="grid grid-cols-10 gap-2">
+        <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
           {Array.from({ length: 30 }, (_, idx) => {
             const day = idx + 1;
             const isLocked = day > userDayNumber;
@@ -1786,7 +1786,7 @@ export default function LearnPage() {
                 type="button"
                 disabled={isLocked}
                 onClick={() => setSelectedLessonDay(day)}
-                className={`rounded-md px-2 py-2 text-xs font-semibold transition-colors ${
+                className={`rounded-md px-2 py-2 text-[0.72rem] sm:text-xs font-semibold transition-colors ${
                   isLocked
                     ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                     : isActive
@@ -1804,7 +1804,7 @@ export default function LearnPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
           <span className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
             Day {userDayNumber} of 30
           </span>

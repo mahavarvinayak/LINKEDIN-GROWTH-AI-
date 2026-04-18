@@ -351,13 +351,13 @@ export default function CreatePostPage() {
           </div>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => {
               setActiveTab("ai");
               setAiStep(1);
             }}
-            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
               activeTab === "ai"
                 ? "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md"
                 : "bg-surface-container text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30"
@@ -368,7 +368,7 @@ export default function CreatePostPage() {
           </button>
           <button
             onClick={() => setActiveTab("rss")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all ${
               activeTab === "rss"
                 ? "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md"
                 : "bg-surface-container text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30"
@@ -627,7 +627,7 @@ export default function CreatePostPage() {
                       <>
                         <RotateCcw className="w-4 h-4" />
                         Refresh Posts
-                        {rssRefreshTime && <span className="ml-2 text-[0.7rem] opacity-60">Last updated at {rssRefreshTime}</span>}
+                        {rssRefreshTime && <span className="ml-2 hidden sm:inline text-[0.7rem] opacity-60">Last updated at {rssRefreshTime}</span>}
                       </>
                     )}
                   </button>

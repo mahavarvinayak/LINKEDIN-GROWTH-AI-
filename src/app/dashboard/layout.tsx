@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Bottom Nav - Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around p-2 pb-6 bg-background border-t border-[rgba(229,226,218,0.4)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-1 px-2 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-background border-t border-[rgba(229,226,218,0.4)]">
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -195,20 +195,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-[8px] transition-all ${
+              className={`flex-1 min-w-0 flex flex-col items-center gap-1.5 px-1 py-2 rounded-[8px] transition-all ${
                 isActive ? "text-primary" : "text-on-surface-variant"
               }`}
             >
               <Icon className="w-[1.15rem] h-[1.15rem]" />
-              <span className="text-[0.6rem] font-bold uppercase tracking-[0.08em]">{item.label.split(" ")[0]}</span>
+              <span className="text-[0.6rem] font-bold uppercase tracking-[0.08em] truncate">{item.label.split(" ")[0]}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 pb-24 md:pb-0 min-h-screen bg-background">
-        <div className="max-w-6xl mx-auto p-6 md:p-10">
+      <main className="flex-1 md:ml-64 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-10">
           {children}
         </div>
       </main>

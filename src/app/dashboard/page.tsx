@@ -253,8 +253,8 @@ export default function DashboardPage() {
       {/* Streak + Action Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Streak Panel */}
-        <div className="lg:col-span-2 bg-surface-container-lowest rounded-[12px] p-8 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
-          <div className="flex items-center justify-between mb-8">
+        <div className="lg:col-span-2 bg-surface-container-lowest rounded-[12px] p-6 sm:p-8 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-[1rem] font-serif text-on-background flex items-center gap-2">
                 <Flame className="w-4 h-4 text-tertiary" /> Writing Streak

@@ -28,13 +28,26 @@
 }
 
 @layer base {
+  html,
   body {
-    @apply bg-background text-on-background antialiased selection:bg-primary/10 selection:text-primary;
+    @apply max-w-full overflow-x-hidden;
   }
-}
 
-@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   body {
-    @apply bg-background text-on-background font-sans antialiased;
+    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/10 selection:text-primary;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+    height: auto;
   }
 }
