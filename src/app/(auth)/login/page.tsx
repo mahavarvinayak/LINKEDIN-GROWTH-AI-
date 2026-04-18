@@ -9,6 +9,12 @@ import { ArrowRight, Loader2, Mail, Lock, Sparkles } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
+  const isSupabaseConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder.supabase.co") &&
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes("placeholder-anon-key")
+  );
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +25,12 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isSupabaseConfigured) {
+      setError("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -46,7 +58,12 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.message || "Invalid credentials.");
+      const message = String(err?.message || "");
+      if (/failed to fetch|placeholder|invalid url/i.test(message)) {
+        setError("Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local.");
+      } else {
+        setError(message || "Invalid credentials.");
+      }
     } finally {
       setLoading(false);
     }
