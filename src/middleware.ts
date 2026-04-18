@@ -37,6 +37,16 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Admin route protection
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const ADMIN_EMAIL = 'vinayakmahavar45@gmail.com';
+
+    if (!user || user.email !== ADMIN_EMAIL) {
+      // Silent redirect to home — don't reveal admin page exists
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
   const url = request.nextUrl.clone();
   const isProtectedRoute = url.pathname.startsWith("/dashboard") || url.pathname === "/onboarding";
 
@@ -63,5 +73,6 @@ export const config = {
     "/login",
     "/signup",
     "/onboarding",
+    "/admin/:path*",
   ],
 };

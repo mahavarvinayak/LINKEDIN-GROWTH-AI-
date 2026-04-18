@@ -45,6 +45,8 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [fullName, setFullName] = useState("");
+  const [referralData, setReferralData] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -67,6 +69,13 @@ export default function SettingsPage() {
       };
       setProfile(p);
       setFullName(p.full_name);
+
+      const referralResponse = await fetch("/api/referral/stats");
+      if (referralResponse.ok) {
+        const referralJson = await referralResponse.json();
+        setReferralData(referralJson);
+      }
+
       setLoading(false);
     };
     fetchProfile();
@@ -160,6 +169,116 @@ export default function SettingsPage() {
             )}
           </button>
         </div>
+      </SettingsCard>
+
+      {/* Referral Section */}
+      <SettingsCard
+        icon={<Sparkles className="w-4 h-4" />}
+        title="Referral Program"
+        subtitle="Share your link and track rewards"
+      >
+        {referralData ? (
+          <div className="space-y-4">
+
+            {/* Points Progress */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-medium text-blue-900">Your referral points</p>
+                  <p className="text-2xl font-bold text-blue-600 mt-1">
+                    {referralData.points} <span className="text-base font-normal text-blue-400">/ 150</span>
+                  </p>
+                </div>
+                {referralData.is_eligible_for_upgrade && (
+                  <span className="bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full border border-green-200">
+                    🎉 Eligible for upgrade!
+                  </span>
+                )}
+              </div>
+
+              {/* Progress bar */}
+              <div className="bg-blue-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (referralData.points / 150) * 100)}%` }}
+                />
+              </div>
+              <p className="text-xs text-blue-600 mt-2">
+                {referralData.is_eligible_for_upgrade
+                  ? "You've earned 1 month Starter free! Admin will approve shortly."
+                  : `${referralData.points_remaining} more referrals needed for 1 month Starter free`
+                }
+              </p>
+            </div>
+
+            {/* Referral Link */}
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <p className="text-sm font-medium text-gray-700 mb-3">Your referral link</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={referralData.referral_link}
+                  readOnly
+                  className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-600"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(referralData.referral_link);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+                >
+                  {copied ? "Copied! ✓" : "Copy link"}
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                Share this link. When someone signs up using it, you get +1 point.
+              </p>
+            </div>
+
+            {/* Referral History */}
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+              <p className="text-sm font-medium text-gray-700 mb-3">
+                People you referred ({referralData.total_referrals})
+              </p>
+              {referralData.referrals.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">
+                  No referrals yet. Share your link to get started!
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {referralData.referrals.map((ref: any) => (
+                    <div key={ref.referred_id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          {ref.user?.full_name || "Anonymous User"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Joined {new Date(ref.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        ref.reward_status === "approved"
+                          ? "bg-green-50 text-green-600 border border-green-200"
+                          : "bg-gray-50 text-gray-500 border border-gray-200"
+                      }`}>
+                        {ref.reward_status === "approved" ? "✓ Approved" : "Pending"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        ) : (
+          // Loading skeleton
+          <div className="animate-pulse space-y-3">
+            <div className="h-24 bg-gray-100 rounded-xl"></div>
+            <div className="h-16 bg-gray-100 rounded-xl"></div>
+          </div>
+        )}
       </SettingsCard>
 
       {/* Plan & Credits */}

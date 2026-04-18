@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +23,14 @@ export default function SignupPage() {
     password: "",
     fullName: "",
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      sessionStorage.setItem("pending_ref_code", ref);
+    }
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

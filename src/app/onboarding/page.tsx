@@ -69,6 +69,14 @@ export default function OnboardingPage() {
     checkStatus();
   }, [router, supabase]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      sessionStorage.setItem("pending_ref_code", ref);
+    }
+  }, []);
+
   const toggleTopic = (topic: string) => {
     setFormData(prev => ({
       ...prev,
@@ -94,13 +102,21 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      const refCode = sessionStorage.getItem("pending_ref_code");
+      const body = {
+        ...formData,
+        ref_code: refCode || null
+      };
+
       const response = await fetch("/api/persona/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) throw new Error("Failed to save persona");
+
+      sessionStorage.removeItem("pending_ref_code");
 
       router.push("/dashboard");
     } catch (err) {

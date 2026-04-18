@@ -4,13 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(req: NextRequest) {
   try {
     const supabase = createClient();
-    const { 
+    const body = await req.json();
+    const {
       role, 
       topics, 
       goal, 
       tone, 
       audience 
-    } = await req.json();
+    } = body;
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -93,6 +94,15 @@ export async function POST(req: NextRequest) {
       });
 
     if (personaError) throw personaError;
+
+    // 3. Process referral if ref code exists in request
+    const refCode = body?.ref_code;
+    if (refCode && typeof refCode === 'string') {
+      await supabase.rpc('process_referral', {
+        p_referred_id: user.id,
+        p_referral_code: refCode.trim().toUpperCase()
+      });
+    }
 
     return NextResponse.json({ success: true });
 

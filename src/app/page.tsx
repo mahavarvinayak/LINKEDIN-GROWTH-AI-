@@ -55,6 +55,36 @@ export default function LandingPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [ratingsFeed, setRatingsFeed] = useState<RatingItem[]>([]);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [showSignupGate, setShowSignupGate] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in via Supabase
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) setIsLoggedIn(true);
+        setAuthChecked(true);
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!authChecked) {
+      return;
+    }
+
+    if (isLoggedIn) {
+      setShowSignupGate(false);
+      return;
+    }
+
+    const hasAnalyzed = localStorage.getItem("linkedin_ai_analyzed");
+    if (hasAnalyzed === "true") {
+      setShowSignupGate(true);
+    }
+  }, [isLoggedIn, authChecked]);
 
   useEffect(() => {
     const loadRatings = async () => {
@@ -74,11 +104,23 @@ export default function LandingPage() {
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;
+
+    // Check if user has already used their free analysis
+    if (!isLoggedIn && authChecked) {
+      const hasAnalyzed = localStorage.getItem("linkedin_ai_analyzed");
+      if (hasAnalyzed === "true") {
+        // Show signup gate immediately — don't allow analysis
+        setShowSignupGate(true);
+        return;
+      }
+    }
+
     setView("loading");
     setAnalyzeError(null);
 
     try {
-      const response = await fetch("/api/analyze-public", {
+      const endpoint = isLoggedIn ? "/api/analyze" : "/api/analyze-public";
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post: postContent }),
@@ -88,6 +130,13 @@ export default function LandingPage() {
       if (!response.ok) throw new Error(data.error || "Failed to analyze post");
 
       setResult(data);
+
+      // Mark that user has used their free analysis
+      if (!isLoggedIn) {
+        localStorage.setItem("linkedin_ai_analyzed", "true");
+        setShowSignupGate(true);
+      }
+
       setView("results");
     } catch (error: any) {
       console.error("Analysis failed:", error);
@@ -144,34 +193,93 @@ export default function LandingPage() {
                 Paste your LinkedIn post below. Get a free AI-powered editorial score based on 10,000+ viral posts — in seconds.
               </p>
 
-              {/* Input Card */}
-              <div className="bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all text-left">
-                <textarea
-                  placeholder="Start writing or paste your post here…"
-                  value={postContent}
-                  onChange={(e) => setPostContent(e.target.value)}
-                  className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 text-[1rem] font-mono resize-none p-8 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
-                />
-                <div className="flex items-center justify-between px-8 py-5 border-t border-[rgba(229,226,218,0.4)]">
-                  <span className="text-[0.625rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest">
-                    {postContent.length} characters — no signup required
-                  </span>
-                  <button
-                    onClick={handleAnalyze}
-                    disabled={postContent.trim().length < 20}
-                    className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3.5 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
-                  >
-                    Analyze for Free <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              {analyzeError && (
-                <div className="max-w-4xl mx-auto px-6 mt-4">
-                  <div className="flex items-center gap-3 p-4 rounded-[8px] bg-red-50 border border-red-200">
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                    <p className="text-sm text-red-700">{analyzeError}</p>
+              {showSignupGate && !isLoggedIn ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
                   </div>
+
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                    You've used your free analysis
+                  </h2>
+                  <p className="text-gray-500 text-base mb-8 max-w-sm mx-auto">
+                    Sign up free to analyze unlimited posts, generate content,
+                    and track your LinkedIn growth.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <a
+                      href="/signup"
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl text-base transition-colors"
+                    >
+                      Create free account →
+                    </a>
+                    <a
+                      href="/login"
+                      className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium px-8 py-3 rounded-xl text-base transition-colors"
+                    >
+                      Log in
+                    </a>
+                  </div>
+
+                  <div className="mt-10 bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-sm mx-auto text-left">
+                    <p className="text-sm font-medium text-gray-700 mb-3">Free account includes:</p>
+                    <ul className="space-y-2">
+                      {[
+                        "2 post analyses per day",
+                        "1 post generation per day",
+                        "Writing streak tracker",
+                        "30-day LinkedIn learning course",
+                        "Saved drafts"
+                      ].map((item) => (
+                        <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
+                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <p className="text-xs text-gray-400 mt-6">
+                    No credit card required. Free forever.
+                  </p>
                 </div>
+              ) : (
+                <>
+                  {/* Input Card */}
+                  <div className="bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all text-left">
+                    <textarea
+                      placeholder="Start writing or paste your post here…"
+                      value={postContent}
+                      onChange={(e) => setPostContent(e.target.value)}
+                      className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 text-[1rem] font-mono resize-none p-8 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
+                    />
+                    <div className="flex items-center justify-between px-8 py-5 border-t border-[rgba(229,226,218,0.4)]">
+                      <span className="text-[0.625rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest">
+                        {postContent.length} characters — no signup required
+                      </span>
+                      <button
+                        onClick={handleAnalyze}
+                        disabled={postContent.trim().length < 20}
+                        className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3.5 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+                      >
+                        Analyze for Free <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  {analyzeError && (
+                    <div className="max-w-4xl mx-auto px-6 mt-4">
+                      <div className="flex items-center gap-3 p-4 rounded-[8px] bg-red-50 border border-red-200">
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                        <p className="text-sm text-red-700">{analyzeError}</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
