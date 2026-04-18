@@ -35,6 +35,11 @@ interface RatingItem {
   created_at: string;
 }
 
+const RATING_PROMPT_MIN_STREAK_DAYS = 3;
+const RATING_PROMPT_MIN_POSTS = 2;
+const RATING_PROMPT_COOLDOWN_HOURS = 24;
+const RATING_PROMPT_LAST_DISMISSED_KEY = "lunvo_rating_prompt_last_dismissed_at";
+
 function getDailyGenerateLimit(plan: string) {
   if (plan === "pro") return 10;
   if (plan === "starter") return 5;
@@ -52,6 +57,32 @@ export default function DashboardPage() {
   const [ratingValue, setRatingValue] = useState(0);
   const [ratingOpinion, setRatingOpinion] = useState("");
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
+
+  const isRatingPromptCoolingDown = () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const lastDismissedAt = window.localStorage.getItem(RATING_PROMPT_LAST_DISMISSED_KEY);
+    if (!lastDismissedAt) {
+      return false;
+    }
+
+    const dismissedAtMs = new Date(lastDismissedAt).getTime();
+    if (Number.isNaN(dismissedAtMs)) {
+      return false;
+    }
+
+    const elapsedHours = (Date.now() - dismissedAtMs) / (1000 * 60 * 60);
+    return elapsedHours < RATING_PROMPT_COOLDOWN_HOURS;
+  };
+
+  const handleRatingLater = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(RATING_PROMPT_LAST_DISMISSED_KEY, new Date().toISOString());
+    }
+    setShowRatingModal(false);
+  };
 
   const refreshRatingsFeed = async () => {
     try {
@@ -107,7 +138,13 @@ export default function DashboardPage() {
         const myRes = await fetch("/api/ratings/me", { cache: "no-store" });
         if (myRes.ok) {
           const myJson = await myRes.json();
-          if (!myJson.hasRated) {
+          const streakCount = profile?.streak_count || 0;
+          const totalPosts = postCount || 0;
+          const hasConsistentUsage =
+            streakCount >= RATING_PROMPT_MIN_STREAK_DAYS &&
+            totalPosts >= RATING_PROMPT_MIN_POSTS;
+
+          if (!myJson.hasRated && hasConsistentUsage && !isRatingPromptCoolingDown()) {
             setShowRatingModal(true);
           }
         }
@@ -170,6 +207,9 @@ export default function DashboardPage() {
         throw new Error("Failed to submit rating");
       }
 
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem(RATING_PROMPT_LAST_DISMISSED_KEY);
+      }
       setShowRatingModal(false);
       await refreshRatingsFeed();
     } catch (error) {
@@ -433,7 +473,7 @@ export default function DashboardPage() {
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setShowRatingModal(false)}
+                onClick={handleRatingLater}
                 className="rounded-[8px] border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600"
               >
                 Later
