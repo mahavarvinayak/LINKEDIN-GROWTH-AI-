@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
+import { createClient } from "@/lib/supabase/server";
 
 // Mark this route as dynamic (uses query parameters)
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  // Auth check — require authenticated user
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get("q") || "";

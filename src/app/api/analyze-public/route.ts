@@ -1,0 +1,51 @@
+import { NextRequest, NextResponse } from "next/server";
+import { callAI, parseAIJson } from "@/lib/ai/router";
+import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt, AI_CONFIG } from "@/lib/ai/prompts";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const post = String(body?.post || "").trim();
+
+    if (!post || post.length < 20) {
+      return NextResponse.json(
+        { error: "Post content is too short (min 20 characters)" },
+        { status: 400 }
+      );
+    }
+
+    if (post.length > 3000) {
+      return NextResponse.json(
+        { error: "Post too long. Maximum 3000 characters." },
+        { status: 400 }
+      );
+    }
+
+    const userPrompt = buildAnalyzePrompt(
+      post,
+      "Professional",
+      "Grow audience",
+      "Professional"
+    );
+
+    const rawResponse = await callAI(
+      LINKEDIN_SYSTEM_PROMPT,
+      userPrompt,
+      "free",
+      AI_CONFIG.temperature.analyze,
+      AI_CONFIG.max_tokens.analyze
+    );
+
+    const result = parseAIJson(rawResponse);
+    return NextResponse.json(result);
+
+  } catch (error: any) {
+    console.error("Public analyze error:", error);
+    return NextResponse.json(
+      { error: "Something went wrong. Try again." },
+      { status: 500 }
+    );
+  }
+}

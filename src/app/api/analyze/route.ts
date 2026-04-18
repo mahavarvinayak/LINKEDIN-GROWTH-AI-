@@ -108,28 +108,50 @@ export async function POST(req: NextRequest) {
     // Calculate server-side — never trust AI's overall_score
     const overallScore = calculateOverall(hookS, readS, engS, structS);
 
-    // 7. Save to history FIRST
-    const { error: saveError } = await supabase.from("posts").insert({
-      user_id: user.id,
-      type: 'analyzed',
-      original_content: post,
-      hook_score: hookS,
-      readability_score: readS,
-      engagement_score: engS,
-      structure_score: structS,
+    // 7. Return result immediately — don't make user wait for DB
+    const resultData = result as any;
+    const responseData = {
+      ...resultData,
+      scores: {
+        hook: { score: hookS, label: scores.hook?.label || "", explanation: scores.hook?.explanation || "" },
+        readability: { score: readS, label: scores.readability?.label || "", explanation: scores.readability?.explanation || "" },
+        engagement: { score: engS, label: scores.engagement?.label || "", explanation: scores.engagement?.explanation || "" },
+        structure: { score: structS, label: scores.structure?.label || "", explanation: scores.structure?.explanation || "" }
+      },
       overall_score: overallScore
-    });
+    };
 
-    if (saveError) {
-      console.error("Post save error:", saveError);
-      return NextResponse.json({ error: "Failed to save analysis" }, { status: 500 });
-    }
+    // 8. Save to history in background (don't block response)
+    void (async () => {
+      try {
+        const { error: saveError } = await supabase.from("posts").insert({
+          user_id: user.id,
+          type: 'analyzed',
+          original_content: post,
+          improved_content: resultData.improved_post || null,
+          top_problems: resultData.top_problems || [],
+          improvement_summary: resultData.improvement_summary || null,
+          hook_score: hookS,
+          readability_score: readS,
+          engagement_score: engS,
+          structure_score: structS,
+          overall_score: overallScore
+        });
+        if (saveError) console.error("Background save error:", saveError);
+      } catch (error) {
+        console.error("Background save exception:", error);
+      }
 
-    // 8. Update Streak
-    const { updateUserStreak } = await import("@/lib/supabase/streak");
-    await updateUserStreak(supabase, user.id);
+      // 9. Update streak in background
+      try {
+        const { updateUserStreak } = await import("@/lib/supabase/streak");
+        await updateUserStreak(supabase, user.id);
+      } catch (error) {
+        console.error("Background streak update error:", error);
+      }
+    })();
 
-    return NextResponse.json(result);
+    return NextResponse.json(responseData);
 
   } catch (error: any) {
     console.error("Analysis Error:", error);
