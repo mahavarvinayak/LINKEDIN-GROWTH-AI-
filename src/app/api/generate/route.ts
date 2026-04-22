@@ -153,7 +153,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Service error" }, { status: 500 });
     }
 
-    const limitResult = limitCheck as { allowed: boolean; used: number; limit: number };
+    let limitResult = limitCheck as { allowed: boolean; used: number; limit: number };
+
+    // Backward-compatibility fallback:
+    // If DB still has the old free limit (1/day), allow second generation/day here.
+    if (userPlan === "free" && !limitResult.allowed && limitResult.limit === 1) {
+      const { data: usageRow, error: usageError } = await supabase
+        .from("users")
+        .select("daily_generate_count")
+        .eq("id", user.id)
+        .single();
+
+      if (!usageError) {
+        const currentCount = usageRow?.daily_generate_count ?? 0;
+        if (currentCount < 2) {
+          const { error: bumpError } = await supabase
+            .from("users")
+            .update({ daily_generate_count: currentCount + 1 })
+            .eq("id", user.id);
+
+          if (!bumpError) {
+            limitResult = {
+              allowed: true,
+              used: currentCount + 1,
+              limit: 2,
+            };
+          }
+        }
+      }
+    }
 
     if (!limitResult.allowed) {
       return NextResponse.json(

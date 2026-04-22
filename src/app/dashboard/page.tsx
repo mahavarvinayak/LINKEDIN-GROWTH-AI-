@@ -375,18 +375,55 @@ export default function DashboardPage() {
 
       {/* Weekly Editorial Schedule */}
       <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium overflow-hidden">
-        <div className="px-8 py-6 border-b border-[rgba(229,226,218,0.3)] flex items-center justify-between bg-surface-2/30">
+        <div className="px-5 py-5 md:px-8 md:py-6 border-b border-[rgba(229,226,218,0.3)] flex items-center justify-between bg-surface-2/30 gap-3">
           <div>
-            <h3 className="text-xl font-serif text-on-background">Weekly Posting Schedule</h3>
+            <h3 className="text-lg md:text-xl font-serif text-on-background">Weekly Posting Schedule</h3>
             <p className="text-[0.6875rem] font-bold text-on-surface-variant/50 uppercase tracking-widest font-mono mt-1">AI-Optimized Time Blocks</p>
           </div>
-          <div className="px-3 py-1 bg-primary/8 text-primary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-primary/15">
+          <div className="px-3 py-1 bg-primary/8 text-primary text-[0.5625rem] font-bold uppercase tracking-widest rounded-[4px] font-mono ring-1 ring-primary/15 shrink-0">
             Strategy v1.0
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="md:hidden p-4 space-y-4">
+          {SCHEDULE_DATA.map((row) => (
+            <div key={row.day} className="rounded-[10px] border border-[rgba(229,226,218,0.4)] bg-white p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest font-mono mb-1">{row.shortDay}</div>
+                  <div className="text-[1.125rem] font-serif text-on-background">{row.day}</div>
+                </div>
+                <div className="inline-block px-2 py-0.5 rounded-[4px] text-[0.5rem] font-bold uppercase tracking-widest" style={{ background: row.tagColor + "15", color: row.tagColor, border: `1px solid ${row.tagColor}30` }}>
+                  {row.tag}
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {row.slots.map((slot, i) => (
+                  <div key={slot} className={`px-2.5 py-1 rounded-[4px] text-[0.6875rem] font-bold font-mono border ${
+                    i === 0 ? "bg-primary/5 text-primary border-primary/10" : "bg-surface-2 text-on-surface-variant/60 border-[rgba(229,226,218,0.3)]"
+                  }`}>
+                    {slot}
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-3 text-[0.9rem] font-bold text-on-background">{row.contentType}</div>
+              <p className="mt-1 text-[0.75rem] text-on-surface-variant leading-relaxed opacity-80">{row.contentDesc}</p>
+
+              <div className="mt-3 flex items-center justify-between rounded-[6px] bg-surface-2/60 px-2.5 py-2">
+                <span className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">Intensity</span>
+                <div className="flex items-center gap-2">
+                  <IntensityBar level={row.intensity} />
+                  <span className="text-[0.5625rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-tighter">{row.intensity}/5</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full min-w-[880px] text-left border-collapse">
             <thead>
               <tr className="bg-surface-2/40 border-b border-[rgba(229,226,218,0.2)]">
                 <th className="px-8 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">Day</th>
