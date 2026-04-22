@@ -30,7 +30,7 @@
 @layer base {
   html,
   body {
-    @apply max-w-full overflow-x-hidden;
+    @apply max-w-full;
   }
 
   *,
@@ -49,5 +49,16 @@
   svg {
     max-width: 100%;
     height: auto;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }

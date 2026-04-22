@@ -34,7 +34,7 @@ function getDailyAnalyzeLimit(plan: string): number {
 function getDailyGenerateLimit(plan: string): number {
   if (plan === "pro") return 10;
   if (plan === "starter") return 5;
-  return 1;
+  return 2;
 }
 
 export default function SettingsPage() {

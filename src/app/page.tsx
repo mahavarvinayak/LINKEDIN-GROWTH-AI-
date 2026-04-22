@@ -157,12 +157,12 @@ export default function LandingPage() {
       {view === "input" && (
           <div key="input">
             {/* Nav */}
-            <nav className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
+            <nav className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 md:px-8 py-5 sm:py-6 max-w-6xl mx-auto">
               <div className="inline-flex items-center gap-2">
                 <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
                 <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-on-background">LUNVO</span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center flex-wrap justify-end gap-2 sm:gap-4">
                 <Link
                   href="/login"
                   className="text-[0.8125rem] font-bold uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors font-mono"
@@ -179,16 +179,16 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero */}
-            <div className="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-10 sm:pb-12 text-center">
               <p className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-primary/80 mb-5">LUNVO • Smarter LinkedIn content. Zero guesswork.</p>
-              <h1 className="text-6xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
                 Is your post<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
                   scroll-worthy?
                 </span>
               </h1>
 
-              <p className="text-xl font-medium text-on-surface-variant max-w-lg mx-auto mb-14 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl font-medium text-on-surface-variant max-w-lg mx-auto mb-10 sm:mb-14 leading-relaxed">
                 Paste your LinkedIn post below. Get a free AI-powered editorial score based on 10,000+ viral posts — in seconds.
               </p>
 
@@ -228,7 +228,7 @@ export default function LandingPage() {
                     <ul className="space-y-2">
                       {[
                         "2 post analyses per day",
-                        "1 post generation per day",
+                        "2 post generations per day",
                         "Writing streak tracker",
                         "30-day LinkedIn learning course",
                         "Saved drafts"
@@ -255,16 +255,16 @@ export default function LandingPage() {
                       placeholder="Start writing or paste your post here…"
                       value={postContent}
                       onChange={(e) => setPostContent(e.target.value)}
-                      className="w-full min-h-[200px] bg-transparent border-none focus:ring-0 text-[1rem] font-mono resize-none p-8 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
+                      className="w-full min-h-[180px] bg-transparent border-none focus:ring-0 text-[0.95rem] sm:text-[1rem] font-mono resize-none p-4 sm:p-6 md:p-8 leading-relaxed text-on-background placeholder:text-on-surface-variant/30 outline-none"
                     />
-                    <div className="flex items-center justify-between px-8 py-5 border-t border-[rgba(229,226,218,0.4)]">
-                      <span className="text-[0.625rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-6 md:px-8 py-4 sm:py-5 border-t border-[rgba(229,226,218,0.4)]">
+                      <span className="text-[0.625rem] font-bold font-mono text-on-surface-variant/40 uppercase tracking-widest text-center sm:text-left">
                         {postContent.length} characters — no signup required
                       </span>
                       <button
                         onClick={handleAnalyze}
                         disabled={postContent.trim().length < 20}
-                        className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3.5 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+                        className="inline-flex w-full sm:w-auto justify-center items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3.5 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
                       >
                         Analyze for Free <ArrowRight className="w-4 h-4" />
                       </button>
@@ -283,7 +283,7 @@ export default function LandingPage() {
             </div>
 
             {ratingsFeed.length > 0 && (
-              <div className="max-w-5xl mx-auto px-6 pb-10">
+              <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-10">
                 <div className="overflow-hidden rounded-[12px] border border-[rgba(229,226,218,0.5)] bg-surface-container-lowest p-3 shadow-premium">
                   <div className="rating-track flex w-max items-center gap-3">
                     {[...ratingsFeed, ...ratingsFeed].map((item, idx) => (
@@ -303,12 +303,12 @@ export default function LandingPage() {
             )}
 
             {/* Feature Strip */}
-            <div className="max-w-5xl mx-auto px-6 pb-24">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-24">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {FEATURES.map(({ icon: Icon, label, desc }) => (
                   <div
                     key={label}
-                    className="p-6 bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all"
+                    className="p-4 sm:p-6 bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all"
                   >
                     <div className="w-9 h-9 bg-primary/5 rounded-[8px] flex items-center justify-center mb-4">
                       <Icon className="w-4.5 h-4.5 text-primary" />
@@ -442,8 +442,8 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-surface-container py-20 border-t border-[rgba(229,226,218,0.3)]">
-        <div className="max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+      <footer className="bg-surface-container py-16 sm:py-20 border-t border-[rgba(229,226,218,0.3)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-12">
           <div className="col-span-1 md:col-span-2">
             <div className="inline-flex items-center gap-2 mb-6">
               <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-5 h-5 rounded-[4px] object-contain" />
@@ -481,7 +481,7 @@ export default function LandingPage() {
             </ul>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto px-8 mt-20 pt-10 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-[rgba(229,226,218,0.3)] flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[0.6875rem] text-on-surface-variant/40 font-mono uppercase tracking-widest">
             © 2024 THE Π LAB — MERCHANT: MAHAVAR VINAYAK DILIPKUMAR
           </p>

@@ -43,7 +43,7 @@ const RATING_PROMPT_LAST_DISMISSED_KEY = "lunvo_rating_prompt_last_dismissed_at"
 function getDailyGenerateLimit(plan: string) {
   if (plan === "pro") return 10;
   if (plan === "starter") return 5;
-  return 1;
+  return 2;
 }
 
 export default function DashboardPage() {
