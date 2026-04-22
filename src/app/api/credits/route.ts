@@ -10,7 +10,7 @@ function getPlanLimits(plan: string) {
     return { analyze: 5, generate: 5 };
   }
 
-  return { analyze: 2, generate: 1 };
+  return { analyze: 2, generate: 2 };
 }
 
 export async function GET() {
