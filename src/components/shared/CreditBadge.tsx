@@ -45,24 +45,24 @@ export default function CreditBadge() {
   const generateAtLimit = generateLimit > 0 && generateUsed >= generateLimit;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
       {/* Analyze Daily Usage */}
-      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm">
-        <BarChart2 className={`w-4 h-4 ${analyzeAtLimit ? "text-red-500" : "text-green-600"}`} />
-        <div className="flex flex-col">
+      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm flex-1 sm:flex-none">
+        <BarChart2 className={`w-4 h-4 shrink-0 ${analyzeAtLimit ? "text-red-500" : "text-green-600"}`} />
+        <div className="flex flex-col min-w-0">
           <span className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest leading-none mb-1 font-mono">Analyze</span>
-          <span className={`text-[0.875rem] font-bold leading-none ${analyzeAtLimit ? "text-red-500" : "text-green-600"}`}>
+          <span className={`text-[0.875rem] font-bold leading-none whitespace-nowrap ${analyzeAtLimit ? "text-red-500" : "text-green-600"}`}>
             {analyzeUsed}/{analyzeLimit} today
           </span>
         </div>
       </div>
 
       {/* Generate Daily Usage */}
-      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm">
-        <Zap className={`w-4 h-4 ${generateAtLimit ? "text-red-500 fill-red-500/20" : "text-green-600 fill-green-600/20"}`} />
-        <div className="flex flex-col">
+      <div className="flex items-center gap-2.5 px-3 py-1.5 bg-surface-container-lowest rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] shadow-sm flex-1 sm:flex-none">
+        <Zap className={`w-4 h-4 shrink-0 ${generateAtLimit ? "text-red-500 fill-red-500/20" : "text-green-600 fill-green-600/20"}`} />
+        <div className="flex flex-col min-w-0">
           <span className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest leading-none mb-1 font-mono">Generate</span>
-          <span className={`text-[0.875rem] font-bold leading-none ${generateAtLimit ? "text-red-500" : "text-green-600"}`}>
+          <span className={`text-[0.875rem] font-bold leading-none whitespace-nowrap ${generateAtLimit ? "text-red-500" : "text-green-600"}`}>
             {generateUsed}/{generateLimit} today
           </span>
         </div>

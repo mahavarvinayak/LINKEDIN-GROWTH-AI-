@@ -220,18 +220,18 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10">
       {/* Greeting Row */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 pt-2">
         <div>
-          <p className="text-[0.75rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">{greeting}</p>
-          <h1 className="text-4xl font-serif text-on-background leading-tight">
+          <p className="text-[0.7rem] md:text-[0.75rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">{greeting}</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif text-on-background leading-tight">
             {userData?.full_name.split(" ")[0]},<br />
             <span className="text-on-surface-variant/60">your suite is ready.</span>
           </h1>
         </div>
-        <div className="flex flex-col md:items-end gap-3">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-2 md:gap-3 w-full md:w-auto md:items-end">
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap md:flex-nowrap">
             <span className="px-3 py-1 bg-primary/8 text-primary rounded-[6px] text-[0.625rem] font-bold uppercase tracking-[0.1em] ring-1 ring-primary/15 font-mono">
               {userData?.plan} Entity
             </span>
@@ -268,7 +268,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-5">
         <StatCard
           label="Content Assets"
           value={userData?.post_count?.toString() || "0"}
@@ -574,15 +574,15 @@ function IntensityBar({ level }: { level: number }) {
 
 function StatCard({ label, value, icon: Icon, trend }: { label: string; value: string; icon: React.ElementType; trend: string }) {
   return (
-    <div className="bg-surface-container-lowest rounded-[12px] p-7 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/20 transition-all group">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-surface-container-lowest rounded-[12px] p-4 sm:p-5 md:p-7 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/20 transition-all group">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div className="p-2.5 bg-surface-2 rounded-[8px]">
-          <Icon className="w-5 h-5 text-on-surface-variant group-hover:text-primary transition-colors" />
+          <Icon className="w-4 sm:w-5 h-4 sm:h-5 text-on-surface-variant group-hover:text-primary transition-colors" />
         </div>
-        <span className="text-[0.5625rem] font-bold uppercase tracking-[0.08em] text-primary/70 font-mono">{trend}</span>
+        <span className="text-[0.5rem] sm:text-[0.5625rem] font-bold uppercase tracking-[0.08em] text-primary/70 font-mono">{trend}</span>
       </div>
-      <div className="text-3xl font-serif text-on-background mb-1">{value}</div>
-      <div className="text-[0.75rem] font-bold uppercase tracking-wider text-on-surface-variant/60 font-mono">{label}</div>
+      <div className="text-2xl sm:text-3xl font-serif text-on-background mb-1">{value}</div>
+      <div className="text-[0.65rem] sm:text-[0.75rem] font-bold uppercase tracking-wider text-on-surface-variant/60 font-mono">{label}</div>
     </div>
   );
 }
